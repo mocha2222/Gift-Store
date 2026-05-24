@@ -1,6 +1,15 @@
-# gift_shop
+# Gitf Shop Mobile Application
+This project is called 'Gift Shop' creating for gift sharing using mobile application.
 
-A new Flutter project.
+# How to get the project
+- Navigate to the desire folder
+- Clone the project: In cmd, type "git clone https://github.com/mocha2222/Gift-Store.git"
+- CD into the folder: Type "cd gift-store"
+- Open using vscode: Type "code ."
+
+# How to the project
+- In vscode, open the terminal and type "flutter pub get" to install the dependency
+- Finally, run the project
 
 ## Getting Started
 
