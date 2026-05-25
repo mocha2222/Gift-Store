@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../../data/home_mock_data.dart';
-import '../../../widgets/app_section_header.dart';
+import '../../../models/home_mock_data.dart';
+import '../../../widgets/header.dart';
 
 class HomeHomepage extends StatelessWidget {
   const HomeHomepage({super.key});
@@ -13,9 +13,7 @@ class HomeHomepage extends StatelessWidget {
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(16, 18, 16, 0),
-            child: _HeroCard(
-              onPressed: () {},
-            ),
+            child: _HeroCard(onPressed: () {}),
           ),
         ),
         const SliverToBoxAdapter(child: SizedBox(height: 24)),
@@ -33,9 +31,7 @@ class HomeHomepage extends StatelessWidget {
                 Row(
                   children: [
                     for (final item in disciplines)
-                      Expanded(
-                        child: _DisciplineChip(item: item),
-                      ),
+                      Expanded(child: _DisciplineChip(item: item)),
                   ],
                 ),
               ],
@@ -161,7 +157,10 @@ class _HeroCard extends StatelessWidget {
                   style: FilledButton.styleFrom(
                     backgroundColor: const Color(0xFFD8AE73),
                     foregroundColor: const Color(0xFF4A321B),
-                    padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 14),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 26,
+                      vertical: 14,
+                    ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
@@ -198,9 +197,9 @@ class _DisciplineChip extends StatelessWidget {
         const SizedBox(height: 10),
         Text(
           item.label,
-          style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                color: const Color(0xFF4F453A),
-              ),
+          style: Theme.of(
+            context,
+          ).textTheme.labelLarge?.copyWith(color: const Color(0xFF4F453A)),
         ),
       ],
     );
@@ -237,10 +236,10 @@ class _GiftCard extends StatelessWidget {
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
-                    colors: [
-                      item.accent,
-                      item.accent.withAlpha((0.35 * 255).round()),
-                    ],
+                  colors: [
+                    item.accent,
+                    item.accent.withAlpha((0.35 * 255).round()),
+                  ],
                 ),
               ),
               child: Stack(
@@ -249,7 +248,7 @@ class _GiftCard extends StatelessWidget {
                     child: Icon(
                       item.icon,
                       size: 92,
-                        color: Colors.white.withAlpha((0.72 * 255).round()),
+                      color: Colors.white.withAlpha((0.72 * 255).round()),
                     ),
                   ),
                   Positioned(
@@ -276,9 +275,8 @@ class _GiftCard extends StatelessWidget {
                         const SizedBox(height: 6),
                         Text(
                           item.price,
-                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                color: const Color(0xFF6F6355),
-                              ),
+                          style: Theme.of(context).textTheme.bodyLarge
+                              ?.copyWith(color: const Color(0xFF6F6355)),
                         ),
                       ],
                     ),
@@ -286,9 +284,9 @@ class _GiftCard extends StatelessWidget {
                   Text(
                     'Quick Add →',
                     style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                          color: const Color(0xFF8C6500),
-                          fontWeight: FontWeight.w700,
-                        ),
+                      color: const Color(0xFF8C6500),
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ],
               ),
@@ -316,7 +314,11 @@ class _LikeButton extends StatelessWidget {
         child: const SizedBox(
           width: 34,
           height: 34,
-          child: Icon(Icons.favorite_border_rounded, size: 18, color: Color(0xFF554B44)),
+          child: Icon(
+            Icons.favorite_border_rounded,
+            size: 18,
+            color: Color(0xFF554B44),
+          ),
         ),
       ),
     );
@@ -349,24 +351,28 @@ class _MakerCard extends StatelessWidget {
               ),
               border: Border.all(color: const Color(0xFFF3E7D4), width: 4),
             ),
-            child: const Icon(Icons.person_rounded, size: 44, color: Colors.white),
+            child: const Icon(
+              Icons.person_rounded,
+              size: 44,
+              color: Colors.white,
+            ),
           ),
           const SizedBox(height: 14),
           Text(item.name, style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 4),
           Text(
             item.role,
-            style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                  color: const Color(0xFF8C6500),
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.labelLarge?.copyWith(color: const Color(0xFF8C6500)),
           ),
           const SizedBox(height: 18),
           Text(
             '“${item.quote}”',
             textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: const Color(0xFF5E5244),
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyLarge?.copyWith(color: const Color(0xFF5E5244)),
           ),
         ],
       ),

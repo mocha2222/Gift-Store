@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-
-import 'features/home/home_page.dart';
+import 'screens/home.dart';
 
 void main() {
   runApp(const GiftShopApp());
 }
-

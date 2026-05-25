@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-import '../../theme/app_theme.dart';
-import 'widgets/home_footer_nav.dart';
-import 'widgets/home_header.dart';
-import 'widgets/home_homepage.dart';
+import '../theme/app_theme.dart';
+import '../features/home/widgets/home_footer_nav.dart';
+import '../features/home/widgets/home_header.dart';
+import '../features/home/widgets/home_homepage.dart';
 
 class GiftShopApp extends StatelessWidget {
   const GiftShopApp({super.key});
