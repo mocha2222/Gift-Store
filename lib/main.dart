@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+<<<<<<< HEAD
 import 'package:shared_preferences/shared_preferences.dart';
 import 'features/auth/login_page.dart';
 import 'features/home/home_page.dart';
+=======
+import 'screens/home.dart';
+>>>>>>> 5ee24125197ad5cf24fba61a909209004fa091e4
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -9,6 +13,7 @@ void main() async {
   final isLoggedIn = prefs.getString('user_email') != null;
   runApp(GiftShopApp(isLoggedIn: isLoggedIn));
 }
+<<<<<<< HEAD
 
 class GiftShopApp extends StatelessWidget {
   final bool isLoggedIn;
@@ -24,3 +29,5 @@ class GiftShopApp extends StatelessWidget {
     );
   }
 }
+=======
+>>>>>>> 5ee24125197ad5cf24fba61a909209004fa091e4

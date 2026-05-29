@@ -7,7 +7,7 @@
 
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:gift_shop/features/home/home_page.dart';
+import 'package:gift_shop/screens/home.dart';
 
 void main() {
   testWidgets('shows the home shell', (WidgetTester tester) async {
