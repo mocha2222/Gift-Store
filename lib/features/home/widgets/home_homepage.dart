@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../quiz/quiz_page.dart';
 import '../../../data/home_mock_data.dart';
 import '../../../widgets/app_section_header.dart';
 
@@ -65,7 +66,8 @@ class _HomeHomepageState extends State<HomeHomepage> {
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: _QuizBanner(onTap: () {}),
+            child: _QuizBanner(onTap: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const QuizPage()))),
           ),
         ),
         const SliverToBoxAdapter(child: SizedBox(height: 28)),
