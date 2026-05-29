@@ -1,12 +1,6 @@
 import 'package:flutter/material.dart';
-<<<<<<< HEAD
 import '../../../data/home_mock_data.dart';
 import '../../../widgets/app_section_header.dart';
-=======
-
-import '../../../models/home_mock_data.dart';
-import '../../../widgets/header.dart';
->>>>>>> 5ee24125197ad5cf24fba61a909209004fa091e4
 
 class HomeHomepage extends StatefulWidget {
   const HomeHomepage({super.key});
@@ -25,11 +19,7 @@ class _HomeHomepageState extends State<HomeHomepage> {
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(16, 18, 16, 0),
-<<<<<<< HEAD
             child: _SearchBar(),
-=======
-            child: _HeroCard(onPressed: () {}),
->>>>>>> 5ee24125197ad5cf24fba61a909209004fa091e4
           ),
         ),
         const SliverToBoxAdapter(child: SizedBox(height: 18)),
@@ -50,7 +40,6 @@ class _HomeHomepageState extends State<HomeHomepage> {
                   fontWeight: FontWeight.w700,
                   color: const Color(0xFF231408),
                 ),
-<<<<<<< HEAD
             ),
           ),
         ),
@@ -68,16 +57,6 @@ class _HomeHomepageState extends State<HomeHomepage> {
                 selected: index == _selectedDiscipline,
                 onTap: () => setState(() => _selectedDiscipline = index),
               ),
-=======
-                const SizedBox(height: 18),
-                Row(
-                  children: [
-                    for (final item in disciplines)
-                      Expanded(child: _DisciplineChip(item: item)),
-                  ],
-                ),
-              ],
->>>>>>> 5ee24125197ad5cf24fba61a909209004fa091e4
             ),
           ),
         ),
@@ -316,13 +295,7 @@ class _HeroCard extends StatelessWidget {
                     backgroundColor: const Color(0xFFD8AE73),
                     foregroundColor: const Color(0xFF4A321B),
                     padding: const EdgeInsets.symmetric(
-<<<<<<< HEAD
                         horizontal: 24, vertical: 14),
-=======
-                      horizontal: 26,
-                      vertical: 14,
-                    ),
->>>>>>> 5ee24125197ad5cf24fba61a909209004fa091e4
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12)),
                   ),
@@ -568,7 +541,6 @@ class _CollectionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-<<<<<<< HEAD
     return GestureDetector(
       onTap: () {},
       child: ClipRRect(
@@ -619,25 +591,6 @@ class _CollectionCard extends StatelessWidget {
               ),
             ),
           ]),
-=======
-    return Column(
-      children: [
-        Container(
-          width: 70,
-          height: 70,
-          decoration: const BoxDecoration(
-            color: Color(0xFFF1E7D5),
-            shape: BoxShape.circle,
-          ),
-          child: Icon(item.icon, color: const Color(0xFF8C6500), size: 30),
-        ),
-        const SizedBox(height: 10),
-        Text(
-          item.label,
-          style: Theme.of(
-            context,
-          ).textTheme.labelLarge?.copyWith(color: const Color(0xFF4F453A)),
->>>>>>> 5ee24125197ad5cf24fba61a909209004fa091e4
         ),
       ),
     );
@@ -673,7 +626,6 @@ class _GiftCardState extends State<_GiftCard> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-<<<<<<< HEAD
             Stack(children: [
               SizedBox(
                 height: 240,
@@ -687,18 +639,6 @@ class _GiftCardState extends State<_GiftCard> {
                     child: Icon(Icons.image_outlined,
                         size: 60, color: widget.item.accent),
                   ),
-=======
-            Container(
-              height: 270,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    item.accent,
-                    item.accent.withAlpha((0.35 * 255).round()),
-                  ],
->>>>>>> 5ee24125197ad5cf24fba61a909209004fa091e4
                 ),
               ),
               Positioned(
@@ -712,7 +652,6 @@ class _GiftCardState extends State<_GiftCard> {
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
-<<<<<<< HEAD
                       _liked
                           ? Icons.favorite_rounded
                           : Icons.favorite_border_rounded,
@@ -720,11 +659,6 @@ class _GiftCardState extends State<_GiftCard> {
                       color: _liked
                           ? const Color(0xFFC0392B)
                           : const Color(0xFF554B44),
-=======
-                      item.icon,
-                      size: 92,
-                      color: Colors.white.withAlpha((0.72 * 255).round()),
->>>>>>> 5ee24125197ad5cf24fba61a909209004fa091e4
                     ),
                   ),
                 ),
@@ -735,7 +669,6 @@ class _GiftCardState extends State<_GiftCard> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-<<<<<<< HEAD
                   Text(widget.item.title,
                     style: Theme.of(context).textTheme.titleLarge),
                   const SizedBox(height: 4),
@@ -792,32 +725,6 @@ class _GiftCardState extends State<_GiftCard> {
                             TextStyle(fontWeight: FontWeight.w700)),
                     ),
                   ),
-=======
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          item.title,
-                          style: Theme.of(context).textTheme.titleLarge,
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          item.price,
-                          style: Theme.of(context).textTheme.bodyLarge
-                              ?.copyWith(color: const Color(0xFF6F6355)),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Text(
-                    'Quick Add →',
-                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                      color: const Color(0xFF8C6500),
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
->>>>>>> 5ee24125197ad5cf24fba61a909209004fa091e4
                 ],
               ),
             ),
@@ -828,36 +735,6 @@ class _GiftCardState extends State<_GiftCard> {
   }
 }
 
-<<<<<<< HEAD
-=======
-class _LikeButton extends StatelessWidget {
-  const _LikeButton({required this.onTap});
-
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: const Color(0xFFF1F1F1),
-      shape: const CircleBorder(),
-      child: InkResponse(
-        onTap: onTap,
-        radius: 18,
-        child: const SizedBox(
-          width: 34,
-          height: 34,
-          child: Icon(
-            Icons.favorite_border_rounded,
-            size: 18,
-            color: Color(0xFF554B44),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
->>>>>>> 5ee24125197ad5cf24fba61a909209004fa091e4
 class _MakerCard extends StatelessWidget {
   const _MakerCard({required this.item});
   final MakerItem item;
@@ -883,7 +760,6 @@ class _MakerCard extends StatelessWidget {
               border: Border.all(
                   color: const Color(0xFFF3E7D4), width: 3),
             ),
-<<<<<<< HEAD
             child: ClipOval(
               child: Image.network(
                 item.imageUrl,
@@ -895,27 +771,10 @@ class _MakerCard extends StatelessWidget {
                 ),
               ),
             ),
-=======
-            child: const Icon(
-              Icons.person_rounded,
-              size: 44,
-              color: Colors.white,
-            ),
-          ),
-          const SizedBox(height: 14),
-          Text(item.name, style: Theme.of(context).textTheme.titleLarge),
-          const SizedBox(height: 4),
-          Text(
-            item.role,
-            style: Theme.of(
-              context,
-            ).textTheme.labelLarge?.copyWith(color: const Color(0xFF8C6500)),
->>>>>>> 5ee24125197ad5cf24fba61a909209004fa091e4
           ),
           const SizedBox(height: 12),
           Text(item.name,
             textAlign: TextAlign.center,
-<<<<<<< HEAD
             style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 4),
           Text(item.role,
@@ -931,12 +790,6 @@ class _MakerCard extends StatelessWidget {
               color: const Color(0xFF5E5244),
               fontStyle: FontStyle.italic,
             )),
-=======
-            style: Theme.of(
-              context,
-            ).textTheme.bodyLarge?.copyWith(color: const Color(0xFF5E5244)),
-          ),
->>>>>>> 5ee24125197ad5cf24fba61a909209004fa091e4
         ],
       ),
     );
