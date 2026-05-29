@@ -1,69 +1,176 @@
 import 'package:flutter/material.dart';
 
 class DisciplineItem {
-  const DisciplineItem({required this.label, required this.icon});
-
-  final String label;
   final IconData icon;
+  final String label;
+  const DisciplineItem({required this.icon, required this.label});
 }
+
+const disciplines = [
+  DisciplineItem(icon: Icons.waves_rounded,         label: 'Silk'),
+  DisciplineItem(icon: Icons.diamond_outlined,       label: 'Silver'),
+  DisciplineItem(icon: Icons.park_outlined,          label: 'Wood'),
+  DisciplineItem(icon: Icons.spa_outlined,           label: 'Edible'),
+  DisciplineItem(icon: Icons.auto_awesome_outlined,  label: 'Jewelry'),
+];
 
 class GiftItem {
+  final String title;
+  final String subtitle;
+  final String price;
+  final String imageUrl; 
+  final Color accent;
   const GiftItem({
     required this.title,
+    required this.subtitle,
     required this.price,
+    required this.imageUrl,
     required this.accent,
-    required this.icon,
   });
-
-  final String title;
-  final String price;
-  final Color accent;
-  final IconData icon;
 }
 
+const trendingGifts = [
+  GiftItem(
+    title:    'Khmer Silk Krama',
+    subtitle: 'Hand-woven in Takeo Province using natural indigo dye.',
+    price:    '\$28.00',
+    imageUrl: 'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=600&q=80',
+    accent:   Color(0xFF6B4C9A),
+  ),
+  GiftItem(
+    title:    'Silver Apsara Plaque',
+    subtitle: 'Hand-chased sterling silver — a symbol of Khmer heritage.',
+    price:    '\$145.00',
+    imageUrl: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=600&q=80',
+    accent:   Color(0xFF5B7FA6),
+  ),
+  GiftItem(
+    title:    'Kampot Pepper Gift Box',
+    subtitle: 'GI-certified black, red & white pepper from Kampot.',
+    price:    '\$35.00',
+    imageUrl: 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=600&q=80',
+    accent:   Color(0xFF4A7C59),
+  ),
+  GiftItem(
+    title:    'Carved Jackfruit Elephant',
+    subtitle: 'Sustainably carved from jackfruit wood, beeswax finish.',
+    price:    '\$22.00',
+    imageUrl: 'https://images.unsplash.com/photo-1567361808960-dec9cb578182?w=600&q=80',
+    accent:   Color(0xFF7A5230),
+  ),
+];
+
+
+class PromoItem {
+  final String title;
+  final String code;
+  final String description;
+  final int discountPercent;
+  final Color color;
+  const PromoItem({
+    required this.title,
+    required this.code,
+    required this.description,
+    required this.discountPercent,
+    required this.color,
+  });
+}
+
+const promotions = [
+  PromoItem(
+    title:           'Khmer New Year 🎉',
+    code:            'BONN20',
+    description:     '20% off all Textile & Edible items',
+    discountPercent: 20,
+    color:           Color(0xFFC0392B),
+  ),
+  PromoItem(
+    title:           'Wedding Special 💍',
+    code:            'WEDDING10',
+    description:     '10% off all Wedding Collection items',
+    discountPercent: 10,
+    color:           Color(0xFF8C6500),
+  ),
+  PromoItem(
+    title:           'First Order 🎁',
+    code:            'FIRSTGIFT25',
+    description:     '25% off your very first order',
+    discountPercent: 25,
+    color:           Color(0xFF4A7C59),
+  ),
+];
+
+class CollectionItem {
+  final String name;
+  final String occasion;
+  final String itemCount;
+  final String imageUrl;  
+  const CollectionItem({
+    required this.name,
+    required this.occasion,
+    required this.itemCount,
+    required this.imageUrl,
+  });
+}
+
+const collections = [
+  CollectionItem(
+    name:      'For Her',
+    occasion:  'Any Occasion',
+    itemCount: '11 items',
+    imageUrl:  'https://images.unsplash.com/photo-1611085583191-a3b181a88401?w=400&q=80',
+  ),
+  CollectionItem(
+    name:      'For Him',
+    occasion:  'Any Occasion',
+    itemCount: '7 items',
+    imageUrl:  'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=400&q=80',
+  ),
+  CollectionItem(
+    name:      'Wedding',
+    occasion:  'Wedding Gift',
+    itemCount: '12 items',
+    imageUrl:  'https://images.unsplash.com/photo-1606800052052-a08af7148866?w=400&q=80',
+  ),
+  CollectionItem(
+    name:      'Tourist',
+    occasion:  'Souvenir',
+    itemCount: '13 items',
+    imageUrl:  'https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=400&q=80',
+  ),
+];
+
+
 class MakerItem {
+  final String name;
+  final String role;
+  final String quote;
+  final String imageUrl; 
   const MakerItem({
     required this.name,
     required this.role,
     required this.quote,
+    required this.imageUrl,
   });
-
-  final String name;
-  final String role;
-  final String quote;
 }
 
-const disciplines = <DisciplineItem>[
-  DisciplineItem(label: 'Textile', icon: Icons.grid_on_rounded),
-  DisciplineItem(label: 'Silver', icon: Icons.diamond_outlined),
-  DisciplineItem(label: 'Wood', icon: Icons.park_outlined),
-];
-
-const trendingGifts = <GiftItem>[
-  GiftItem(
-    title: 'Angkorian Silver Casket',
-    price: r'$245.00',
-    accent: Color(0xFF44261B),
-    icon: Icons.diamond_rounded,
-  ),
-  GiftItem(
-    title: 'Golden Mulberry Silk',
-    price: r'$180.00',
-    accent: Color(0xFFD6B07B),
-    icon: Icons.auto_awesome_rounded,
-  ),
-  GiftItem(
-    title: 'Celadon Earth Vases',
-    price: r'$115.00',
-    accent: Color(0xFF203335),
-    icon: Icons.water_drop_outlined,
-  ),
-];
-
-const makers = <MakerItem>[
+const makers = [
   MakerItem(
-    name: 'Master Samnang',
-    role: 'Woodcarver',
-    quote: 'I translate the songs of the forest into the grain of the teak wood.',
+    name:     'Chantha Silk Co-op',
+    role:     'Silk Weaver · Takeo Province',
+    quote:    'Every thread carries the memory of our grandmothers.',
+    imageUrl: 'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?w=200&q=80',
+  ),
+  MakerItem(
+    name:     'Sarath Silverworks',
+    role:     'Silversmith · Phnom Penh',
+    quote:    'I learned to chase silver from my father. Each piece takes days.',
+    imageUrl: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=200&q=80',
+  ),
+  MakerItem(
+    name:     'Rith Wood Studio',
+    role:     'Wood Carver · Siem Reap',
+    quote:    'The forest gives us the wood. We give back art.',
+    imageUrl: 'https://images.unsplash.com/photo-1542909168-82c3e7fdca5c?w=200&q=80',
   ),
 ];

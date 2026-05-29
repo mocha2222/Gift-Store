@@ -19,7 +19,11 @@ class AppSectionHeader extends StatelessWidget {
         Expanded(
           child: Text(
             title,
-            style: Theme.of(context).textTheme.displayMedium,
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
+                  color: const Color(0xFF231408),
+                ),
           ),
         ),
         if (actionLabel != null)
