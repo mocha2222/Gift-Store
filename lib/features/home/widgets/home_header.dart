@@ -6,8 +6,8 @@ class HomeHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 96,
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      height: 72,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
         color: const Color(0xFFF7F0E4),
         border: Border(
@@ -18,13 +18,13 @@ class HomeHeader extends StatelessWidget {
         children: [
           _HeaderIconButton(
             icon: Icons.menu_rounded,
-            onTap: () {},
+            onTap: () => Scaffold.of(context).openDrawer(),
           ),
           const Spacer(),
           Text(
             'Khmer Treasures',
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontSize: 32,
+                  fontSize: 24,
                   color: const Color(0xFF8C6500),
                 ),
             textAlign: TextAlign.center,
@@ -50,11 +50,11 @@ class _HeaderIconButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkResponse(
       onTap: onTap,
-      radius: 26,
+      radius: 22,
       child: SizedBox(
-        width: 44,
-        height: 44,
-        child: Icon(icon, size: 30, color: const Color(0xFF8C6500)),
+        width: 36,
+        height: 36,
+        child: Icon(icon, size: 24, color: const Color(0xFF8C6500)),
       ),
     );
   }

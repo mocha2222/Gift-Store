@@ -16,11 +16,11 @@ class HomeFooterNav extends StatelessWidget {
     ];
 
     return Container(
-      margin: const EdgeInsets.fromLTRB(12, 0, 12, 10),
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      margin: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
       decoration: BoxDecoration(
         color: const Color(0xFFF6EEE2),
-        borderRadius: BorderRadius.circular(28),
+        borderRadius: BorderRadius.circular(24),
         border: Border.all(color: const Color(0xFFE2D3BE)),
       ),
       child: Row(
@@ -58,22 +58,22 @@ class _FooterItem extends StatelessWidget {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 220),
       curve: Curves.easeOut,
-      padding: const EdgeInsets.symmetric(vertical: 10),
+      padding: const EdgeInsets.symmetric(vertical: 8),
       decoration: BoxDecoration(
         color: background,
-        borderRadius: BorderRadius.circular(22),
+        borderRadius: BorderRadius.circular(18),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, color: foreground, size: 26),
-          const SizedBox(height: 3),
+          Icon(icon, color: foreground, size: 24),
+          const SizedBox(height: 2),
           Text(
             label,
             overflow: TextOverflow.ellipsis,
             style: Theme.of(context).textTheme.labelSmall?.copyWith(
                   color: foreground,
-                  fontSize: 11,
+                  fontSize: 10,
                 ),
           ),
         ],
