@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../auth/login_page.dart';
 import '../quiz/quiz_page.dart';
+import '../profile/profile_page.dart';
 import '../../theme/app_theme.dart';
 import 'widgets/home_footer_nav.dart';
 import 'widgets/home_header.dart';
@@ -108,7 +109,14 @@ class GiftShopShell extends StatelessWidget {
                     _DrawerItem(
                       icon: Icons.person_outline_rounded,
                       label: 'Profile',
-                      onTap: () => Navigator.of(context).pop(),
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const ProfilePage(showAppBar: true),
+                          ),
+                        );
+                      },
                     ),
                     _DrawerItem(
                       icon: Icons.quiz_outlined,
@@ -149,63 +157,81 @@ class GiftShopShell extends StatelessWidget {
 
                   return Padding(
                     padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFFFF7EC),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: const Color(0xFFE3D3BE)),
-                      ),
-                      child: Row(
-                        children: [
-                          CircleAvatar(
-                            radius: 21,
-                            backgroundColor: const Color(0xFFD8AE73),
-                            child: Text(
-                              initials,
-                              style: const TextStyle(
-                                color: Color(0xFF4A321B),
-                                fontWeight: FontWeight.w800,
-                              ),
+                        onTap: () {
+                          Navigator.of(context).pop();
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  const ProfilePage(showAppBar: true),
                             ),
+                          );
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 10,
                           ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Text(
-                                  'Profile',
-                                  style: TextStyle(
-                                    color: Color(0xFF9E7E5A),
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                                const SizedBox(height: 1),
-                                Text(
-                                  displayEmail,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFFF7EC),
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: const Color(0xFFE3D3BE)),
+                          ),
+                          child: Row(
+                            children: [
+                              CircleAvatar(
+                                radius: 21,
+                                backgroundColor: const Color(0xFFD8AE73),
+                                child: Text(
+                                  initials,
                                   style: const TextStyle(
-                                    color: Color(0xFF231408),
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w700,
+                                    color: Color(0xFF4A321B),
+                                    fontWeight: FontWeight.w800,
                                   ),
                                 ),
-                                const SizedBox(height: 1),
-                                const Text(
-                                  'Tap the menu to explore your account',
-                                  style: TextStyle(
-                                    color: Color(0xFF8B6F52),
-                                    fontSize: 11,
-                                  ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Text(
+                                      'Profile',
+                                      style: TextStyle(
+                                        color: Color(0xFF9E7E5A),
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 1),
+                                    Text(
+                                      displayEmail,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(
+                                        color: Color(0xFF231408),
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 1),
+                                    const Text(
+                                      'Tap to open your profile',
+                                      style: TextStyle(
+                                        color: Color(0xFF8B6F52),
+                                        fontSize: 11,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
-                        ],
+                        ),
                       ),
                     ),
                   );
@@ -227,12 +253,17 @@ class GiftShopShell extends StatelessWidget {
 }
 
 String _buildInitials(String value) {
-  final parts = value.trim().split(RegExp(r'\s+')).where((part) => part.isNotEmpty);
+  final parts = value
+      .trim()
+      .split(RegExp(r'\s+'))
+      .where((part) => part.isNotEmpty);
   final firstPart = parts.isNotEmpty ? parts.first : 'G';
   final secondPart = parts.length > 1 ? parts.elementAt(1) : '';
 
   final firstInitial = firstPart.characters.first.toUpperCase();
-  final secondInitial = secondPart.isNotEmpty ? secondPart.characters.first.toUpperCase() : '';
+  final secondInitial = secondPart.isNotEmpty
+      ? secondPart.characters.first.toUpperCase()
+      : '';
   return '$firstInitial$secondInitial';
 }
 

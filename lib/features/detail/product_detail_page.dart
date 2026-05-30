@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../data/home_mock_data.dart';
 import '../auth/login_page.dart';
+import '../profile/profile_page.dart';
 import '../home/widgets/home_footer_nav.dart';
 import '../home/widgets/home_header.dart';
 import '../quiz/quiz_page.dart';
@@ -58,7 +59,8 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                         Expanded(
                           child: Text(
                             'Product Detail',
-                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            style: Theme.of(context).textTheme.titleLarge
+                                ?.copyWith(
                                   fontSize: 18,
                                   fontWeight: FontWeight.w800,
                                   color: const Color(0xFF231408),
@@ -71,7 +73,8 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                           color: const Color(0xFF231408),
                         ),
                         IconButton(
-                          onPressed: () => setState(() => _isFavorite = !_isFavorite),
+                          onPressed: () =>
+                              setState(() => _isFavorite = !_isFavorite),
                           icon: Icon(
                             _isFavorite
                                 ? Icons.favorite_rounded
@@ -91,257 +94,270 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(20),
-                    child: AspectRatio(
-                      aspectRatio: 1,
-                      child: Image.network(
-                        _gallery[_selectedImage],
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => Container(
-                          color: colors[_selectedImage].withOpacity(0.18),
-                          child: Icon(
-                            Icons.image_outlined,
-                            size: 72,
-                            color: colors[_selectedImage],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  SizedBox(
-                    height: 72,
-                    child: ListView.separated(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: _gallery.length,
-                      separatorBuilder: (_, __) => const SizedBox(width: 10),
-                      itemBuilder: (context, index) {
-                        return GestureDetector(
-                          onTap: () => setState(() => _selectedImage = index),
-                          child: Container(
-                            width: 72,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(14),
-                              border: Border.all(
-                                color: _selectedImage == index
-                                    ? const Color(0xFF8C6500)
-                                    : const Color(0xFFE3D3BE),
-                                width: _selectedImage == index ? 2 : 1,
-                              ),
-                              image: DecorationImage(
-                                image: NetworkImage(_gallery[index]),
-                                fit: BoxFit.cover,
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(20),
+                          child: AspectRatio(
+                            aspectRatio: 1,
+                            child: Image.network(
+                              _gallery[_selectedImage],
+                              fit: BoxFit.cover,
+                              errorBuilder: (_, __, ___) => Container(
+                                color: colors[_selectedImage].withValues(
+                                  alpha: 0.18,
+                                ),
+                                child: Icon(
+                                  Icons.image_outlined,
+                                  size: 72,
+                                  color: colors[_selectedImage],
+                                ),
                               ),
                             ),
                           ),
-                        );
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 18),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: const [
-                      _Pill(label: 'Heritage Silk'),
-                      _Pill(label: 'In Stock'),
-                      _Pill(label: 'Handmade'),
-                    ],
-                  ),
-                  const SizedBox(height: 14),
-                  Text(
-                    widget.item.title,
-                    style: const TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.w800,
-                      color: Color(0xFF231408),
-                      height: 1.1,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      Text(
-                        widget.item.price,
-                        style: const TextStyle(
-                          fontSize: 30,
-                          fontWeight: FontWeight.w900,
-                          color: Color(0xFFB8770D),
                         ),
-                      ),
-                      const SizedBox(width: 12),
-                      Text(
-                        '\$110.00',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.brown.withOpacity(0.55),
-                          decoration: TextDecoration.lineThrough,
-                        ),
-                      ),
-                      const Spacer(),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 6,
-                        ),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFFFF7EC),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: const Color(0xFFE3D3BE),
+                        const SizedBox(height: 12),
+                        SizedBox(
+                          height: 72,
+                          child: ListView.separated(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: _gallery.length,
+                            separatorBuilder: (_, __) =>
+                                const SizedBox(width: 10),
+                            itemBuilder: (context, index) {
+                              return GestureDetector(
+                                onTap: () =>
+                                    setState(() => _selectedImage = index),
+                                child: Container(
+                                  width: 72,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(14),
+                                    border: Border.all(
+                                      color: _selectedImage == index
+                                          ? const Color(0xFF8C6500)
+                                          : const Color(0xFFE3D3BE),
+                                      width: _selectedImage == index ? 2 : 1,
+                                    ),
+                                    image: DecorationImage(
+                                      image: NetworkImage(_gallery[index]),
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
                           ),
                         ),
-                        child: const Row(
+                        const SizedBox(height: 18),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: const [
+                            _Pill(label: 'Heritage Silk'),
+                            _Pill(label: 'In Stock'),
+                            _Pill(label: 'Handmade'),
+                          ],
+                        ),
+                        const SizedBox(height: 14),
+                        Text(
+                          widget.item.title,
+                          style: const TextStyle(
+                            fontSize: 28,
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFF231408),
+                            height: 1.1,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Row(
                           children: [
-                            Icon(
-                              Icons.star_rounded,
-                              size: 16,
-                              color: Color(0xFFF5A623),
-                            ),
-                            SizedBox(width: 4),
                             Text(
-                              '4.9 (124)',
+                              widget.item.price,
+                              style: const TextStyle(
+                                fontSize: 30,
+                                fontWeight: FontWeight.w900,
+                                color: Color(0xFFB8770D),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Text(
+                              '\$110.00',
                               style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w700,
-                                color: Color(0xFF7A6655),
+                                fontSize: 16,
+                                color: Colors.brown.withValues(alpha: 0.55),
+                                decoration: TextDecoration.lineThrough,
+                              ),
+                            ),
+                            const Spacer(),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 6,
+                              ),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFFFF7EC),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: const Color(0xFFE3D3BE),
+                                ),
+                              ),
+                              child: const Row(
+                                children: [
+                                  Icon(
+                                    Icons.star_rounded,
+                                    size: 16,
+                                    color: Color(0xFFF5A623),
+                                  ),
+                                  SizedBox(width: 4),
+                                  Text(
+                                    '4.9 (124)',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w700,
+                                      color: Color(0xFF7A6655),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ],
                         ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 18),
-                  _SectionTitle(title: 'Description'),
-                  const SizedBox(height: 8),
-                  Text(
-                    widget.item.subtitle,
-                    style: const TextStyle(
-                      fontSize: 15,
-                      height: 1.6,
-                      color: Color(0xFF4F453A),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  _SectionTitle(title: 'Cultural background / story'),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'Inspired by Khmer weaving traditions, this piece reflects the warm color palette, patient handcraft, and symbolic patterns found in Cambodian artisan communities.',
-                    style: TextStyle(
-                      fontSize: 15,
-                      height: 1.6,
-                      color: Color(0xFF4F453A),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  _InfoTile(
-                    icon: Icons.inventory_2_outlined,
-                    title: 'Material information',
-                    value:
-                        'Mulberry silk, hand-dyed with natural indigo and plant-based pigments',
-                  ),
-                  const SizedBox(height: 10),
-                  _InfoTile(
-                    icon: Icons.store_outlined,
-                    title: 'Stock availability',
-                    value: 'In stock (5 left)',
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      const Expanded(
-                        child: Text(
-                          'Quantity',
+                        const SizedBox(height: 18),
+                        _SectionTitle(title: 'Description'),
+                        const SizedBox(height: 8),
+                        Text(
+                          widget.item.subtitle,
+                          style: const TextStyle(
+                            fontSize: 15,
+                            height: 1.6,
+                            color: Color(0xFF4F453A),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        _SectionTitle(title: 'Cultural background / story'),
+                        const SizedBox(height: 8),
+                        const Text(
+                          'Inspired by Khmer weaving traditions, this piece reflects the warm color palette, patient handcraft, and symbolic patterns found in Cambodian artisan communities.',
                           style: TextStyle(
                             fontSize: 15,
-                            fontWeight: FontWeight.w700,
-                            color: Color(0xFF231408),
+                            height: 1.6,
+                            color: Color(0xFF4F453A),
                           ),
                         ),
-                      ),
-                      _QuantityButton(
-                        icon: Icons.remove,
-                        onTap: _quantity > 1
-                            ? () => setState(() => _quantity--)
-                            : null,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 14),
-                        child: Text(
-                          '$_quantity',
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w800,
-                          ),
+                        const SizedBox(height: 16),
+                        _InfoTile(
+                          icon: Icons.inventory_2_outlined,
+                          title: 'Material information',
+                          value:
+                              'Mulberry silk, hand-dyed with natural indigo and plant-based pigments',
                         ),
-                      ),
-                      _QuantityButton(
-                        icon: Icons.add,
-                        onTap: () => setState(() => _quantity++),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 18),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedButton.icon(
-                          onPressed: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Added to favorites')),
-                            );
-                          },
-                          icon: Icon(
-                            _isFavorite
-                                ? Icons.favorite_rounded
-                                : Icons.favorite_border_rounded,
-                          ),
-                          label: const Text('Add to Favorites'),
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: const Color(0xFF8C6500),
-                            side: const BorderSide(
-                              color: Color(0xFFD7C1A0),
-                            ),
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                          ),
+                        const SizedBox(height: 10),
+                        _InfoTile(
+                          icon: Icons.store_outlined,
+                          title: 'Stock availability',
+                          value: 'In stock (5 left)',
                         ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: FilledButton.icon(
-                          onPressed: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content:
-                                    Text('Added $_quantity item(s) to cart'),
+                        const SizedBox(height: 16),
+                        Row(
+                          children: [
+                            const Expanded(
+                              child: Text(
+                                'Quantity',
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w700,
+                                  color: Color(0xFF231408),
+                                ),
                               ),
-                            );
-                          },
-                          icon: const Icon(Icons.shopping_bag_outlined),
-                          label: const Text('Add to Cart'),
-                          style: FilledButton.styleFrom(
-                            backgroundColor: const Color(0xFFB8770D),
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            ),
+                            _QuantityButton(
+                              icon: Icons.remove,
+                              onTap: _quantity > 1
+                                  ? () => setState(() => _quantity--)
+                                  : null,
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 14,
+                              ),
+                              child: Text(
+                                '$_quantity',
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                            ),
+                            _QuantityButton(
+                              icon: Icons.add,
+                              onTap: () => setState(() => _quantity++),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 18),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: OutlinedButton.icon(
+                                onPressed: () {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Added to favorites'),
+                                    ),
+                                  );
+                                },
+                                icon: Icon(
+                                  _isFavorite
+                                      ? Icons.favorite_rounded
+                                      : Icons.favorite_border_rounded,
+                                ),
+                                label: const Text('Add to Favorites'),
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: const Color(0xFF8C6500),
+                                  side: const BorderSide(
+                                    color: Color(0xFFD7C1A0),
+                                  ),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 14,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: FilledButton.icon(
+                                onPressed: () {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        'Added $_quantity item(s) to cart',
+                                      ),
+                                    ),
+                                  );
+                                },
+                                icon: const Icon(Icons.shopping_bag_outlined),
+                                label: const Text('Add to Cart'),
+                                style: FilledButton.styleFrom(
+                                  backgroundColor: const Color(0xFFB8770D),
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 14,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 18),
+                        _SectionTitle(title: 'Story behind this piece'),
+                        const SizedBox(height: 8),
+                        const Text(
+                          'Every thread reflects long-standing craftsmanship passed down through families in Cambodia, turning a gift into a piece of living culture.',
+                          style: TextStyle(
+                            fontSize: 15,
+                            height: 1.6,
+                            color: Color(0xFF4F453A),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 18),
-                  _SectionTitle(title: 'Story behind this piece'),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'Every thread reflects long-standing craftsmanship passed down through families in Cambodia, turning a gift into a piece of living culture.',
-                    style: TextStyle(
-                      fontSize: 15,
-                      height: 1.6,
-                      color: Color(0xFF4F453A),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
+                        const SizedBox(height: 20),
                       ],
                     ),
                   ),
@@ -439,15 +455,20 @@ Widget _buildDrawer(BuildContext context) {
                   label: 'Quiz Challenge',
                   onTap: () {
                     Navigator.of(context).pop();
-                    Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => const QuizPage()),
-                    );
+                    Navigator.of(
+                      context,
+                    ).push(MaterialPageRoute(builder: (_) => const QuizPage()));
                   },
                 ),
                 _DrawerItem(
                   icon: Icons.person_outline_rounded,
                   label: 'Profile',
-                  onTap: () => Navigator.of(context).pop(),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => const ProfilePage()),
+                    );
+                  },
                 ),
                 _DrawerItem(
                   icon: Icons.logout_rounded,
@@ -479,7 +500,10 @@ Widget _buildDrawer(BuildContext context) {
               return Padding(
                 padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 10,
+                  ),
                   decoration: BoxDecoration(
                     color: const Color(0xFFFFF7EC),
                     borderRadius: BorderRadius.circular(16),
@@ -539,11 +563,17 @@ Widget _buildDrawer(BuildContext context) {
 }
 
 String _buildInitials(String value) {
-  final parts = value.trim().split(RegExp(r'\s+')).where((part) => part.isNotEmpty).toList();
+  final parts = value
+      .trim()
+      .split(RegExp(r'\s+'))
+      .where((part) => part.isNotEmpty)
+      .toList();
   final firstPart = parts.isNotEmpty ? parts.first : 'G';
   final secondPart = parts.length > 1 ? parts[1] : '';
   final firstInitial = firstPart.isNotEmpty ? firstPart[0].toUpperCase() : 'G';
-  final secondInitial = secondPart.isNotEmpty ? secondPart[0].toUpperCase() : '';
+  final secondInitial = secondPart.isNotEmpty
+      ? secondPart[0].toUpperCase()
+      : '';
   return '$firstInitial$secondInitial';
 }
 
@@ -638,7 +668,7 @@ class _InfoTile extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.85),
+        color: Colors.white.withValues(alpha: 0.85),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: const Color(0xFFE3D3BE)),
       ),

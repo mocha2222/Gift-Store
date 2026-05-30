@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../detail/product_detail_page.dart';
 import '../../quiz/quiz_page.dart';
+import '../../profile/artisan_profile_page.dart';
 import '../../../data/home_mock_data.dart';
 import '../../../widgets/app_section_header.dart';
 
@@ -39,10 +40,10 @@ class _HomeHomepageState extends State<HomeHomepage> {
             child: Text(
               'Curated Disciplines',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w700,
-                    color: const Color(0xFF231408),
-                  ),
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+                color: const Color(0xFF231408),
+              ),
             ),
           ),
         ),
@@ -68,9 +69,9 @@ class _HomeHomepageState extends State<HomeHomepage> {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: _QuizBanner(
-              onTap: () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const QuizPage()),
-              ),
+              onTap: () => Navigator.of(
+                context,
+              ).push(MaterialPageRoute(builder: (_) => const QuizPage())),
             ),
           ),
         ),
@@ -94,7 +95,8 @@ class _HomeHomepageState extends State<HomeHomepage> {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               separatorBuilder: (_, __) => const SizedBox(width: 12),
               itemCount: promotions.length,
-              itemBuilder: (context, index) => _PromoCard(item: promotions[index]),
+              itemBuilder: (context, index) =>
+                  _PromoCard(item: promotions[index]),
             ),
           ),
         ),
@@ -118,7 +120,8 @@ class _HomeHomepageState extends State<HomeHomepage> {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               separatorBuilder: (_, __) => const SizedBox(width: 12),
               itemCount: collections.length,
-              itemBuilder: (context, index) => _CollectionCard(item: collections[index]),
+              itemBuilder: (context, index) =>
+                  _CollectionCard(item: collections[index]),
             ),
           ),
         ),
@@ -139,7 +142,8 @@ class _HomeHomepageState extends State<HomeHomepage> {
           sliver: SliverList.separated(
             itemCount: trendingGifts.length,
             separatorBuilder: (_, __) => const SizedBox(height: 16),
-            itemBuilder: (context, index) => _GiftCard(item: trendingGifts[index]),
+            itemBuilder: (context, index) =>
+                _GiftCard(item: trendingGifts[index]),
           ),
         ),
         const SliverToBoxAdapter(child: SizedBox(height: 28)),
@@ -149,10 +153,10 @@ class _HomeHomepageState extends State<HomeHomepage> {
             child: Text(
               'Meet the Makers',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w700,
-                    color: const Color(0xFF231408),
-                  ),
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+                color: const Color(0xFF231408),
+              ),
             ),
           ),
         ),
@@ -165,7 +169,27 @@ class _HomeHomepageState extends State<HomeHomepage> {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               separatorBuilder: (_, __) => const SizedBox(width: 12),
               itemCount: makers.length,
-              itemBuilder: (context, index) => _MakerCard(item: makers[index]),
+              itemBuilder: (context, index) => _MakerCard(
+                item: makers[index],
+                onTap: () {
+                  final maker = makers[index];
+                  final parts = maker.role.split(' · ');
+                  final craft = parts.isNotEmpty ? parts.first : maker.role;
+                  final region = parts.length > 1 ? parts.last : '';
+
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => ArtisanProfilePage(
+                        name: maker.name,
+                        region: region,
+                        craft: craft,
+                        story: maker.quote,
+                        coverPhoto: null,
+                      ),
+                    ),
+                  );
+                },
+              ),
             ),
           ),
         ),
@@ -190,13 +214,17 @@ class _SearchBar extends StatelessWidget {
         ),
         child: Row(
           children: [
-            const Icon(Icons.search_rounded, color: Color(0xFF8C6500), size: 22),
+            const Icon(
+              Icons.search_rounded,
+              color: Color(0xFF8C6500),
+              size: 22,
+            ),
             const SizedBox(width: 10),
             Text(
               'Search gifts, artisans, crafts...',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: const Color(0xFF9E8B78),
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: const Color(0xFF9E8B78)),
             ),
             const Spacer(),
             Container(
@@ -236,19 +264,15 @@ class _HeroCard extends StatelessWidget {
             Image.network(
               'https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=800&q=80',
               fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => Container(
-                color: const Color(0xFFF0E1C7),
-              ),
+              errorBuilder: (_, __, ___) =>
+                  Container(color: const Color(0xFFF0E1C7)),
             ),
             Container(
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: [
-                    Color(0x33000000),
-                    Color(0xCC000000),
-                  ],
+                  colors: [Color(0x33000000), Color(0xCC000000)],
                 ),
               ),
             ),
@@ -259,7 +283,10 @@ class _HeroCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 5,
+                    ),
                     decoration: BoxDecoration(
                       color: const Color(0xFFD8AE73).withOpacity(0.3),
                       borderRadius: BorderRadius.circular(20),
@@ -303,7 +330,10 @@ class _HeroCard extends StatelessWidget {
                     style: FilledButton.styleFrom(
                       backgroundColor: const Color(0xFFD8AE73),
                       foregroundColor: const Color(0xFF4A321B),
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 14,
+                      ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -324,7 +354,11 @@ class _HeroCard extends StatelessWidget {
 }
 
 class _DisciplineChip extends StatelessWidget {
-  const _DisciplineChip({required this.item, required this.selected, required this.onTap});
+  const _DisciplineChip({
+    required this.item,
+    required this.selected,
+    required this.onTap,
+  });
 
   final DisciplineItem item;
   final bool selected;
@@ -342,7 +376,9 @@ class _DisciplineChip extends StatelessWidget {
             width: 64,
             height: 64,
             decoration: BoxDecoration(
-              color: selected ? const Color(0xFFD8AE73) : const Color(0xFFF1E7D5),
+              color: selected
+                  ? const Color(0xFFD8AE73)
+                  : const Color(0xFFF1E7D5),
               shape: BoxShape.circle,
               boxShadow: selected
                   ? [
@@ -356,7 +392,9 @@ class _DisciplineChip extends StatelessWidget {
             ),
             child: Icon(
               item.icon,
-              color: selected ? const Color(0xFF4A321B) : const Color(0xFF8C6500),
+              color: selected
+                  ? const Color(0xFF4A321B)
+                  : const Color(0xFF8C6500),
               size: 28,
             ),
           ),
@@ -364,9 +402,11 @@ class _DisciplineChip extends StatelessWidget {
           Text(
             item.label,
             style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                  color: selected ? const Color(0xFF8C6500) : const Color(0xFF4F453A),
-                  fontWeight: selected ? FontWeight.w700 : FontWeight.w400,
-                ),
+              color: selected
+                  ? const Color(0xFF8C6500)
+                  : const Color(0xFF4F453A),
+              fontWeight: selected ? FontWeight.w700 : FontWeight.w400,
+            ),
           ),
         ],
       ),
@@ -425,7 +465,10 @@ class _QuizBanner extends StatelessWidget {
                   ),
                   const SizedBox(height: 14),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 8,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.white.withOpacity(0.2),
                       borderRadius: BorderRadius.circular(20),
@@ -558,7 +601,8 @@ class _CollectionCard extends StatelessWidget {
               Image.network(
                 item.imageUrl,
                 fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => Container(color: const Color(0xFFF1E7D5)),
+                errorBuilder: (_, __, ___) =>
+                    Container(color: const Color(0xFFF1E7D5)),
               ),
               Container(
                 decoration: const BoxDecoration(
@@ -683,9 +727,13 @@ class _GiftCardState extends State<_GiftCard> {
                           shape: BoxShape.circle,
                         ),
                         child: Icon(
-                          _liked ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+                          _liked
+                              ? Icons.favorite_rounded
+                              : Icons.favorite_border_rounded,
                           size: 20,
-                          color: _liked ? const Color(0xFFC0392B) : const Color(0xFF554B44),
+                          color: _liked
+                              ? const Color(0xFFC0392B)
+                              : const Color(0xFF554B44),
                         ),
                       ),
                     ),
@@ -705,8 +753,8 @@ class _GiftCardState extends State<_GiftCard> {
                     Text(
                       widget.item.subtitle,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: const Color(0xFF7A6655),
-                          ),
+                        color: const Color(0xFF7A6655),
+                      ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -715,7 +763,8 @@ class _GiftCardState extends State<_GiftCard> {
                       children: [
                         Text(
                           widget.item.price,
-                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          style: Theme.of(context).textTheme.bodyLarge
+                              ?.copyWith(
                                 color: const Color(0xFF8C6500),
                                 fontWeight: FontWeight.w800,
                               ),
@@ -726,7 +775,9 @@ class _GiftCardState extends State<_GiftCard> {
                             ...List.generate(
                               5,
                               (i) => Icon(
-                                i < 4 ? Icons.star_rounded : Icons.star_half_rounded,
+                                i < 4
+                                    ? Icons.star_rounded
+                                    : Icons.star_half_rounded,
                                 color: const Color(0xFFF5A623),
                                 size: 16,
                               ),
@@ -751,7 +802,8 @@ class _GiftCardState extends State<_GiftCard> {
                         onPressed: () {
                           Navigator.of(context).push(
                             MaterialPageRoute(
-                              builder: (_) => ProductDetailPage(item: widget.item),
+                              builder: (_) =>
+                                  ProductDetailPage(item: widget.item),
                             ),
                           );
                         },
@@ -781,67 +833,75 @@ class _GiftCardState extends State<_GiftCard> {
 }
 
 class _MakerCard extends StatelessWidget {
-  const _MakerCard({required this.item});
+  const _MakerCard({required this.item, required this.onTap});
 
   final MakerItem item;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 220,
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF5E8CF),
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFFE8D5B0)),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 76,
-            height: 76,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(color: const Color(0xFFF3E7D4), width: 3),
-            ),
-            child: ClipOval(
-              child: Image.network(
-                item.imageUrl,
-                fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => Container(
-                  color: const Color(0xFFD8AE73),
-                  child: const Icon(Icons.person_rounded, size: 36, color: Colors.white),
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 220,
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF5E8CF),
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: const Color(0xFFE8D5B0)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 76,
+              height: 76,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: const Color(0xFFF3E7D4), width: 3),
+              ),
+              child: ClipOval(
+                child: Image.network(
+                  item.imageUrl,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => Container(
+                    color: const Color(0xFFD8AE73),
+                    child: const Icon(
+                      Icons.person_rounded,
+                      size: 36,
+                      color: Colors.white,
+                    ),
+                  ),
                 ),
               ),
             ),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            item.name,
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
-          const SizedBox(height: 4),
-          Text(
-            item.role,
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                  color: const Color(0xFF8C6500),
-                ),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            '"${item.quote}"',
-            textAlign: TextAlign.center,
-            maxLines: 3,
-            overflow: TextOverflow.ellipsis,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: const Color(0xFF5E5244),
-                  fontStyle: FontStyle.italic,
-                ),
-          ),
-        ],
+            const SizedBox(height: 12),
+            Text(
+              item.name,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              item.role,
+              textAlign: TextAlign.center,
+              style: Theme.of(
+                context,
+              ).textTheme.labelLarge?.copyWith(color: const Color(0xFF8C6500)),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              '"${item.quote}"',
+              textAlign: TextAlign.center,
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: const Color(0xFF5E5244),
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
