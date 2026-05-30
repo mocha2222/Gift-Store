@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../router/app_router.dart';
 import '../../detail/product_detail_page.dart';
 import '../../quiz/quiz_page.dart';
 import '../../../data/home_mock_data.dart';
@@ -68,9 +69,7 @@ class _HomeHomepageState extends State<HomeHomepage> {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: _QuizBanner(
-              onTap: () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const QuizPage()),
-              ),
+              onTap: () => Navigator.of(context).pushNamed(AppRoutes.quiz),
             ),
           ),
         ),
@@ -628,10 +627,9 @@ class _GiftCardState extends State<_GiftCard> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (_) => ProductDetailPage(item: widget.item),
-          ),
+        Navigator.of(context).pushNamed(
+          AppRoutes.productDetail,
+          arguments: ProductDetailArgs(item: widget.item),
         );
       },
       child: Container(
@@ -749,10 +747,9 @@ class _GiftCardState extends State<_GiftCard> {
                       width: double.infinity,
                       child: FilledButton(
                         onPressed: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (_) => ProductDetailPage(item: widget.item),
-                            ),
+                          Navigator.of(context).pushNamed(
+                            AppRoutes.productDetail,
+                            arguments: ProductDetailArgs(item: widget.item),
                           );
                         },
                         style: FilledButton.styleFrom(

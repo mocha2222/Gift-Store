@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../features/auth/login_page.dart';
-import '../features/quiz/quiz_page.dart';
+import '../router/app_router.dart';
 
 class AppDrawer extends StatelessWidget {
   const AppDrawer({super.key});
@@ -92,9 +92,7 @@ class AppDrawer extends StatelessWidget {
                     label: 'Quiz Challenge',
                     onTap: () {
                       Navigator.of(context).pop();
-                      Navigator.of(context).push(
-                        MaterialPageRoute(builder: (_) => const QuizPage()),
-                      );
+                      Navigator.of(context).pushNamed(AppRoutes.quiz);
                     },
                   ),
                   _DrawerItem(
@@ -110,8 +108,8 @@ class AppDrawer extends StatelessWidget {
                       await prefs.remove('user_email');
                       await prefs.remove('user_password');
                       if (!context.mounted) return;
-                      Navigator.of(context).pushAndRemoveUntil(
-                        MaterialPageRoute(builder: (_) => const LoginPage()),
+                      Navigator.of(context).pushNamedAndRemoveUntil(
+                        AppRoutes.login,
                         (route) => false,
                       );
                     },
