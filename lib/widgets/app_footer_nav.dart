@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class HomeFooterNav extends StatelessWidget {
-  const HomeFooterNav({super.key, this.currentIndex = 0});
+class AppFooterNav extends StatelessWidget {
+  const AppFooterNav({super.key, this.currentIndex = 0});
 
   final int currentIndex;
 
