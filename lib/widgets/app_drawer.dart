@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../features/auth/login_page.dart';
-import '../router/app_router.dart';
-
 class AppDrawer extends StatelessWidget {
   const AppDrawer({super.key});
 
@@ -92,7 +89,7 @@ class AppDrawer extends StatelessWidget {
                     label: 'Quiz Challenge',
                     onTap: () {
                       Navigator.of(context).pop();
-                      Navigator.of(context).pushNamed(AppRoutes.quiz);
+                      Navigator.of(context).pushNamed('/quiz');
                     },
                   ),
                   _DrawerItem(
@@ -109,7 +106,7 @@ class AppDrawer extends StatelessWidget {
                       await prefs.remove('user_password');
                       if (!context.mounted) return;
                       Navigator.of(context).pushNamedAndRemoveUntil(
-                        AppRoutes.login,
+                        '/login',
                         (route) => false,
                       );
                     },
