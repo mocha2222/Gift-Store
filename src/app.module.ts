@@ -9,7 +9,6 @@ import { CollectionsModule } from './collections/collections.module';
 import { CouponsModule } from './coupons/coupons.module';
 import { FavoritesModule } from './favorites/favorites.module';
 import { GiftQuizModule } from './gift-quiz/gift-quiz.module';
-import { HomeModule } from './home/home.module';
 import { OrdersModule } from './orders/orders.module';
 import { ProductMediaModule } from './product-media/product-media.module';
 import { ProductsModule } from './products/products.module';
@@ -40,7 +39,6 @@ import { UsersModule } from './users/users.module';
     ChatModule,
     CouponsModule,
     ProductMediaModule,
-    HomeModule,
     GiftQuizModule,
   ],
 })
