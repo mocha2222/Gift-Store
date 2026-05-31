@@ -1,9 +1,15 @@
+import 'dart:convert';
+import 'dart:io';
+import 'dart:typed_data';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../auth/login_page.dart';
 import '../quiz/quiz_page.dart';
 import '../profile/profile_page.dart';
+import '../profile/widgets/profile_avatar.dart';
 import '../../theme/app_theme.dart';
 import 'widgets/home_footer_nav.dart';
 import 'widgets/home_header.dart';
@@ -149,11 +155,34 @@ class GiftShopShell extends StatelessWidget {
               FutureBuilder<SharedPreferences>(
                 future: SharedPreferences.getInstance(),
                 builder: (context, snapshot) {
-                  final email = snapshot.data?.getString('user_email');
-                  final displayEmail = email == null || email.isEmpty
-                      ? 'Guest account'
-                      : email;
-                  final initials = _buildInitials(displayEmail);
+                  final prefs = snapshot.data;
+                  final name = prefs?.getString('user_name') ?? 'Guest';
+                  final email = prefs?.getString('user_email') ?? '';
+                  final initials =
+                      prefs?.getString('user_initials') ??
+                      _buildInitials(name.isEmpty ? 'Guest' : name);
+
+                  File? localImage;
+                  Uint8List? imageBytes;
+
+                  if (prefs != null) {
+                    if (kIsWeb) {
+                      final base64Str = prefs.getString('user_avatar_bytes');
+                      if (base64Str != null && base64Str.isNotEmpty) {
+                        imageBytes = base64Decode(base64Str);
+                      }
+                    } else {
+                      final avatarPath = prefs.getString('user_avatar_path');
+                      if (avatarPath != null && avatarPath.isNotEmpty) {
+                        final file = File(avatarPath);
+                        if (file.existsSync()) {
+                          localImage = file;
+                        }
+                      }
+                    }
+                  }
+
+                  final displayEmail = email.isEmpty ? 'Guest account' : email;
 
                   return Padding(
                     padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
@@ -182,16 +211,11 @@ class GiftShopShell extends StatelessWidget {
                           ),
                           child: Row(
                             children: [
-                              CircleAvatar(
+                              ProfileAvatar(
+                                initials: initials,
+                                localFile: kIsWeb ? null : localImage,
+                                imageBytes: kIsWeb ? imageBytes : null,
                                 radius: 21,
-                                backgroundColor: const Color(0xFFD8AE73),
-                                child: Text(
-                                  initials,
-                                  style: const TextStyle(
-                                    color: Color(0xFF4A321B),
-                                    fontWeight: FontWeight.w800,
-                                  ),
-                                ),
                               ),
                               const SizedBox(width: 12),
                               Expanded(
@@ -199,7 +223,7 @@ class GiftShopShell extends StatelessWidget {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    const Text(
+                                    Text(
                                       'Profile',
                                       style: TextStyle(
                                         color: Color(0xFF9E7E5A),
@@ -209,7 +233,7 @@ class GiftShopShell extends StatelessWidget {
                                     ),
                                     const SizedBox(height: 1),
                                     Text(
-                                      displayEmail,
+                                      name.isEmpty ? displayEmail : name,
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                       style: const TextStyle(
@@ -219,9 +243,11 @@ class GiftShopShell extends StatelessWidget {
                                       ),
                                     ),
                                     const SizedBox(height: 1),
-                                    const Text(
-                                      'Tap to open your profile',
-                                      style: TextStyle(
+                                    Text(
+                                      displayEmail,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(
                                         color: Color(0xFF8B6F52),
                                         fontSize: 11,
                                       ),

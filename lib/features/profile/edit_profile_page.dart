@@ -1,5 +1,8 @@
+import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
@@ -30,6 +33,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   late final TextEditingController _emailCtrl;
 
   File? _localImage;
+  Uint8List? _imageBytes;
   bool _isSaving = false;
 
   @override
@@ -38,6 +42,21 @@ class _EditProfilePageState extends State<EditProfilePage> {
     _nameCtrl = TextEditingController(text: widget.initialName);
     _emailCtrl = TextEditingController(text: widget.initialEmail);
     _localImage = widget.initialImage;
+    _loadAvatarData();
+  }
+
+  Future<void> _loadAvatarData() async {
+    if (!kIsWeb) return;
+
+    final prefs = await SharedPreferences.getInstance();
+    final base64Str = prefs.getString('user_avatar_bytes');
+    if (base64Str == null || base64Str.isEmpty || !mounted) {
+      return;
+    }
+
+    setState(() {
+      _imageBytes = base64Decode(base64Str);
+    });
   }
 
   @override
@@ -87,18 +106,25 @@ class _EditProfilePageState extends State<EditProfilePage> {
         return;
       }
 
-      final savedImage = await _persistPickedImage(picked);
+      if (kIsWeb) {
+        final bytes = await picked.readAsBytes();
 
-      if (!mounted) return;
-      setState(() {
-        _localImage = savedImage;
-      });
+        if (!mounted) return;
+        setState(() {
+          _imageBytes = bytes;
+        });
+      } else {
+        final savedImage = await _persistPickedImage(picked);
+
+        if (!mounted) return;
+        setState(() {
+          _localImage = savedImage;
+        });
+      }
+
       _showMessage('Photo selected. Tap Save Changes to keep it.');
-    } catch (_) {
-      _showMessage(
-        'Could not open gallery. Please allow photos permission.',
-        isError: true,
-      );
+    } catch (e) {
+      _showMessage('Error: $e', isError: true);
     }
   }
 
@@ -133,7 +159,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
     await prefs.setString('user_email', email);
     await prefs.setString('user_initials', initials);
 
-    if (_localImage != null) {
+    if (kIsWeb) {
+      if (_imageBytes != null) {
+        await prefs.setString('user_avatar_bytes', base64Encode(_imageBytes!));
+      }
+    } else if (_localImage != null) {
       await prefs.setString('user_avatar_path', _localImage!.path);
     }
 
@@ -182,12 +212,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       children: [
                         Text(
                           'Edit Profile',
-                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w700,
-                            color: const Color(0xFF8C6500),
-                            letterSpacing: -0.5,
-                          ),
+                          style: Theme.of(context).textTheme.titleLarge
+                              ?.copyWith(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w700,
+                                color: const Color(0xFF8C6500),
+                                letterSpacing: -0.5,
+                              ),
                         ),
                         const Text(
                           'Update your personal information',
@@ -227,7 +258,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 const SizedBox(height: 20),
                 ProfileAvatar(
                   initials: initials,
-                  localFile: _localImage,
+                  localFile: kIsWeb ? null : _localImage,
+                  imageBytes: kIsWeb ? _imageBytes : null,
                   radius: 50,
                   showEditButton: true,
                   onEditTap: _pickImage,

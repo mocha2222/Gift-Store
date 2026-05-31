@@ -184,7 +184,9 @@ class _HomeHomepageState extends State<HomeHomepage> {
                         region: region,
                         craft: craft,
                         story: maker.quote,
-                        coverPhoto: null,
+                        followerCount: maker.followerCount,
+                        avatarUrl: maker.avatarUrl,
+                        products: maker.products,
                       ),
                     ),
                   );
@@ -861,8 +863,8 @@ class _MakerCard extends StatelessWidget {
                 border: Border.all(color: const Color(0xFFF3E7D4), width: 3),
               ),
               child: ClipOval(
-                child: Image.network(
-                  item.imageUrl,
+                child: Image.asset(
+                  item.avatarUrl,
                   fit: BoxFit.cover,
                   errorBuilder: (_, __, ___) => Container(
                     color: const Color(0xFFD8AE73),

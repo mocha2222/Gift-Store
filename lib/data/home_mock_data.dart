@@ -7,18 +7,18 @@ class DisciplineItem {
 }
 
 const disciplines = [
-  DisciplineItem(icon: Icons.waves_rounded,         label: 'Silk'),
-  DisciplineItem(icon: Icons.diamond_outlined,       label: 'Silver'),
-  DisciplineItem(icon: Icons.park_outlined,          label: 'Wood'),
-  DisciplineItem(icon: Icons.spa_outlined,           label: 'Edible'),
-  DisciplineItem(icon: Icons.auto_awesome_outlined,  label: 'Jewelry'),
+  DisciplineItem(icon: Icons.waves_rounded, label: 'Silk'),
+  DisciplineItem(icon: Icons.diamond_outlined, label: 'Silver'),
+  DisciplineItem(icon: Icons.park_outlined, label: 'Wood'),
+  DisciplineItem(icon: Icons.spa_outlined, label: 'Edible'),
+  DisciplineItem(icon: Icons.auto_awesome_outlined, label: 'Jewelry'),
 ];
 
 class GiftItem {
   final String title;
   final String subtitle;
   final String price;
-  final String imageUrl; 
+  final String imageUrl;
   final Color accent;
   const GiftItem({
     required this.title,
@@ -31,35 +31,38 @@ class GiftItem {
 
 const trendingGifts = [
   GiftItem(
-    title:    'Khmer Silk Krama',
+    title: 'Khmer Silk Krama',
     subtitle: 'Hand-woven in Takeo Province using natural indigo dye.',
-    price:    '\$28.00',
-    imageUrl: 'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=600&q=80',
-    accent:   Color(0xFF6B4C9A),
+    price: '\$28.00',
+    imageUrl:
+        'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=600&q=80',
+    accent: Color(0xFF6B4C9A),
   ),
   GiftItem(
-    title:    'Silver Apsara Plaque',
+    title: 'Silver Apsara Plaque',
     subtitle: 'Hand-chased sterling silver — a symbol of Khmer heritage.',
-    price:    '\$145.00',
-    imageUrl: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=600&q=80',
-    accent:   Color(0xFF5B7FA6),
+    price: '\$145.00',
+    imageUrl:
+        'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=600&q=80',
+    accent: Color(0xFF5B7FA6),
   ),
   GiftItem(
-    title:    'Kampot Pepper Gift Box',
+    title: 'Kampot Pepper Gift Box',
     subtitle: 'GI-certified black, red & white pepper from Kampot.',
-    price:    '\$35.00',
-    imageUrl: 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=600&q=80',
-    accent:   Color(0xFF4A7C59),
+    price: '\$35.00',
+    imageUrl:
+        'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=600&q=80',
+    accent: Color(0xFF4A7C59),
   ),
   GiftItem(
-    title:    'Carved Jackfruit Elephant',
+    title: 'Carved Jackfruit Elephant',
     subtitle: 'Sustainably carved from jackfruit wood, beeswax finish.',
-    price:    '\$22.00',
-    imageUrl: 'https://images.unsplash.com/photo-1567361808960-dec9cb578182?w=600&q=80',
-    accent:   Color(0xFF7A5230),
+    price: '\$22.00',
+    imageUrl:
+        'https://images.unsplash.com/photo-1567361808960-dec9cb578182?w=600&q=80',
+    accent: Color(0xFF7A5230),
   ),
 ];
-
 
 class PromoItem {
   final String title;
@@ -78,25 +81,25 @@ class PromoItem {
 
 const promotions = [
   PromoItem(
-    title:           'Khmer New Year 🎉',
-    code:            'BONN20',
-    description:     '20% off all Textile & Edible items',
+    title: 'Khmer New Year 🎉',
+    code: 'BONN20',
+    description: '20% off all Textile & Edible items',
     discountPercent: 20,
-    color:           Color(0xFFC0392B),
+    color: Color(0xFFC0392B),
   ),
   PromoItem(
-    title:           'Wedding Special 💍',
-    code:            'WEDDING10',
-    description:     '10% off all Wedding Collection items',
+    title: 'Wedding Special 💍',
+    code: 'WEDDING10',
+    description: '10% off all Wedding Collection items',
     discountPercent: 10,
-    color:           Color(0xFF8C6500),
+    color: Color(0xFF8C6500),
   ),
   PromoItem(
-    title:           'First Order 🎁',
-    code:            'FIRSTGIFT25',
-    description:     '25% off your very first order',
+    title: 'First Order 🎁',
+    code: 'FIRSTGIFT25',
+    description: '25% off your very first order',
     discountPercent: 25,
-    color:           Color(0xFF4A7C59),
+    color: Color(0xFF4A7C59),
   ),
 ];
 
@@ -104,7 +107,7 @@ class CollectionItem {
   final String name;
   final String occasion;
   final String itemCount;
-  final String imageUrl;  
+  final String imageUrl;
   const CollectionItem({
     required this.name,
     required this.occasion,
@@ -115,62 +118,164 @@ class CollectionItem {
 
 const collections = [
   CollectionItem(
-    name:      'For Her',
-    occasion:  'Any Occasion',
+    name: 'For Her',
+    occasion: 'Any Occasion',
     itemCount: '11 items',
-    imageUrl:  'https://images.unsplash.com/photo-1611085583191-a3b181a88401?w=400&q=80',
+    imageUrl:
+        'https://images.unsplash.com/photo-1611085583191-a3b181a88401?w=400&q=80',
   ),
   CollectionItem(
-    name:      'For Him',
-    occasion:  'Any Occasion',
+    name: 'For Him',
+    occasion: 'Any Occasion',
     itemCount: '7 items',
-    imageUrl:  'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=400&q=80',
+    imageUrl:
+        'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=400&q=80',
   ),
   CollectionItem(
-    name:      'Wedding',
-    occasion:  'Wedding Gift',
+    name: 'Wedding',
+    occasion: 'Wedding Gift',
     itemCount: '12 items',
-    imageUrl:  'https://images.unsplash.com/photo-1606800052052-a08af7148866?w=400&q=80',
+    imageUrl:
+        'https://images.unsplash.com/photo-1606800052052-a08af7148866?w=400&q=80',
   ),
   CollectionItem(
-    name:      'Tourist',
-    occasion:  'Souvenir',
+    name: 'Tourist',
+    occasion: 'Souvenir',
     itemCount: '13 items',
-    imageUrl:  'https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=400&q=80',
+    imageUrl:
+        'https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=400&q=80',
   ),
 ];
 
+class ArtisanProduct {
+  final String title;
+  final String price;
+  final String imagePath;
+
+  const ArtisanProduct({
+    required this.title,
+    required this.price,
+    required this.imagePath,
+  });
+
+  Map<String, String> toJson() => {
+    'title': title,
+    'price': price,
+    'imagePath': imagePath,
+  };
+
+  factory ArtisanProduct.fromJson(Map<String, dynamic> json) {
+    return ArtisanProduct(
+      title: json['title']?.toString() ?? '',
+      price: json['price']?.toString() ?? '',
+      imagePath: json['imagePath']?.toString() ?? '',
+    );
+  }
+}
 
 class MakerItem {
   final String name;
   final String role;
   final String quote;
-  final String imageUrl; 
+  final String avatarUrl;
+  final int followerCount;
+  final List<ArtisanProduct> products;
   const MakerItem({
     required this.name,
     required this.role,
     required this.quote,
-    required this.imageUrl,
+    required this.avatarUrl,
+    required this.followerCount,
+    required this.products,
   });
 }
 
 const makers = [
   MakerItem(
-    name:     'Chantha Silk Co-op',
-    role:     'Silk Weaver · Takeo Province',
-    quote:    'Every thread carries the memory of our grandmothers.',
-    imageUrl: 'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?w=200&q=80',
+    name: 'Chantha Silk Co-op',
+    role: 'Silk Weaver · Takeo Province',
+    quote: 'Every thread carries the memory of our grandmothers.',
+    avatarUrl: 'assets/images/artisans/chantha.jpg',
+    followerCount: 184,
+    products: [
+      ArtisanProduct(
+        title: 'Krama',
+        price: '\$28.00',
+        imagePath: 'assets/images/products/Krama.jpg',
+      ),
+      ArtisanProduct(
+        title: 'Silk Wallet',
+        price: '\$34.00',
+        imagePath: 'assets/images/products/Silk-wallet.jpg',
+      ),
+      ArtisanProduct(
+        title: 'Table Runner',
+        price: '\$42.00',
+        imagePath: 'assets/images/products/table-runner.jpg',
+      ),
+      ArtisanProduct(
+        title: 'Gift Set',
+        price: '\$48.00',
+        imagePath: 'assets/images/products/gift-set.jpg',
+      ),
+    ],
   ),
   MakerItem(
-    name:     'Sarath Silverworks',
-    role:     'Silversmith · Phnom Penh',
-    quote:    'I learned to chase silver from my father. Each piece takes days.',
-    imageUrl: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=200&q=80',
+    name: 'Sarath Silverworks',
+    role: 'Silversmith · Phnom Penh',
+    quote: 'I learned to chase silver from my father. Each piece takes days.',
+    avatarUrl: 'assets/images/artisans/sarath.jpg',
+    followerCount: 149,
+    products: [
+      ArtisanProduct(
+        title: 'Silver Bracelet',
+        price: '\$22.00',
+        imagePath: 'assets/images/products/silver-bracelet.jpg',
+      ),
+      ArtisanProduct(
+        title: 'Silver Box',
+        price: '\$16.00',
+        imagePath: 'assets/images/products/silver-box.jpg',
+      ),
+      ArtisanProduct(
+        title: 'Silver Tray',
+        price: '\$24.00',
+        imagePath: 'assets/images/products/silver-tray.jpg',
+      ),
+      ArtisanProduct(
+        title: 'Silver Earrings',
+        price: '\$19.00',
+        imagePath: 'assets/images/products/silver-earrings.jpg',
+      ),
+    ],
   ),
   MakerItem(
-    name:     'Rith Wood Studio',
-    role:     'Wood Carver · Siem Reap',
-    quote:    'The forest gives us the wood. We give back art.',
-    imageUrl: 'https://images.unsplash.com/photo-1542909168-82c3e7fdca5c?w=200&q=80',
+    name: 'Rith Wood Studio',
+    role: 'Wood Carver · Siem Reap',
+    quote: 'The forest gives us the wood. We give back art.',
+    avatarUrl: 'assets/images/artisans/rith.jpg',
+    followerCount: 97,
+    products: [
+      ArtisanProduct(
+        title: 'Absara Statue',
+        price: '\$31.00',
+        imagePath: 'assets/images/products/absara.jpg',
+      ),
+      ArtisanProduct(
+        title: 'Wooden Clock',
+        price: '\$24.00',
+        imagePath: 'assets/images/products/wooden-clock.jpg',
+      ),
+      ArtisanProduct(
+        title: 'Wooden Bowl',
+        price: '\$29.00',
+        imagePath: 'assets/images/products/wooden-bowl.jpg',
+      ),
+      ArtisanProduct(
+        title: 'Wooden Bed',
+        price: '\$36.00',
+        imagePath: 'assets/images/products/wooden-bed.jpg',
+      ),
+    ],
   ),
 ];
