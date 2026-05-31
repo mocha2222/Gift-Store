@@ -236,19 +236,29 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 const SizedBox(height: 28),
 
-                Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                  const Text("Don't have an account? ",
-                    style: TextStyle(color: Color(0xFF9E7E5A), fontSize: 14)),
-                  GestureDetector(
-                    onTap: () => Navigator.of(context).pushNamed(AppRoutes.signup),
-                    child: const Text('Sign Up',
-                      style: TextStyle(
-                        color: Color(0xFFB8770D),
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
-                      )),
-                  ),
-                ]),
+                Wrap(
+                  alignment: WrapAlignment.center,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  spacing: 4,
+                  runSpacing: 4,
+                  children: [
+                    const Text(
+                      "Don't have an account?",
+                      style: TextStyle(color: Color(0xFF9E7E5A), fontSize: 14),
+                    ),
+                    GestureDetector(
+                      onTap: () => Navigator.of(context).pushNamed(AppRoutes.signup),
+                      child: const Text(
+                        'Sign Up',
+                        style: TextStyle(
+                          color: Color(0xFFB8770D),
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
                 const SizedBox(height: 32),
               ],
             ),

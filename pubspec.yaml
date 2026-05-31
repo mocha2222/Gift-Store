@@ -36,3 +36,4 @@ flutter:
     - assets/images/app/
     - assets/icons/
     - assets/mock/
+    - lib/assets/images/
