@@ -20,12 +20,32 @@ class GiftItem {
   final String price;
   final String imageUrl;
   final Color accent;
+  final String? dimensions;
+  final List<ProductReview> reviews;
   const GiftItem({
     required this.title,
     required this.subtitle,
     required this.price,
     required this.imageUrl,
     required this.accent,
+    this.dimensions,
+    this.reviews = const [],
+  });
+}
+
+class ProductReview {
+  final String name;
+  final String location;
+  final double rating;
+  final String comment;
+  final String avatarUrl;
+
+  const ProductReview({
+    required this.name,
+    required this.location,
+    required this.rating,
+    required this.comment,
+    required this.avatarUrl,
   });
 }
 
@@ -33,34 +53,77 @@ const trendingGifts = [
   GiftItem(
     title: 'Khmer Silk Krama',
     subtitle: 'Hand-woven in Takeo Province using natural indigo dye.',
-    price: '\$28.00',
-    imageUrl:
-        'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=600&q=80',
-    accent: Color(0xFF6B4C9A),
+    price:    '\$28.00',
+    imageUrl: 'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=600&q=80',
+    accent:   Color(0xFF6B4C9A),
+    dimensions: '180cm x 55cm',
+    reviews: [
+      ProductReview(
+        name: 'Serey Roth',
+        location: 'Takeo Province, Master Weaver',
+        rating: 5.0,
+        comment: 'Beautiful weave and the color is exactly as shown. It feels premium and authentic.',
+        avatarUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&q=80',
+      ),
+      ProductReview(
+        name: 'Nina',
+        location: 'Phnom Penh',
+        rating: 4.8,
+        comment: 'Soft, lightweight, and perfect as a gift. Packaging was excellent too.',
+        avatarUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&q=80',
+      ),
+    ],
   ),
   GiftItem(
     title: 'Silver Apsara Plaque',
     subtitle: 'Hand-chased sterling silver — a symbol of Khmer heritage.',
-    price: '\$145.00',
-    imageUrl:
-        'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=600&q=80',
-    accent: Color(0xFF5B7FA6),
+    price:    '\$145.00',
+    imageUrl: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=600&q=80',
+    accent:   Color(0xFF5B7FA6),
+    dimensions: '24cm x 18cm',
+    reviews: [
+      ProductReview(
+        name: 'Vannak',
+        location: 'Phnom Penh',
+        rating: 5.0,
+        comment: 'The craftsmanship is exceptional. It looks even better in person.',
+        avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&q=80',
+      ),
+    ],
   ),
   GiftItem(
     title: 'Kampot Pepper Gift Box',
     subtitle: 'GI-certified black, red & white pepper from Kampot.',
-    price: '\$35.00',
-    imageUrl:
-        'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=600&q=80',
-    accent: Color(0xFF4A7C59),
+    price:    '\$35.00',
+    imageUrl: 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=600&q=80',
+    accent:   Color(0xFF4A7C59),
+    dimensions: 'Box: 20cm x 14cm x 6cm',
+    reviews: [
+      ProductReview(
+        name: 'Dara',
+        location: 'Siem Reap',
+        rating: 4.9,
+        comment: 'Fresh aroma and a great presentation box for gifting.',
+        avatarUrl: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=200&q=80',
+      ),
+    ],
   ),
   GiftItem(
     title: 'Carved Jackfruit Elephant',
     subtitle: 'Sustainably carved from jackfruit wood, beeswax finish.',
-    price: '\$22.00',
-    imageUrl:
-        'https://images.unsplash.com/photo-1567361808960-dec9cb578182?w=600&q=80',
-    accent: Color(0xFF7A5230),
+    price:    '\$22.00',
+    imageUrl: 'https://images.unsplash.com/photo-1567361808960-dec9cb578182?w=600&q=80',
+    accent:   Color(0xFF7A5230),
+    dimensions: '15cm x 10cm x 8cm',
+    reviews: [
+      ProductReview(
+        name: 'Malis',
+        location: 'Battambang',
+        rating: 5.0,
+        comment: 'A beautiful decorative piece and the carving is very detailed.',
+        avatarUrl: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&q=80',
+      ),
+    ],
   ),
 ];
 

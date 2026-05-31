@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../../profile/profile_page.dart';
+import 'package:gift_shop/features/profile/profile_page.dart';
 
-class HomeFooterNav extends StatelessWidget {
-  const HomeFooterNav({super.key, this.currentIndex = 0, this.onTap});
+class AppFooterNav extends StatelessWidget {
+  const AppFooterNav({super.key, this.currentIndex = 0, this.onTap});
 
   final int currentIndex;
   final void Function(int index)? onTap;

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../home/home_page.dart';
+import '../../router/app_router.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
@@ -46,9 +46,7 @@ class _SignupPageState extends State<SignupPage> {
 
     if (!mounted) return;
 
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (_) => const GiftShopShell()),
-    );
+    Navigator.of(context).pushReplacementNamed(AppRoutes.home);
   }
 
   String _getInitials(String name) {

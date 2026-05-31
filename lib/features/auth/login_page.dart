@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../home/home_page.dart';
-import 'signup_page.dart';
+import '../../router/app_router.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -33,9 +32,7 @@ class _LoginPageState extends State<LoginPage> {
 
     if (_emailCtrl.text.trim().toLowerCase() == savedEmail &&
         _passwordCtrl.text == savedPass) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const GiftShopShell()),
-      );
+      Navigator.of(context).pushReplacementNamed(AppRoutes.home);
     } else {
       setState(() {
         _isLoading = false;
@@ -45,9 +42,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _continueAsGuest() {
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (_) => const GiftShopShell()),
-    );
+    Navigator.of(context).pushReplacementNamed(AppRoutes.home);
   }
 
   @override
@@ -59,7 +54,6 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
 
     return Scaffold(
       backgroundColor: const Color(0xFFFBF6EE), // warm ivory
@@ -246,8 +240,7 @@ class _LoginPageState extends State<LoginPage> {
                   const Text("Don't have an account? ",
                     style: TextStyle(color: Color(0xFF9E7E5A), fontSize: 14)),
                   GestureDetector(
-                    onTap: () => Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => const SignupPage())),
+                    onTap: () => Navigator.of(context).pushNamed(AppRoutes.signup),
                     child: const Text('Sign Up',
                       style: TextStyle(
                         color: Color(0xFFB8770D),
