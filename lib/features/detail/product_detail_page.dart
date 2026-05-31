@@ -4,8 +4,8 @@ import '../../data/home_mock_data.dart';
 import '../../widgets/app_drawer.dart';
 import '../../widgets/app_footer_nav.dart';
 import '../../widgets/app_header.dart';
-import 'widgets/product_images.dart';
 import 'widgets/product_actions.dart';
+import 'widgets/product_images.dart';
 import 'widgets/product_reviews_section.dart';
 import 'widgets/product_spec_tile.dart';
 
@@ -99,7 +99,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                         ProductImages(
                           gallery: _gallery,
                           selectedIndex: _selectedImage,
-                          onSelected: (i) => setState(() => _selectedImage = i),
+                          onSelected: (index) => setState(() => _selectedImage = index),
                           colors: colors,
                         ),
                         const SizedBox(height: 18),
@@ -144,24 +144,15 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                             ),
                             const Spacer(),
                             Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 10,
-                                vertical: 6,
-                              ),
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                               decoration: BoxDecoration(
                                 color: const Color(0xFFFFF7EC),
                                 borderRadius: BorderRadius.circular(12),
-                                border: Border.all(
-                                  color: const Color(0xFFE3D3BE),
-                                ),
+                                border: Border.all(color: const Color(0xFFE3D3BE)),
                               ),
                               child: const Row(
                                 children: [
-                                  Icon(
-                                    Icons.star_rounded,
-                                    size: 16,
-                                    color: Color(0xFFF5A623),
-                                  ),
+                                  Icon(Icons.star_rounded, size: 16, color: Color(0xFFF5A623)),
                                   SizedBox(width: 4),
                                   Text(
                                     '4.9 (124)',
@@ -177,7 +168,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                           ],
                         ),
                         const SizedBox(height: 18),
-                        _SectionTitle(title: 'Description'),
+                        const _SectionTitle(title: 'Description'),
                         const SizedBox(height: 8),
                         Text(
                           widget.item.subtitle,
@@ -188,7 +179,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                           ),
                         ),
                         const SizedBox(height: 16),
-                        _SectionTitle(title: 'Cultural background / story'),
+                        const _SectionTitle(title: 'Cultural background / story'),
                         const SizedBox(height: 8),
                         const Text(
                           'Inspired by Khmer weaving traditions, this piece reflects the warm color palette, patient handcraft, and symbolic patterns found in Cambodian artisan communities.',
@@ -204,8 +195,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                         ProductSpecTile(
                           icon: Icons.inventory_2_outlined,
                           title: 'Material information',
-                          value:
-                              'Mulberry silk, hand-dyed with natural indigo and plant-based pigments',
+                          value: 'Mulberry silk, hand-dyed with natural indigo and plant-based pigments',
                         ),
                         const SizedBox(height: 10),
                         if (widget.item.dimensions != null) ...[
@@ -240,7 +230,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                           },
                         ),
                         const SizedBox(height: 18),
-                        _SectionTitle(title: 'Story behind this piece'),
+                        const _SectionTitle(title: 'Story behind this piece'),
                         const SizedBox(height: 8),
                         const Text(
                           'Every thread reflects long-standing craftsmanship passed down through families in Cambodia, turning a gift into a piece of living culture.',

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import '../features/profile/profile_page.dart';
 
 class AppFooterNav extends StatelessWidget {
-  const AppFooterNav({super.key, this.currentIndex = 0});
+  const AppFooterNav({super.key, this.currentIndex = 0, this.onTap});
 
   final int currentIndex;
+  final void Function(int index)? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -27,10 +29,28 @@ class AppFooterNav extends StatelessWidget {
         children: [
           for (var index = 0; index < items.length; index++)
             Expanded(
-              child: _FooterItem(
-                icon: items[index].icon,
-                label: items[index].label,
-                selected: index == currentIndex,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(18),
+                onTap: () {
+                  if (onTap != null) {
+                    onTap!(index);
+                    return;
+                  }
+
+                  // Default behavior: open Profile page when profile item tapped
+                  if (index == items.length - 1) {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const ProfilePage(showAppBar: true),
+                      ),
+                    );
+                  }
+                },
+                child: _FooterItem(
+                  icon: items[index].icon,
+                  label: items[index].label,
+                  selected: index == currentIndex,
+                ),
               ),
             ),
         ],
@@ -53,7 +73,9 @@ class _FooterItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final background = selected ? const Color(0xFFF1C766) : Colors.transparent;
-    final foreground = selected ? const Color(0xFF7B5200) : const Color(0xFF5E554B);
+    final foreground = selected
+        ? const Color(0xFF7B5200)
+        : const Color(0xFF5E554B);
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 220),
@@ -71,10 +93,9 @@ class _FooterItem extends StatelessWidget {
           Text(
             label,
             overflow: TextOverflow.ellipsis,
-            style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: foreground,
-                  fontSize: 10,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.labelSmall?.copyWith(color: foreground, fontSize: 10),
           ),
         ],
       ),
