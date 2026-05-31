@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -9,6 +10,7 @@ class ProfileAvatar extends StatelessWidget {
     required this.initials,
     this.networkImageUrl,
     this.localFile,
+    this.imageBytes,
     this.radius = 48,
     this.showEditButton = false,
     this.onEditTap,
@@ -17,13 +19,16 @@ class ProfileAvatar extends StatelessWidget {
   final String initials;
   final String? networkImageUrl;
   final File? localFile;
+  final Uint8List? imageBytes;
   final double radius;
   final bool showEditButton;
   final VoidCallback? onEditTap;
 
   @override
   Widget build(BuildContext context) {
-    final avatarContent = localFile != null
+    final avatarContent = imageBytes != null
+        ? Image.memory(imageBytes!, fit: BoxFit.cover)
+        : localFile != null
         ? Image.file(localFile!, fit: BoxFit.cover)
         : networkImageUrl != null
         ? Image.network(

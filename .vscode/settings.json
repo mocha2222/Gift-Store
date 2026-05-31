@@ -1,3 +1,4 @@
 {
-    "cmake.sourceDirectory": "D:/GIC-I4/flutter project/Gift-Store/linux/runner"
+  "cmake.sourceDirectory": "D:/GIC-I4/flutter project/Gift-Store/linux/runner",
+  "C_Cpp.errorSquiggles": "enabled"
 }

@@ -1,5 +1,8 @@
+import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
@@ -9,6 +12,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../auth/login_page.dart';
 import 'edit_profile_page.dart';
 import 'following_page.dart';
+import 'my_address_page.dart';
+import 'notifications_page.dart';
 import 'widgets/profile_avatar.dart';
 import 'widgets/profile_menu_section.dart';
 import 'widgets/profile_stats_row.dart';
@@ -29,6 +34,7 @@ class _CustomerProfilePageState extends State<CustomerProfilePage> {
   String _joined = '';
   int _followingCount = 0;
   File? _localImage;
+  Uint8List? _imageBytes;
 
   void _showMessage(String message, {bool isError = false}) {
     if (!mounted) return;
@@ -50,13 +56,20 @@ class _CustomerProfilePageState extends State<CustomerProfilePage> {
 
   Future<void> _loadUserData() async {
     final prefs = await SharedPreferences.getInstance();
-    final avatarPath = prefs.getString('user_avatar_path');
+
+    Uint8List? imageBytes;
     File? localFile;
 
-    if (avatarPath != null && avatarPath.isNotEmpty) {
-      final file = File(avatarPath);
-      if (await file.exists()) {
-        localFile = file;
+    if (kIsWeb) {
+      final base64Str = prefs.getString('user_avatar_bytes');
+      if (base64Str != null && base64Str.isNotEmpty) {
+        imageBytes = base64Decode(base64Str);
+      }
+    } else {
+      final avatarPath = prefs.getString('user_avatar_path');
+      if (avatarPath != null && avatarPath.isNotEmpty) {
+        final file = File(avatarPath);
+        if (await file.exists()) localFile = file;
       }
     }
 
@@ -69,6 +82,7 @@ class _CustomerProfilePageState extends State<CustomerProfilePage> {
       _followingCount =
           (prefs.getStringList('followed_artisans') ?? const []).length;
       _localImage = localFile;
+      _imageBytes = imageBytes;
     });
   }
 
@@ -99,38 +113,47 @@ class _CustomerProfilePageState extends State<CustomerProfilePage> {
         return;
       }
 
-      final savedImage = await _persistPickedImage(picked);
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('user_avatar_path', savedImage.path);
+      if (kIsWeb) {
+        final bytes = await picked.readAsBytes();
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('user_avatar_bytes', base64Encode(bytes));
 
-      if (!mounted) return;
-      setState(() {
-        _localImage = savedImage;
-      });
+        if (!mounted) return;
+        setState(() {
+          _imageBytes = bytes;
+        });
+      } else {
+        final savedImage = await _persistFile(File(picked.path));
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('user_avatar_path', savedImage.path);
+
+        if (!mounted) return;
+        setState(() {
+          _localImage = savedImage;
+        });
+      }
+
       _showMessage('Profile picture updated.');
-    } catch (_) {
-      _showMessage(
-        'Could not open gallery. Please allow photos permission.',
-        isError: true,
-      );
+    } catch (e) {
+      _showMessage('Error: $e', isError: true);
     }
   }
 
-  Future<File> _persistPickedImage(XFile picked) async {
+  Future<File> _persistFile(File file) async {
     final appDir = await getApplicationDocumentsDirectory();
     final profileDir = Directory('${appDir.path}/profile');
     if (!await profileDir.exists()) {
       await profileDir.create(recursive: true);
     }
 
-    final extension = picked.path.contains('.')
-        ? picked.path.substring(picked.path.lastIndexOf('.'))
+    final extension = file.path.contains('.')
+        ? file.path.substring(file.path.lastIndexOf('.'))
         : '.jpg';
     final fileName =
         'avatar_${DateTime.now().millisecondsSinceEpoch}$extension';
     final savedPath = '${profileDir.path}/$fileName';
 
-    return File(picked.path).copy(savedPath);
+    return file.copy(savedPath);
   }
 
   Future<void> _openEditProfilePage() async {
@@ -181,6 +204,18 @@ class _CustomerProfilePageState extends State<CustomerProfilePage> {
         ),
       ),
     );
+  }
+
+  Future<void> _openMyAddressPage() async {
+    await Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => const MyAddressPage()));
+  }
+
+  Future<void> _openNotificationsPage() async {
+    await Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => const NotificationsPage()));
   }
 
   Future<void> _confirmDeleteAccount() async {
@@ -338,7 +373,8 @@ class _CustomerProfilePageState extends State<CustomerProfilePage> {
                 children: [
                   ProfileAvatar(
                     initials: _initials,
-                    localFile: _localImage,
+                    localFile: kIsWeb ? null : _localImage,
+                    imageBytes: kIsWeb ? _imageBytes : null,
                     radius: 52,
                     showEditButton: true,
                     onEditTap: _pickImage,
@@ -412,8 +448,8 @@ class _CustomerProfilePageState extends State<CustomerProfilePage> {
                   ),
                   ProfileMenuItem(
                     icon: Icons.location_on_outlined,
-                    label: 'My Addresses',
-                    onTap: () {},
+                    label: 'My Address',
+                    onTap: _openMyAddressPage,
                   ),
                 ],
               ),
@@ -434,7 +470,7 @@ class _CustomerProfilePageState extends State<CustomerProfilePage> {
                   ProfileMenuItem(
                     icon: Icons.notifications_outlined,
                     label: 'Notifications',
-                    onTap: () {},
+                    onTap: _openNotificationsPage,
                   ),
                   ProfileMenuItem(
                     icon: Icons.logout_rounded,

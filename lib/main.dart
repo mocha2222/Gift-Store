@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'features/home/home_page.dart';
 import 'router/app_router.dart';
 
 void main() async {

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../data/home_mock_data.dart';
 import '../auth/login_page.dart';
 import 'widgets/profile_stats_row.dart';
 
@@ -14,7 +15,8 @@ class ArtisanProfilePage extends StatefulWidget {
     required this.region,
     required this.craft,
     required this.story,
-    this.coverPhoto,
+    required this.avatarUrl,
+    required this.products,
     this.followerCount = 128,
   });
 
@@ -22,7 +24,8 @@ class ArtisanProfilePage extends StatefulWidget {
   final String region;
   final String craft;
   final String story;
-  final String? coverPhoto;
+  final String? avatarUrl;
+  final List<ArtisanProduct> products;
   final int followerCount;
 
   @override
@@ -36,12 +39,69 @@ class _ArtisanProfilePageState extends State<ArtisanProfilePage> {
   bool _isLoggedIn = false;
   late int _followerCount;
 
-  Map<String, String> get _artisanRecord => {
+  List<ArtisanProduct> get _displayProducts {
+    if (widget.products.isNotEmpty) {
+      return widget.products;
+    }
+
+    final avatarUrl = widget.avatarUrl ?? '';
+    if (avatarUrl.contains('Silk-wallet.jpg')) {
+      return const [
+        ArtisanProduct(
+          title: 'Silk Wallet',
+          price: '\$22.00',
+          imagePath: 'lib/assets/images/artisans/Silk-wallet.jpg',
+        ),
+        ArtisanProduct(
+          title: 'Coin Pouch',
+          price: '\$16.00',
+          imagePath: 'lib/assets/images/artisans/Silk-wallet.jpg',
+        ),
+        ArtisanProduct(
+          title: 'Passport Sleeve',
+          price: '\$24.00',
+          imagePath: 'lib/assets/images/artisans/Silk-wallet.jpg',
+        ),
+        ArtisanProduct(
+          title: 'Card Holder',
+          price: '\$19.00',
+          imagePath: 'lib/assets/images/artisans/Silk-wallet.jpg',
+        ),
+      ];
+    }
+
+    return const [
+      ArtisanProduct(
+        title: 'Handwoven Scarf',
+        price: '\$28.00',
+        imagePath: 'lib/assets/images/artisans/Krama.jpg',
+      ),
+      ArtisanProduct(
+        title: 'Krama Wrap',
+        price: '\$34.00',
+        imagePath: 'lib/assets/images/artisans/Krama.jpg',
+      ),
+      ArtisanProduct(
+        title: 'Wooden Bowl',
+        price: '\$29.00',
+        imagePath: 'lib/assets/images/artisans/Krama.jpg',
+      ),
+      ArtisanProduct(
+        title: 'Keepsake Box',
+        price: '\$36.00',
+        imagePath: 'lib/assets/images/artisans/Krama.jpg',
+      ),
+    ];
+  }
+
+  Map<String, dynamic> get _artisanRecord => {
     'name': widget.name,
     'region': widget.region,
     'craft': widget.craft,
     'story': widget.story,
-    if (widget.coverPhoto != null) 'coverPhoto': widget.coverPhoto!,
+    'avatarUrl': widget.avatarUrl ?? '',
+    'followerCount': widget.followerCount,
+    'products': _displayProducts.map((product) => product.toJson()).toList(),
   };
 
   @override
@@ -105,13 +165,11 @@ class _ArtisanProfilePageState extends State<ArtisanProfilePage> {
     });
   }
 
-  Map<String, String> _decodeFollowRecord(String value) {
+  Map<String, dynamic> _decodeFollowRecord(String value) {
     try {
       final decoded = jsonDecode(value);
       if (decoded is Map) {
-        return decoded.map(
-          (key, entry) => MapEntry(key.toString(), entry.toString()),
-        );
+        return decoded.map((key, entry) => MapEntry(key.toString(), entry));
       }
     } catch (_) {
       // Backward compatibility with the old string-only format.
@@ -190,15 +248,36 @@ class _ArtisanProfilePageState extends State<ArtisanProfilePage> {
                         color: const Color(0xFFD8AE73),
                         border: Border.all(color: Colors.white, width: 2),
                       ),
-                      child: Center(
-                        child: Text(
-                          _initials,
-                          style: GoogleFonts.cormorantGaramond(
-                            fontSize: 24,
-                            fontWeight: FontWeight.w700,
-                            color: const Color(0xFF4A321B),
-                          ),
-                        ),
+                      child: ClipOval(
+                        child:
+                            widget.avatarUrl != null &&
+                                widget.avatarUrl!.isNotEmpty
+                            ? Image.asset(
+                                widget.avatarUrl!,
+                                fit: BoxFit.cover,
+                                width: 64,
+                                height: 64,
+                                errorBuilder: (_, __, ___) => Center(
+                                  child: Text(
+                                    _initials,
+                                    style: GoogleFonts.cormorantGaramond(
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.w700,
+                                      color: const Color(0xFF4A321B),
+                                    ),
+                                  ),
+                                ),
+                              )
+                            : Center(
+                                child: Text(
+                                  _initials,
+                                  style: GoogleFonts.cormorantGaramond(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.w700,
+                                    color: const Color(0xFF4A321B),
+                                  ),
+                                ),
+                              ),
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -311,7 +390,10 @@ class _ArtisanProfilePageState extends State<ArtisanProfilePage> {
                 const SizedBox(height: 20),
                 ProfileStatsRow(
                   stats: [
-                    (label: 'Products', value: '24'),
+                    (
+                      label: 'Products',
+                      value: _displayProducts.length.toString(),
+                    ),
                     (label: 'Followers', value: _followerCount.toString()),
                     (label: 'Rating', value: '4.9★'),
                   ],
@@ -370,8 +452,8 @@ class _ArtisanProfilePageState extends State<ArtisanProfilePage> {
                 childAspectRatio: 0.78,
               ),
               delegate: SliverChildBuilderDelegate(
-                (context, index) => const _ItemCard(),
-                childCount: 6,
+                (context, index) => _ItemCard(item: _displayProducts[index]),
+                childCount: _displayProducts.length,
               ),
             ),
           ),
@@ -383,7 +465,9 @@ class _ArtisanProfilePageState extends State<ArtisanProfilePage> {
 }
 
 class _ItemCard extends StatelessWidget {
-  const _ItemCard();
+  const _ItemCard({required this.item});
+
+  final ArtisanProduct item;
 
   @override
   Widget build(BuildContext context) {
@@ -397,16 +481,23 @@ class _ItemCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
-            child: Container(
-              decoration: const BoxDecoration(
-                color: Color(0xFFF1E7D5),
-                borderRadius: BorderRadius.vertical(top: Radius.circular(14)),
+            child: ClipRRect(
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(14),
               ),
-              child: const Center(
-                child: Icon(
-                  Icons.image_outlined,
-                  color: Color(0xFFD8AE73),
-                  size: 36,
+              child: Image.asset(
+                item.imagePath,
+                fit: BoxFit.cover,
+                width: double.infinity,
+                errorBuilder: (context, error, stackTrace) => Container(
+                  decoration: const BoxDecoration(color: Color(0xFFF1E7D5)),
+                  child: const Center(
+                    child: Icon(
+                      Icons.broken_image,
+                      color: Color(0xFFD8AE73),
+                      size: 36,
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -417,7 +508,7 @@ class _ItemCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Handwoven Scarf',
+                  item.title,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: GoogleFonts.inter(
@@ -428,7 +519,7 @@ class _ItemCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  '\$28.00',
+                  item.price,
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     fontWeight: FontWeight.w800,

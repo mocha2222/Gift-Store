@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../features/profile/profile_page.dart';
+import 'package:gift_shop/features/profile/profile_page.dart';
 
 class AppFooterNav extends StatelessWidget {
   const AppFooterNav({super.key, this.currentIndex = 0, this.onTap});

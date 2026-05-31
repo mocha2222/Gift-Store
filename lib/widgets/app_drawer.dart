@@ -1,5 +1,13 @@
+import 'dart:convert';
+import 'dart:io';
+import 'dart:typed_data';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../features/profile/profile_page.dart';
+import '../features/profile/widgets/profile_avatar.dart';
 
 class AppDrawer extends StatelessWidget {
   const AppDrawer({super.key});
@@ -95,7 +103,14 @@ class AppDrawer extends StatelessWidget {
                   _DrawerItem(
                     icon: Icons.person_outline_rounded,
                     label: 'Profile',
-                    onTap: () => Navigator.of(context).pop(),
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => const ProfilePage(showAppBar: true),
+                        ),
+                      );
+                    },
                   ),
                   _DrawerItem(
                     icon: Icons.logout_rounded,
@@ -105,10 +120,9 @@ class AppDrawer extends StatelessWidget {
                       await prefs.remove('user_email');
                       await prefs.remove('user_password');
                       if (!context.mounted) return;
-                      Navigator.of(context).pushNamedAndRemoveUntil(
-                        '/login',
-                        (route) => false,
-                      );
+                      Navigator.of(
+                        context,
+                      ).pushNamedAndRemoveUntil('/login', (route) => false);
                     },
                   ),
                 ],
@@ -118,71 +132,105 @@ class AppDrawer extends StatelessWidget {
             FutureBuilder<SharedPreferences>(
               future: SharedPreferences.getInstance(),
               builder: (context, snapshot) {
-                final email = snapshot.data?.getString('user_email');
-                final displayEmail = email == null || email.isEmpty
-                    ? 'Guest account'
-                    : email;
-                final initials = _buildInitials(displayEmail);
+                final prefs = snapshot.data;
+                final name = prefs?.getString('user_name') ?? 'Guest';
+                final email = prefs?.getString('user_email') ?? '';
+                final initials =
+                    prefs?.getString('user_initials') ?? _buildInitials(name);
+
+                File? localImage;
+                Uint8List? imageBytes;
+
+                if (prefs != null) {
+                  if (kIsWeb) {
+                    final base64Str = prefs.getString('user_avatar_bytes');
+                    if (base64Str != null && base64Str.isNotEmpty) {
+                      imageBytes = base64Decode(base64Str);
+                    }
+                  } else {
+                    final avatarPath = prefs.getString('user_avatar_path');
+                    if (avatarPath != null && avatarPath.isNotEmpty) {
+                      final file = File(avatarPath);
+                      if (file.existsSync()) {
+                        localImage = file;
+                      }
+                    }
+                  }
+                }
+
+                final displayEmail = email.isEmpty ? 'Guest account' : email;
 
                 return Padding(
                   padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFFF7EC),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: const Color(0xFFE3D3BE)),
-                    ),
-                    child: Row(
-                      children: [
-                        CircleAvatar(
-                          radius: 21,
-                          backgroundColor: const Color(0xFFD8AE73),
-                          child: Text(
-                            initials,
-                            style: const TextStyle(
-                              color: Color(0xFF4A321B),
-                              fontWeight: FontWeight.w800,
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const ProfilePage(showAppBar: true),
+                          ),
+                        );
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 10,
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFFF7EC),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: const Color(0xFFE3D3BE)),
+                        ),
+                        child: Row(
+                          children: [
+                            ProfileAvatar(
+                              initials: initials,
+                              localFile: kIsWeb ? null : localImage,
+                              imageBytes: kIsWeb ? imageBytes : null,
+                              radius: 21,
                             ),
-                          ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Text(
+                                    'Profile',
+                                    style: TextStyle(
+                                      color: Color(0xFF9E7E5A),
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 1),
+                                  Text(
+                                    name.isEmpty ? displayEmail : name,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      color: Color(0xFF231408),
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 1),
+                                  const Text(
+                                    'Tap the menu to explore your account',
+                                    style: TextStyle(
+                                      color: Color(0xFF8B6F52),
+                                      fontSize: 11,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Text(
-                                'Profile',
-                                style: TextStyle(
-                                  color: Color(0xFF9E7E5A),
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                              const SizedBox(height: 1),
-                              Text(
-                                displayEmail,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
-                                  color: Color(0xFF231408),
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                              const SizedBox(height: 1),
-                              const Text(
-                                'Tap the menu to explore your account',
-                                style: TextStyle(
-                                  color: Color(0xFF8B6F52),
-                                  fontSize: 11,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
                   ),
                 );
@@ -196,11 +244,17 @@ class AppDrawer extends StatelessWidget {
 }
 
 String _buildInitials(String value) {
-  final parts = value.trim().split(RegExp(r'\s+')).where((part) => part.isNotEmpty).toList();
+  final parts = value
+      .trim()
+      .split(RegExp(r'\s+'))
+      .where((part) => part.isNotEmpty)
+      .toList();
   final firstPart = parts.isNotEmpty ? parts.first : 'G';
   final secondPart = parts.length > 1 ? parts[1] : '';
   final firstInitial = firstPart.isNotEmpty ? firstPart[0].toUpperCase() : 'G';
-  final secondInitial = secondPart.isNotEmpty ? secondPart[0].toUpperCase() : '';
+  final secondInitial = secondPart.isNotEmpty
+      ? secondPart[0].toUpperCase()
+      : '';
   return '$firstInitial$secondInitial';
 }
 
@@ -234,5 +288,3 @@ class _DrawerItem extends StatelessWidget {
     );
   }
 }
-
-

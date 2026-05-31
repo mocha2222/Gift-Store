@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../data/home_mock_data.dart';
 import 'artisan_profile_page.dart';
 
 class FollowingPage extends StatefulWidget {
@@ -28,14 +29,27 @@ class _FollowingPageState extends State<FollowingPage> {
     return stored.map(_FollowedArtisan.fromStorage).toList();
   }
 
+  MakerItem? _resolveCurrentMaker(String name) {
+    for (final maker in makers) {
+      if (maker.name == name) {
+        return maker;
+      }
+    }
+    return null;
+  }
+
   void _openArtisan(_FollowedArtisan artisan) {
+    final currentMaker = _resolveCurrentMaker(artisan.name);
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => ArtisanProfilePage(
-          name: artisan.name,
+          name: currentMaker?.name ?? artisan.name,
           region: artisan.region,
           craft: artisan.craft,
           story: artisan.story,
+          avatarUrl: currentMaker?.avatarUrl ?? artisan.avatarUrl,
+          followerCount: currentMaker?.followerCount ?? artisan.followerCount,
+          products: currentMaker?.products ?? artisan.products,
         ),
       ),
     );
@@ -144,6 +158,8 @@ class _FollowingPageState extends State<FollowingPage> {
             separatorBuilder: (_, __) => const SizedBox(height: 12),
             itemBuilder: (context, index) {
               final artisan = artisans[index];
+              final currentMaker = _resolveCurrentMaker(artisan.name);
+              final avatarUrl = currentMaker?.avatarUrl ?? artisan.avatarUrl;
               return InkWell(
                 borderRadius: BorderRadius.circular(18),
                 onTap: () => _openArtisan(artisan),
@@ -159,24 +175,37 @@ class _FollowingPageState extends State<FollowingPage> {
                       Container(
                         width: 54,
                         height: 54,
-                        decoration: const BoxDecoration(
+                        decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          gradient: LinearGradient(
-                            colors: [Color(0xFF7A4E2D), Color(0xFFB8770D)],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
+                          color: const Color(0xFFD8AE73),
+                          border: Border.all(color: Colors.white, width: 2),
                         ),
-                        child: Center(
-                          child: Text(
-                            artisan.initials,
-                            style: GoogleFonts.cormorantGaramond(
-                              fontSize: 22,
-                              fontWeight: FontWeight.w700,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
+                        clipBehavior: Clip.antiAlias,
+                        child: avatarUrl != null && avatarUrl.isNotEmpty
+                            ? Image.asset(
+                                avatarUrl,
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, __, ___) => Center(
+                                  child: Text(
+                                    artisan.initials,
+                                    style: GoogleFonts.cormorantGaramond(
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              )
+                            : Center(
+                                child: Text(
+                                  artisan.initials,
+                                  style: GoogleFonts.cormorantGaramond(
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
@@ -239,12 +268,18 @@ class _FollowedArtisan {
     required this.region,
     required this.craft,
     required this.story,
+    required this.avatarUrl,
+    required this.followerCount,
+    required this.products,
   });
 
   final String name;
   final String region;
   final String craft;
   final String story;
+  final String? avatarUrl;
+  final int followerCount;
+  final List<ArtisanProduct> products;
 
   String get initials {
     final parts = name
@@ -262,11 +297,27 @@ class _FollowedArtisan {
       final decoded = jsonDecode(value);
       if (decoded is Map) {
         String read(String key) => decoded[key]?.toString() ?? '';
+        final rawProducts = decoded['products'];
+        final products = rawProducts is List
+            ? rawProducts
+                  .whereType<Map>()
+                  .map(
+                    (item) => ArtisanProduct.fromJson(
+                      item.map((key, entry) => MapEntry(key.toString(), entry)),
+                    ),
+                  )
+                  .toList()
+            : <ArtisanProduct>[];
         return _FollowedArtisan(
           name: read('name'),
           region: read('region'),
           craft: read('craft'),
           story: read('story'),
+          avatarUrl: read('avatarUrl').isEmpty
+              ? (read('coverPhoto').isEmpty ? null : read('coverPhoto'))
+              : read('avatarUrl'),
+          followerCount: int.tryParse(read('followerCount')) ?? 128,
+          products: products,
         );
       }
     } catch (_) {
@@ -278,6 +329,9 @@ class _FollowedArtisan {
       region: '',
       craft: '',
       story: '',
+      avatarUrl: null,
+      followerCount: 128,
+      products: const [],
     );
   }
 }
