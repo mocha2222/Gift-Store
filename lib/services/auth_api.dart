@@ -22,6 +22,9 @@ class AuthApi {
     final profileImage = body['user']?['profile_image'];
     if (profileImage != null && profileImage.toString().isNotEmpty) {
       await prefs.setString('user_avatar_bytes', profileImage as String);
+    } else {
+      await prefs.remove('user_avatar_bytes');
+      await prefs.remove('user_avatar_path');
     }
     return body;
   }
@@ -42,6 +45,9 @@ class AuthApi {
     final profileImage = body['user']?['profile_image'];
     if (profileImage != null && profileImage.toString().isNotEmpty) {
       await prefs.setString('user_avatar_bytes', profileImage as String);
+    } else {
+      await prefs.remove('user_avatar_bytes');
+      await prefs.remove('user_avatar_path');
     }
     return body;
   }

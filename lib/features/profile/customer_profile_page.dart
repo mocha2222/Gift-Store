@@ -322,6 +322,7 @@ class _CustomerProfilePageState extends State<CustomerProfilePage> {
     await prefs.remove('user_name');
     await prefs.remove('user_initials');
     await prefs.remove('user_joined');
+    await prefs.remove('user_avatar_bytes');
     await prefs.remove('user_avatar_path');
     await prefs.remove('user_password');
     await prefs.remove('followed_artisans');
@@ -341,6 +342,7 @@ class _CustomerProfilePageState extends State<CustomerProfilePage> {
     await prefs.remove('user_name');
     await prefs.remove('user_initials');
     await prefs.remove('user_joined');
+    await prefs.remove('user_avatar_bytes');
     await prefs.remove('user_avatar_path');
     await prefs.remove('user_password');
     await prefs.remove('followed_artisans');
