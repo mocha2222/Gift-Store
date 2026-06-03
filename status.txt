@@ -1,0 +1,41 @@
+On branch main
+Your branch and 'origin/main' have diverged,
+and have 1 and 1 different commits each, respectively.
+  (use "git pull" if you want to integrate the remote branch with yours)
+
+You have unmerged paths.
+  (fix conflicts and run "git commit")
+  (use "git merge --abort" to abort the merge)
+
+Changes to be committed:
+	new file:   lib/assets/images/logo.jpg
+	new file:   lib/features/auth/widgets/auth_error_banner.dart
+	new file:   lib/features/auth/widgets/auth_submit_button.dart
+	new file:   lib/features/auth/widgets/auth_text_field.dart
+	new file:   lib/features/home/widgets/collection_card.dart
+	new file:   lib/features/home/widgets/discipline_chip.dart
+	new file:   lib/features/home/widgets/gift_card.dart
+	new file:   lib/features/home/widgets/hero_card.dart
+	new file:   lib/features/home/widgets/maker_card.dart
+	new file:   lib/features/home/widgets/promo_card.dart
+	new file:   lib/features/home/widgets/quiz_banner.dart
+	new file:   lib/features/home/widgets/search_bar_widget.dart
+	new file:   lib/features/quiz/widgets/quiz_models.dart
+	new file:   lib/features/quiz/widgets/quiz_option_tile.dart
+	new file:   lib/features/quiz/widgets/quiz_progress_bar.dart
+	new file:   lib/features/quiz/widgets/quiz_question_view.dart
+	new file:   lib/features/quiz/widgets/quiz_result_card.dart
+	new file:   lib/features/quiz/widgets/quiz_results_view.dart
+	modified:   pubspec.yaml
+
+Unmerged paths:
+  (use "git add <file>..." to mark resolution)
+	both modified:   lib/features/auth/login_page.dart
+	both modified:   lib/features/auth/signup_page.dart
+	both modified:   lib/features/home/widgets/home_homepage.dart
+	both modified:   lib/features/quiz/quiz_page.dart
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	status.txt
+
