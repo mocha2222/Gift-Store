@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { ArtisanStatus } from '../common/enums';
 import { parseObjectId } from '../common/mongo.util';
 import { Artisan, ArtisanDocument } from '../schemas/artisan.schema';
 import { Product, ProductDocument } from '../schemas/product.schema';
@@ -17,7 +18,11 @@ export class ArtisansService {
   }
 
   findFeatured() {
-    return this.artisanModel.find().populate('user_id').limit(6).exec();
+    return this.artisanModel
+      .find({ status: ArtisanStatus.ACTIVE })
+      .populate('user_id')
+      .limit(6)
+      .exec();
   }
 
   async findOne(id: string): Promise<Record<string, unknown>> {
@@ -40,7 +45,10 @@ export class ArtisansService {
     lng: number,
     radiusKm = 50,
   ): Promise<Record<string, unknown>[]> {
-    const shops = await this.artisanModel.find().populate('user_id').exec();
+    const shops = await this.artisanModel
+      .find({ status: ArtisanStatus.ACTIVE })
+      .populate('user_id')
+      .exec();
     return shops
       .filter((a) => a.latitude != null && a.longitude != null)
       .map((a) => ({
@@ -75,12 +83,24 @@ export class ArtisansService {
 
   findMapLocations() {
     return this.artisanModel
-      .find()
+      .find({ status: ArtisanStatus.ACTIVE })
       .select('shop_name shop_location region craft_type latitude longitude cover_image')
       .exec();
   }
 
   create(data: Partial<Artisan>) {
-    return this.artisanModel.create(data);
+    return this.artisanModel.create({
+      ...data,
+      status: data.status ?? ArtisanStatus.PENDING_SETUP,
+    });
+  }
+
+  async updateStatus(id: string, status: ArtisanStatus) {
+    const artisan = await this.artisanModel
+      .findByIdAndUpdate(parseObjectId(id, 'artisan id'), { status }, { new: true })
+      .populate('user_id')
+      .exec();
+    if (!artisan) throw new NotFoundException('Artisan not found');
+    return artisan;
   }
 }

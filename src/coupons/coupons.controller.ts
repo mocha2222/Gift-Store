@@ -23,7 +23,12 @@ export class CouponsController {
   @Post()
   create(
     @Body()
-    body: { code: string; discount: number; start_date: string; end_date: string },
+    body: {
+      code: string;
+      discount: number;
+      start_date: string | Date;
+      end_date: string | Date;
+    },
   ) {
     return this.service.create(body);
   }

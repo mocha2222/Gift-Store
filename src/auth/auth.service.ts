@@ -7,7 +7,8 @@ import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import * as bcrypt from 'bcrypt';
 import { Model } from 'mongoose';
-import { UserRole } from '../common/enums';
+import { ArtisanStatus, UserRole } from '../common/enums';
+import { Artisan, ArtisanDocument } from '../schemas/artisan.schema';
 import { User, UserDocument } from '../schemas/user.schema';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
@@ -16,6 +17,7 @@ import { RegisterDto } from './dto/register.dto';
 export class AuthService {
   constructor(
     @InjectModel(User.name) private userModel: Model<UserDocument>,
+    @InjectModel(Artisan.name) private artisanModel: Model<ArtisanDocument>,
     private jwtService: JwtService,
   ) {}
 
@@ -29,6 +31,14 @@ export class AuthService {
       password: hash,
       role: dto.role ?? UserRole.CUSTOMER,
     });
+
+    if (user.role === UserRole.ARTISAN) {
+      await this.artisanModel.create({
+        user_id: user._id,
+        shop_name: user.name,
+        status: ArtisanStatus.PENDING_SETUP,
+      });
+    }
 
     return this.tokenResponse(user);
   }

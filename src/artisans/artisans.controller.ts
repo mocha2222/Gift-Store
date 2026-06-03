@@ -1,4 +1,14 @@
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseEnumPipe,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common';
+import { ArtisanStatus } from '../common/enums';
 import { ArtisansService } from './artisans.service';
 
 @Controller('artisans')
@@ -37,5 +47,13 @@ export class ArtisansController {
   @Post()
   create(@Body() body: Record<string, unknown>) {
     return this.service.create(body);
+  }
+
+  @Patch(':id/status')
+  updateStatus(
+    @Param('id') id: string,
+    @Body('status', new ParseEnumPipe(ArtisanStatus)) status: ArtisanStatus,
+  ) {
+    return this.service.updateStatus(id, status);
   }
 }

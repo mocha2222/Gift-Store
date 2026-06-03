@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
+import { ArtisanStatus } from '../common/enums';
 import { defaultSchemaOptions } from '../common/schema-options';
 import { User } from './user.schema';
 
@@ -9,6 +10,9 @@ export type ArtisanDocument = HydratedDocument<Artisan>;
 export class Artisan {
   @Prop({ type: Types.ObjectId, ref: User.name, required: true, unique: true })
   user_id: Types.ObjectId;
+
+  @Prop({ type: String, enum: ArtisanStatus, default: ArtisanStatus.PENDING_SETUP })
+  status: ArtisanStatus;
 
   @Prop({ required: true })
   shop_name: string;

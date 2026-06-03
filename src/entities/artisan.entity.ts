@@ -1,6 +1,7 @@
 export interface ArtisanEntity {
   id?: string;
   user_id: string;
+  status?: string;
   shop_name: string;
   region?: string;
   craft_type?: string;

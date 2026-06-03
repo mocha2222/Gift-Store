@@ -13,10 +13,10 @@ export class Coupon {
   discount: number;
 
   @Prop({ required: true })
-  start_date: string;
+  start_date: Date;
 
   @Prop({ required: true })
-  end_date: string;
+  end_date: Date;
 }
 
 export const CouponSchema = SchemaFactory.createForClass(Coupon);

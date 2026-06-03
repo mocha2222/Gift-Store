@@ -10,7 +10,7 @@ export class CouponsService {
   ) {}
 
   findActive() {
-    const today = new Date().toISOString().slice(0, 10);
+    const today = new Date();
     return this.couponModel
       .find({ start_date: { $lte: today }, end_date: { $gte: today } })
       .exec();
@@ -26,17 +26,24 @@ export class CouponsService {
     });
     if (!coupon) throw new BadRequestException('Invalid coupon');
 
-    const today = new Date().toISOString().slice(0, 10);
+    const today = new Date();
     if (today < coupon.start_date || today > coupon.end_date) {
       throw new BadRequestException('Coupon expired or not yet active');
     }
     return coupon;
   }
 
-  create(data: Partial<Coupon>) {
+  create(data: {
+    code: string;
+    discount: number;
+    start_date: string | Date;
+    end_date: string | Date;
+  }) {
     return this.couponModel.create({
-      ...data,
-      code: data.code?.toUpperCase(),
+      code: data.code.toUpperCase(),
+      discount: data.discount,
+      start_date: data.start_date ? new Date(data.start_date) : data.start_date,
+      end_date: data.end_date ? new Date(data.end_date) : data.end_date,
     });
   }
 }

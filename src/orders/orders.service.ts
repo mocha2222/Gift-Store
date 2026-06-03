@@ -8,6 +8,7 @@ import { Model } from 'mongoose';
 import { OrderStatus } from '../common/enums';
 import { parseObjectId } from '../common/mongo.util';
 import { Coupon, CouponDocument } from '../schemas/coupon.schema';
+import { OrderItem, OrderItemDocument } from '../schemas/order-item.schema';
 import { Order, OrderDocument } from '../schemas/order.schema';
 import { Product, ProductDocument } from '../schemas/product.schema';
 import { CreateOrderDto } from './dto/create-order.dto';
@@ -16,26 +17,28 @@ import { CreateOrderDto } from './dto/create-order.dto';
 export class OrdersService {
   constructor(
     @InjectModel(Order.name) private orderModel: Model<OrderDocument>,
+    @InjectModel(OrderItem.name)
+    private orderItemModel: Model<OrderItemDocument>,
     @InjectModel(Product.name) private productModel: Model<ProductDocument>,
     @InjectModel(Coupon.name) private couponModel: Model<CouponDocument>,
   ) {}
 
-  findByUser(userId: string) {
-    return this.orderModel
+  async findByUser(userId: string) {
+    const orders = await this.orderModel
       .find({ user_id: parseObjectId(userId) })
-      .populate({ path: 'items.product_id' })
       .sort({ createdAt: -1 })
       .exec();
+    return this.attachItems(orders);
   }
 
   async findOne(id: string) {
     const order = await this.orderModel
       .findById(parseObjectId(id, 'order id'))
       .populate('user_id')
-      .populate({ path: 'items.product_id' })
       .exec();
     if (!order) throw new NotFoundException('Order not found');
-    return order;
+    const [result] = await this.attachItems([order]);
+    return result;
   }
 
   async create(userId: string, dto: CreateOrderDto) {
@@ -76,11 +79,6 @@ export class OrdersService {
 
     const order = await this.orderModel.create({
       user_id: parseObjectId(userId),
-      items: lineItems.map((i) => ({
-        product_id: parseObjectId(i.product_id),
-        quantity: i.quantity,
-        subtotal: i.subtotal,
-      })),
       total_price: Math.round(total * 100) / 100,
       delivery_date: dto.delivery_date,
       gift_wrap: dto.gift_wrap ?? false,
@@ -88,6 +86,16 @@ export class OrdersService {
       coupon_code: dto.coupon_code,
       status: OrderStatus.PENDING,
     });
+
+    await this.orderItemModel.insertMany(
+      lineItems.map((i) => ({
+        order_id: order._id,
+        product_id: parseObjectId(i.product_id),
+        quantity: i.quantity,
+        price: this.roundCurrency(i.subtotal / i.quantity),
+        subtotal: this.roundCurrency(i.subtotal),
+      })),
+    );
 
     return this.findOne(order._id.toString());
   }
@@ -98,7 +106,7 @@ export class OrdersService {
     });
     if (!coupon) throw new BadRequestException('Invalid coupon code');
 
-    const today = new Date().toISOString().slice(0, 10);
+    const today = new Date();
     if (today < coupon.start_date || today > coupon.end_date) {
       throw new BadRequestException('Coupon is not valid for this date');
     }
@@ -111,5 +119,32 @@ export class OrdersService {
       .exec();
     if (!order) throw new NotFoundException('Order not found');
     return this.findOne(id);
+  }
+
+  private roundCurrency(value: number) {
+    return Math.round(value * 100) / 100;
+  }
+
+  private async attachItems(orders: OrderDocument[]) {
+    if (!orders.length) return [];
+
+    const orderIds = orders.map((order) => order._id);
+    const items = await this.orderItemModel
+      .find({ order_id: { $in: orderIds } })
+      .populate('product_id')
+      .exec();
+
+    const itemsByOrderId = new Map<string, OrderItemDocument[]>();
+    for (const item of items) {
+      const key = item.order_id.toString();
+      const bucket = itemsByOrderId.get(key) ?? [];
+      bucket.push(item);
+      itemsByOrderId.set(key, bucket);
+    }
+
+    return orders.map((order) => ({
+      ...order.toJSON(),
+      items: (itemsByOrderId.get(order._id.toString()) ?? []).map((item) => item.toJSON()),
+    }));
   }
 }

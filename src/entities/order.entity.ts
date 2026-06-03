@@ -1,13 +1,6 @@
-export interface OrderItemEntity {
-  product_id: string;
-  quantity: number;
-  subtotal: number;
-}
-
 export interface OrderEntity {
   id?: string;
   user_id: string;
-  items: OrderItemEntity[];
   total_price: number;
   delivery_date?: string;
   gift_wrap?: boolean;
