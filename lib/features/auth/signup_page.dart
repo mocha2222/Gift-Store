@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../../router/app_router.dart';
+import '../../services/auth_api.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
@@ -24,37 +24,20 @@ class _SignupPageState extends State<SignupPage> {
   Future<void> _signUp() async {
     if (!_formKey.currentState!.validate()) return;
     setState(() { _isLoading = true; _errorMsg = null; });
-
-    await Future.delayed(const Duration(milliseconds: 800));
-
-    final prefs = await SharedPreferences.getInstance();
-
-    final savedEmail = prefs.getString('user_email') ?? '';
-    if (savedEmail == _emailCtrl.text.trim().toLowerCase()) {
-      setState(() {
-        _isLoading = false;
-        _errorMsg  = 'An account with this email already exists.';
-      });
-      return;
+    try {
+      final resp = await AuthApi.register(_nameCtrl.text.trim(), _emailCtrl.text.trim().toLowerCase(), _passwordCtrl.text);
+      final role = (resp['user']?['role'] ?? 'customer').toString().toLowerCase();
+      if (!mounted) return;
+      if (role == 'admin') {
+        Navigator.of(context).pushReplacementNamed(AppRoutes.admin);
+      } else if (role == 'artisan') {
+        Navigator.of(context).pushReplacementNamed(AppRoutes.artisan);
+      } else {
+        Navigator.of(context).pushReplacementNamed(AppRoutes.home);
+      }
+    } catch (err) {
+      setState(() { _isLoading = false; _errorMsg = 'Could not create account. Try again.'; });
     }
-
-    await prefs.setString('user_name',     _nameCtrl.text.trim());
-    await prefs.setString('user_email',    _emailCtrl.text.trim().toLowerCase());
-    await prefs.setString('user_password', _passwordCtrl.text);
-    await prefs.setString('user_initials', _getInitials(_nameCtrl.text.trim()));
-    await prefs.setString('user_joined',   DateTime.now().toIso8601String());
-
-    if (!mounted) return;
-
-    Navigator.of(context).pushReplacementNamed(AppRoutes.home);
-  }
-
-  String _getInitials(String name) {
-    final parts = name.trim().split(' ');
-    if (parts.length >= 2) {
-      return '${parts.first[0]}${parts.last[0]}'.toUpperCase();
-    }
-    return name.substring(0, name.length >= 2 ? 2 : 1).toUpperCase();
   }
 
   @override
@@ -141,7 +124,7 @@ class _SignupPageState extends State<SignupPage> {
                       color: const Color(0xFFFFEBEB),
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(
-                        color: const Color(0xFFC0392B).withOpacity(0.3)),
+                        color: const Color(0xFFC0392B).withValues(alpha: 0.3)),
                     ),
                     child: Row(children: [
                       const Icon(Icons.error_outline,
@@ -263,7 +246,7 @@ class _SignupPageState extends State<SignupPage> {
                       backgroundColor: const Color(0xFFB8770D),
                       foregroundColor: Colors.white,
                       disabledBackgroundColor:
-                          const Color(0xFFB8770D).withOpacity(0.6),
+                          const Color(0xFFB8770D).withValues(alpha: 0.6),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(14)),
                       elevation: 0,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../data/home_mock_data.dart';
+import '../../services/product_api.dart';
 
 class QuizPage extends StatefulWidget {
   const QuizPage({super.key});
@@ -12,6 +13,7 @@ class _QuizPageState extends State<QuizPage> {
   int _step = 0;
   final Map<String, String> _answers = {};
   List<GiftItem>? _results;
+  bool _isLoadingResults = false;
 
   static const _questions = [
     _Question(
@@ -79,7 +81,8 @@ class _QuizPageState extends State<QuizPage> {
     });
   }
 
-  void _buildResults() {
+  Future<void> _buildResults() async {
+    setState(() => _isLoadingResults = true);
     final budget   = _answers['budget']   ?? 'mid';
     final category = _answers['category'] ?? '';
 
@@ -99,16 +102,30 @@ class _QuizPageState extends State<QuizPage> {
       _         => '',
     };
 
-    var filtered = trendingGifts.where((g) {
-      final price = double.tryParse(
-            g.price.replaceAll('\$', '').replaceAll(',', '')) ??
-          0;
-      return price <= maxPrice;
-    }).toList();
+    try {
+      final products = await ProductApi.getProducts();
+      var filtered = products.where((g) {
+        final price = double.tryParse(
+              g.price.replaceAll('\$', '').replaceAll(',', '')) ??
+            0;
+        return price <= maxPrice;
+      }).toList();
 
-    if (filtered.isEmpty) filtered = trendingGifts.toList();
+      if (filtered.isEmpty) filtered = products.toList();
 
-    setState(() => _results = filtered);
+      if (mounted) {
+        setState(() {
+          _results = filtered;
+          _isLoadingResults = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoadingResults = false;
+        });
+      }
+    }
   }
 
   void _reset() {
@@ -139,21 +156,23 @@ class _QuizPageState extends State<QuizPage> {
           )),
         centerTitle: true,
       ),
-      body: _results != null
-          ? _ResultsView(
-              results: _results!,
-              answers: _answers,
-              onRetake: _reset,
-            )
-          : _QuizView(
-              questions:  _questions,
-              step:       _step,
-              answers:    _answers,
-              onPick:     _pick,
-              onBack:     _step > 0
-                  ? () => setState(() => _step--)
-                  : null,
-            ),
+      body: _isLoadingResults
+          ? const Center(child: CircularProgressIndicator(color: Color(0xFFB8770D)))
+          : _results != null
+              ? _ResultsView(
+                  results: _results!,
+                  answers: _answers,
+                  onRetake: _reset,
+                )
+              : _QuizView(
+                  questions:  _questions,
+                  step:       _step,
+                  answers:    _answers,
+                  onPick:     _pick,
+                  onBack:     _step > 0
+                      ? () => setState(() => _step--)
+                      : null,
+                ),
     );
   }
 }

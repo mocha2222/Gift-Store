@@ -9,6 +9,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../services/user_api.dart';
 import '../auth/login_page.dart';
 import 'edit_profile_page.dart';
 import 'following_page.dart';
@@ -60,16 +61,37 @@ class _CustomerProfilePageState extends State<CustomerProfilePage> {
     Uint8List? imageBytes;
     File? localFile;
 
+    // Try loading avatar from local cache first
     if (kIsWeb) {
       final base64Str = prefs.getString('user_avatar_bytes');
       if (base64Str != null && base64Str.isNotEmpty) {
         imageBytes = base64Decode(base64Str);
       }
     } else {
-      final avatarPath = prefs.getString('user_avatar_path');
-      if (avatarPath != null && avatarPath.isNotEmpty) {
-        final file = File(avatarPath);
-        if (await file.exists()) localFile = file;
+      // First check local base64 cache (synced from backend)
+      final base64Str = prefs.getString('user_avatar_bytes');
+      if (base64Str != null && base64Str.isNotEmpty) {
+        imageBytes = base64Decode(base64Str);
+      } else {
+        final avatarPath = prefs.getString('user_avatar_path');
+        if (avatarPath != null && avatarPath.isNotEmpty) {
+          final file = File(avatarPath);
+          if (await file.exists()) localFile = file;
+        }
+      }
+    }
+
+    // If no local avatar, try fetching from backend
+    if (imageBytes == null && localFile == null) {
+      try {
+        final userData = await UserApi.getMe();
+        final profileImage = userData['profile_image'];
+        if (profileImage != null && profileImage.toString().isNotEmpty) {
+          await prefs.setString('user_avatar_bytes', profileImage as String);
+          imageBytes = base64Decode(profileImage);
+        }
+      } catch (_) {
+        // Silently fail — user may be offline
       }
     }
 
@@ -77,7 +99,8 @@ class _CustomerProfilePageState extends State<CustomerProfilePage> {
     setState(() {
       _name = prefs.getString('user_name') ?? 'Guest';
       _email = prefs.getString('user_email') ?? '';
-      _initials = prefs.getString('user_initials') ?? 'G';
+      _initials = prefs.getString('user_initials') ?? 
+          (_name.isNotEmpty ? _name[0].toUpperCase() : 'G');
       _joined = prefs.getString('user_joined') ?? '';
       _followingCount =
           (prefs.getStringList('followed_artisans') ?? const []).length;
@@ -113,27 +136,35 @@ class _CustomerProfilePageState extends State<CustomerProfilePage> {
         return;
       }
 
-      if (kIsWeb) {
-        final bytes = await picked.readAsBytes();
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('user_avatar_bytes', base64Encode(bytes));
+      final bytes = await picked.readAsBytes();
+      final base64Str = base64Encode(bytes);
 
+      // Save locally
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('user_avatar_bytes', base64Str);
+
+      if (!kIsWeb) {
+        final savedImage = await _persistFile(File(picked.path));
+        await prefs.setString('user_avatar_path', savedImage.path);
+        if (!mounted) return;
+        setState(() {
+          _localImage = savedImage;
+          _imageBytes = bytes;
+        });
+      } else {
         if (!mounted) return;
         setState(() {
           _imageBytes = bytes;
         });
-      } else {
-        final savedImage = await _persistFile(File(picked.path));
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('user_avatar_path', savedImage.path);
-
-        if (!mounted) return;
-        setState(() {
-          _localImage = savedImage;
-        });
       }
 
-      _showMessage('Profile picture updated.');
+      // Sync to backend database
+      try {
+        await UserApi.updateProfileImage(base64Str);
+        _showMessage('Profile picture updated and saved.');
+      } catch (e) {
+        _showMessage('Picture saved locally but failed to sync: $e', isError: true);
+      }
     } catch (e) {
       _showMessage('Error: $e', isError: true);
     }

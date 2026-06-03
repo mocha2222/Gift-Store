@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import '../data/home_mock_data.dart';
 import '../features/auth/login_page.dart';
 import '../features/auth/signup_page.dart';
+import '../features/admin/admin_shell_page.dart';
+import '../features/artisan/artisan_shell_page.dart';
 import '../features/detail/product_detail_page.dart';
 import '../features/home/home_page.dart';
 import '../features/quiz/quiz_page.dart';
@@ -14,6 +16,8 @@ class AppRoutes {
   static const home = '/home';
   static const quiz = '/quiz';
   static const productDetail = '/product-detail';
+  static const admin = '/admin';
+  static const artisan = '/artisan';
 }
 
 class ProductDetailArgs {
@@ -42,6 +46,10 @@ class AppRouter {
           );
         }
         return _errorRoute('Product detail needs a GiftItem argument.');
+      case AppRoutes.admin:
+        return MaterialPageRoute(builder: (_) => const AdminShellPage(), settings: settings);
+      case AppRoutes.artisan:
+        return MaterialPageRoute(builder: (_) => const ArtisanShellPage(), settings: settings);
       default:
         return _errorRoute('No route defined for ${settings.name}.');
     }

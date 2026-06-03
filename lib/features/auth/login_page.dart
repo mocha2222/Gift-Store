@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../../router/app_router.dart';
+import '../../services/auth_api.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -21,19 +21,18 @@ class _LoginPageState extends State<LoginPage> {
   Future<void> _signIn() async {
     if (!_formKey.currentState!.validate()) return;
     setState(() { _isLoading = true; _errorMsg = null; });
-
-    await Future.delayed(const Duration(milliseconds: 800));
-
-    final prefs    = await SharedPreferences.getInstance();
-    final savedEmail = prefs.getString('user_email') ?? '';
-    final savedPass  = prefs.getString('user_password') ?? '';
-
-    if (!mounted) return;
-
-    if (_emailCtrl.text.trim().toLowerCase() == savedEmail &&
-        _passwordCtrl.text == savedPass) {
-      Navigator.of(context).pushReplacementNamed(AppRoutes.home);
-    } else {
+    try {
+      final resp = await AuthApi.login(_emailCtrl.text.trim().toLowerCase(), _passwordCtrl.text);
+      final role = (resp['user']?['role'] ?? 'customer').toString().toLowerCase();
+      if (!mounted) return;
+      if (role == 'admin') {
+        Navigator.of(context).pushReplacementNamed(AppRoutes.admin);
+      } else if (role == 'artisan') {
+        Navigator.of(context).pushReplacementNamed(AppRoutes.artisan);
+      } else {
+        Navigator.of(context).pushReplacementNamed(AppRoutes.home);
+      }
+    } catch (err) {
       setState(() {
         _isLoading = false;
         _errorMsg  = 'Incorrect email or password. Please try again.';
@@ -111,7 +110,7 @@ class _LoginPageState extends State<LoginPage> {
                     decoration: BoxDecoration(
                       color: const Color(0xFFFFEBEB),
                       borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: const Color(0xFFC0392B).withOpacity(0.3)),
+                      border: Border.all(color: const Color(0xFFC0392B).withValues(alpha: 0.3)),
                     ),
                     child: Row(children: [
                       const Icon(Icons.error_outline,
@@ -192,7 +191,7 @@ class _LoginPageState extends State<LoginPage> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFB8770D),
                       foregroundColor: Colors.white,
-                      disabledBackgroundColor: const Color(0xFFB8770D).withOpacity(0.6),
+                      disabledBackgroundColor: const Color(0xFFB8770D).withValues(alpha: 0.6),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14)),
                       elevation: 0,

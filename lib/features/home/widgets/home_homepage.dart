@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../router/app_router.dart';
+import '../../../services/product_api.dart';
 import '../../profile/artisan_profile_page.dart';
 import '../../../data/home_mock_data.dart';
 import '../../../widgets/app_section_header.dart';
@@ -14,6 +15,13 @@ class HomeHomepage extends StatefulWidget {
 
 class _HomeHomepageState extends State<HomeHomepage> {
   int _selectedDiscipline = 0;
+  late Future<List<GiftItem>> _productsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _productsFuture = ProductApi.getProducts();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -134,14 +142,47 @@ class _HomeHomepageState extends State<HomeHomepage> {
           ),
         ),
         const SliverToBoxAdapter(child: SizedBox(height: 12)),
-        SliverPadding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          sliver: SliverList.separated(
-            itemCount: trendingGifts.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 16),
-            itemBuilder: (context, index) =>
-                _GiftCard(item: trendingGifts[index]),
-          ),
+        FutureBuilder<List<GiftItem>>(
+          future: _productsFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.all(40),
+                  child: Center(
+                    child: CircularProgressIndicator(color: Color(0xFFD8AE73)),
+                  ),
+                ),
+              );
+            }
+            if (snapshot.hasError) {
+              return SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Text('Failed to load products. ${snapshot.error}', style: const TextStyle(color: Color(0xFFC0392B))),
+                ),
+              );
+            }
+            
+            final products = snapshot.data ?? [];
+            if (products.isEmpty) {
+              return const SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.all(16),
+                  child: Text('No products currently available.'),
+                ),
+              );
+            }
+            
+            return SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              sliver: SliverList.separated(
+                itemCount: products.length,
+                separatorBuilder: (_, __) => const SizedBox(height: 16),
+                itemBuilder: (context, index) => _GiftCard(item: products[index]),
+              ),
+            );
+          },
         ),
         const SliverToBoxAdapter(child: SizedBox(height: 28)),
         SliverToBoxAdapter(
