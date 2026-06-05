@@ -9,6 +9,7 @@ import '../features/artisan/artisan_shell_page.dart';
 import '../features/detail/product_detail_page.dart';
 import '../features/home/home_page.dart';
 import '../features/quiz/quiz_page.dart';
+import '../features/map/map_page.dart';
 
 class AppRoutes {
   static const login = '/login';
@@ -17,6 +18,7 @@ class AppRoutes {
   static const quiz = '/quiz';
   static const productDetail = '/product-detail';
   static const admin = '/admin';
+  static const map = '/map';
   static const artisan = '/artisan';
 }
 
@@ -50,6 +52,8 @@ class AppRouter {
         return MaterialPageRoute(builder: (_) => const AdminShellPage(), settings: settings);
       case AppRoutes.artisan:
         return MaterialPageRoute(builder: (_) => const ArtisanShellPage(), settings: settings);
+      case AppRoutes.map:
+        return MaterialPageRoute(builder: (_) => const MapPage(), settings: settings);
       default:
         return _errorRoute('No route defined for ${settings.name}.');
     }
