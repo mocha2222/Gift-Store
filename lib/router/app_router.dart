@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 import '../data/home_mock_data.dart';
@@ -10,6 +9,8 @@ import '../features/detail/product_detail_page.dart';
 import '../features/home/home_page.dart';
 import '../features/quiz/quiz_page.dart';
 import '../features/map/map_page.dart';
+import '../pages/cart_page.dart';
+import '../pages/checkout_page.dart';
 
 class AppRoutes {
   static const login = '/login';
@@ -17,6 +18,8 @@ class AppRoutes {
   static const home = '/home';
   static const quiz = '/quiz';
   static const productDetail = '/product-detail';
+  static const cart = '/cart';
+  static const checkout = '/checkout';
   static const admin = '/admin';
   static const map = '/map';
   static const artisan = '/artisan';
@@ -32,13 +35,25 @@ class AppRouter {
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
     switch (settings.name) {
       case AppRoutes.login:
-        return MaterialPageRoute(builder: (_) => const LoginPage(), settings: settings);
+        return MaterialPageRoute(
+          builder: (_) => const LoginPage(),
+          settings: settings,
+        );
       case AppRoutes.signup:
-        return MaterialPageRoute(builder: (_) => const SignupPage(), settings: settings);
+        return MaterialPageRoute(
+          builder: (_) => const SignupPage(),
+          settings: settings,
+        );
       case AppRoutes.home:
-        return MaterialPageRoute(builder: (_) => const GiftShopShell(), settings: settings);
+        return MaterialPageRoute(
+          builder: (_) => const GiftShopShell(),
+          settings: settings,
+        );
       case AppRoutes.quiz:
-        return MaterialPageRoute(builder: (_) => const QuizPage(), settings: settings);
+        return MaterialPageRoute(
+          builder: (_) => const QuizPage(),
+          settings: settings,
+        );
       case AppRoutes.productDetail:
         final args = settings.arguments;
         if (args is ProductDetailArgs) {
@@ -48,12 +63,31 @@ class AppRouter {
           );
         }
         return _errorRoute('Product detail needs a GiftItem argument.');
+      case AppRoutes.cart:
+        return MaterialPageRoute(
+          builder: (_) => const CartPage(),
+          settings: settings,
+        );
+      case AppRoutes.checkout:
+        return MaterialPageRoute(
+          builder: (_) => const CheckoutPage(),
+          settings: settings,
+        );
       case AppRoutes.admin:
-        return MaterialPageRoute(builder: (_) => const AdminShellPage(), settings: settings);
+        return MaterialPageRoute(
+          builder: (_) => const AdminShellPage(),
+          settings: settings,
+        );
       case AppRoutes.artisan:
-        return MaterialPageRoute(builder: (_) => const ArtisanShellPage(), settings: settings);
+        return MaterialPageRoute(
+          builder: (_) => const ArtisanShellPage(),
+          settings: settings,
+        );
       case AppRoutes.map:
-        return MaterialPageRoute(builder: (_) => const MapPage(), settings: settings);
+        return MaterialPageRoute(
+          builder: (_) => const MapPage(),
+          settings: settings,
+        );
       default:
         return _errorRoute('No route defined for ${settings.name}.');
     }
@@ -65,10 +99,7 @@ class AppRouter {
         body: Center(
           child: Padding(
             padding: const EdgeInsets.all(24),
-            child: Text(
-              message,
-              textAlign: TextAlign.center,
-            ),
+            child: Text(message, textAlign: TextAlign.center),
           ),
         ),
       ),

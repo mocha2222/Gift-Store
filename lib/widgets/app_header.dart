@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../pages/cart_page.dart';
+import '../../../router/app_router.dart';
 
 class AppHeader extends StatelessWidget {
   const AppHeader({super.key});
@@ -31,9 +31,7 @@ class AppHeader extends StatelessWidget {
           const Spacer(),
           _HeaderIconButton(
             icon: Icons.shopping_cart_outlined,
-            onTap: () => Navigator.of(
-              context,
-            ).push(MaterialPageRoute(builder: (_) => const CartPage())),
+            onTap: () => Navigator.of(context).pushNamed(AppRoutes.cart),
           ),
         ],
       ),
