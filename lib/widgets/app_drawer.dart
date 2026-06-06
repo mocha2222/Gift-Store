@@ -119,6 +119,11 @@ class AppDrawer extends StatelessWidget {
                       final prefs = await SharedPreferences.getInstance();
                       await prefs.remove('user_email');
                       await prefs.remove('user_password');
+                      await prefs.remove('user_name');
+                      await prefs.remove('user_initials');
+                      await prefs.remove('user_avatar_bytes');
+                      await prefs.remove('user_avatar_path');
+                      await prefs.remove('user_joined');
                       if (!context.mounted) return;
                       Navigator.of(
                         context,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../router/app_router.dart';
+import 'widgets/add_edit_product_sheet.dart';
 
 class ArtisanDashboardPage extends StatelessWidget {
   const ArtisanDashboardPage({super.key});
@@ -70,7 +71,7 @@ class ArtisanDashboardPage extends StatelessWidget {
               child: _HeroPanel(
                 onOpenMessages: () => _openChat(context),
                 onOpenNotifications: () => _openNotifications(context),
-                onOpenSettings: () => _openSettings(context),
+                onManageProduct: () => _openArtisanPage(context),
               ),
             ),
           ),
@@ -90,28 +91,28 @@ class ArtisanDashboardPage extends StatelessWidget {
                       label: 'Total Orders',
                       value: '128',
                       icon: Icons.shopping_bag_outlined,
-                      accentColor: Color(0xFFB06B00),
+                      accentColor: Color.fromARGB(255, 133, 167, 224),
                       subtitle: '18 pending today',
                     ),
                     _StatCard(
                       label: 'Revenue',
                       value: '\$4,320',
                       icon: Icons.attach_money,
-                      accentColor: Color(0xFF8D5CC7),
+                      accentColor: Color.fromARGB(255, 167, 122, 222),
                       subtitle: 'This week +12%',
                     ),
                     _StatCard(
-                      label: 'Active Products',
+                      label: 'Total Products',
                       value: '34',
                       icon: Icons.inventory_2_outlined,
-                      accentColor: Color(0xFF0F8A6C),
+                      accentColor: Color.fromARGB(255, 7, 117, 89),
                       subtitle: '4 low stock items',
                     ),
                     _StatCard(
                       label: 'Avg Rating',
                       value: '4.8',
                       icon: Icons.star_outline,
-                      accentColor: Color(0xFFD08A16),
+                      accentColor: Color.fromARGB(255, 211, 180, 81),
                       subtitle: '96% positive feedback',
                     ),
                   ],
@@ -198,7 +199,7 @@ class ArtisanDashboardPage extends StatelessWidget {
                         _QuickActionTile(
                           icon: Icons.add_box_outlined,
                           label: 'Add Product',
-                          onTap: () {},
+                          onTap: () => _addProduct(context),
                         ),
                         _QuickActionTile(
                           icon: Icons.bar_chart_outlined,
@@ -280,19 +281,26 @@ class ArtisanDashboardPage extends StatelessWidget {
   void _openChat(BuildContext context) {
     Navigator.of(context).pushNamed(AppRoutes.artisanChat);
   }
+
+  void _openArtisanPage(BuildContext context) {
+    Navigator.of(context).pushNamed(AppRoutes.artisan);
+  }
+
+  void _addProduct(BuildContext context) {
+    AddEditProductSheet.show(context);
+  }
 }
 
 class _HeroPanel extends StatelessWidget {
   const _HeroPanel({
     required this.onOpenMessages,
     required this.onOpenNotifications,
-    required this.onOpenSettings,
+    required this.onManageProduct,
   });
 
   final VoidCallback onOpenMessages;
   final VoidCallback onOpenNotifications;
-  final VoidCallback onOpenSettings;
-
+  final VoidCallback onManageProduct;
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -341,14 +349,6 @@ class _HeroPanel extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Today at a glance',
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white.withValues(alpha: 0.82),
-                      ),
-                    ),
                     const SizedBox(height: 4),
                     Text(
                       'Good morning, your artisan shop is active.',
@@ -398,14 +398,14 @@ class _HeroPanel extends StatelessWidget {
               const SizedBox(width: 10),
               Expanded(
                 child: OutlinedButton.icon(
-                  onPressed: onOpenSettings,
+                  onPressed: onManageProduct,
                   style: OutlinedButton.styleFrom(
                     foregroundColor: Colors.white,
                     side: const BorderSide(color: Colors.white70),
                     padding: const EdgeInsets.symmetric(vertical: 14),
                   ),
                   icon: const Icon(Icons.tune_rounded),
-                  label: const Text('Settings'),
+                  label: const Text('Manage Products'),
                 ),
               ),
             ],

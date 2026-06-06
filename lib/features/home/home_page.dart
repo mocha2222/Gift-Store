@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../widgets/app_drawer.dart';
-import '../quiz/quiz_page.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/app_footer_nav.dart';
 import '../../widgets/app_header.dart';
@@ -36,4 +35,3 @@ class GiftShopShell extends StatelessWidget {
     );
   }
 }
-

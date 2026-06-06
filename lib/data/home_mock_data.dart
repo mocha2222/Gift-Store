@@ -15,6 +15,7 @@ const disciplines = [
 ];
 
 class GiftItem {
+  final String id;
   final String title;
   final String subtitle;
   final String price;
@@ -22,7 +23,9 @@ class GiftItem {
   final Color accent;
   final String? dimensions;
   final List<ProductReview> reviews;
+
   const GiftItem({
+    this.id = '',
     required this.title,
     required this.subtitle,
     required this.price,
@@ -31,6 +34,27 @@ class GiftItem {
     this.dimensions,
     this.reviews = const [],
   });
+
+  factory GiftItem.fromJson(Map<String, dynamic> json) {
+    const accents = [
+      Color(0xFF6B4C9A),
+      Color(0xFF5B7FA6),
+      Color(0xFF4A7C59),
+      Color(0xFF7A5230),
+      Color(0xFFC0392B),
+    ];
+    final colorHashCode = (json['_id']?.hashCode ?? 0).abs();
+    
+    return GiftItem(
+      id: json['_id']?.toString() ?? '',
+      title: json['name']?.toString() ?? 'Unnamed Product',
+      subtitle: json['description']?.toString() ?? '',
+      price: '\$${json['price']?.toString() ?? '0.00'}',
+      imageUrl: json['image']?.toString() ?? '',
+      accent: accents[colorHashCode % accents.length],
+      dimensions: json['dimensions']?.toString(),
+    );
+  }
 }
 
 class ProductReview {
