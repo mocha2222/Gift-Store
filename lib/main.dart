@@ -18,6 +18,7 @@ class GiftShopApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       initialRoute: isLoggedIn ? AppRoutes.home : AppRoutes.login,
+      // initialRoute: AppRoutes.artisanDashboard, //test without login
       onGenerateRoute: AppRouter.onGenerateRoute,
     );
   }
