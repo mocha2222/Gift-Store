@@ -11,6 +11,8 @@ import '../features/quiz/quiz_page.dart';
 import '../features/map/map_page.dart';
 import '../pages/cart_page.dart';
 import '../pages/checkout_page.dart';
+import '../pages/product_review_page.dart';
+import '../pages/booking_flow.dart';
 
 class AppRoutes {
   static const login = '/login';
@@ -20,6 +22,8 @@ class AppRoutes {
   static const productDetail = '/product-detail';
   static const cart = '/cart';
   static const checkout = '/checkout';
+  static const productReview = '/product-review';
+  static const bookingFlow = '/booking-flow';
   static const admin = '/admin';
   static const map = '/map';
   static const artisan = '/artisan';
@@ -71,6 +75,27 @@ class AppRouter {
       case AppRoutes.checkout:
         return MaterialPageRoute(
           builder: (_) => const CheckoutPage(),
+          settings: settings,
+        );
+      case AppRoutes.productReview:
+        final args = settings.arguments;
+        if (args is Map<String, dynamic>) {
+          final id = args['productId'] as String?;
+          final title = args['productTitle'] as String? ?? '';
+          if (id != null) {
+            return MaterialPageRoute(
+              builder: (_) =>
+                  ProductReviewPage(productId: id, productTitle: title),
+              settings: settings,
+            );
+          }
+        }
+        return _errorRoute(
+          'Product review needs productId and optional productTitle.',
+        );
+      case AppRoutes.bookingFlow:
+        return MaterialPageRoute(
+          builder: (_) => const BookingFlowPage(),
           settings: settings,
         );
       case AppRoutes.admin:
