@@ -30,10 +30,13 @@ class _LoginPageState extends State<LoginPage> {
       if (!mounted) return;
       if (role == 'admin') {
         Navigator.of(context).pushReplacementNamed(AppRoutes.admin);
+        return;
       } else if (role == 'artisan') {
         Navigator.of(context).pushReplacementNamed(AppRoutes.artisan);
+        return;
       } else {
         Navigator.of(context).pushReplacementNamed(AppRoutes.home);
+        return;
       }
     } catch (err) {
       setState(() {
@@ -42,9 +45,6 @@ class _LoginPageState extends State<LoginPage> {
       });
       return;
     }
-
-    if (!mounted) return;
-    Navigator.of(context).pushReplacementNamed(AppRoutes.home);
   }
   void _continueAsGuest() {
     Navigator.of(context).pushReplacementNamed(AppRoutes.home);
