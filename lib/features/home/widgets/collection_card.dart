@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../data/home_mock_data.dart';
+import '../../../router/app_router.dart';
 
 class CollectionCard extends StatelessWidget {
   const CollectionCard({super.key, required this.item});
@@ -9,7 +10,12 @@ class CollectionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {},
+      onTap: () {
+        Navigator.of(context).pushNamed(
+          AppRoutes.collectionDetail,
+          arguments: CollectionDetailArgs(collection: item),
+        );
+      },
       child: ClipRRect(
         borderRadius: BorderRadius.circular(16),
         child: SizedBox(

@@ -4,7 +4,7 @@ import 'router/app_router.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final prefs      = await SharedPreferences.getInstance();
+  final prefs = await SharedPreferences.getInstance();
   final isLoggedIn = prefs.getString('user_email') != null;
   runApp(GiftShopApp(isLoggedIn: isLoggedIn));
 }

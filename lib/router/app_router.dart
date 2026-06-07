@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../data/home_mock_data.dart';
 import '../features/auth/login_page.dart';
-import '../features/artisan/artisan_chat_page.dart';
+import '../features/chat/artisan_chat_page.dart';
 import '../features/artisan/artisan_notifications_page.dart';
 import '../features/artisan/artisan_signout_page.dart';
 import '../features/artisan/artisan_settings_page.dart';
@@ -14,6 +14,10 @@ import '../features/detail/product_detail_page.dart';
 import '../features/home/home_page.dart';
 import '../features/quiz/quiz_page.dart';
 import '../features/map/map_page.dart';
+import '../features/collection/collections_page.dart';
+import '../features/collection/collection_detail_page.dart';
+import '../features/explore/explore_page.dart';
+import '../features/profile/profile_page.dart';
 
 class AppRoutes {
   static const login = '/login';
@@ -29,12 +33,25 @@ class AppRoutes {
   static const artisanSettings = '/artisan-settings';
   static const artisanChat = '/artisan-chat';
   static const artisanSignOut = '/artisan-sign-out';
+  static const collections = '/collections';
+  static const collection = '/collection';
+  static const collectionDetail = '/collection-detail';
+  static const explore = '/explore';
+  static const profile = '/profile';
+
+  static String? get collectionsPage => null;
 }
 
 class ProductDetailArgs {
   const ProductDetailArgs({required this.item});
 
   final GiftItem item;
+}
+
+class CollectionDetailArgs {
+  const CollectionDetailArgs({required this.collection});
+
+  final CollectionItem collection;
 }
 
 class AppRouter {
@@ -100,6 +117,33 @@ class AppRouter {
         return MaterialPageRoute(builder: (_) => const ArtisanShellPage(), settings: settings);
       case AppRoutes.map:
         return MaterialPageRoute(builder: (_) => const MapPage(), settings: settings);
+      case AppRoutes.collections:
+      case AppRoutes.collection:
+        return MaterialPageRoute(
+          builder: (_) => const CollectionsPage(),
+          settings: settings,
+        );
+      case AppRoutes.explore:
+        return MaterialPageRoute(
+          builder: (_) => const ExplorePage(),
+          settings: settings,
+        );
+      case AppRoutes.profile:
+        final args = settings.arguments;
+        final showAppBar = args is bool ? args : false;
+        return MaterialPageRoute(
+          builder: (_) => ProfilePage(showAppBar: showAppBar),
+          settings: settings,
+        );
+      case AppRoutes.collectionDetail:
+        final args = settings.arguments;
+        if (args is CollectionDetailArgs) {
+          return MaterialPageRoute(
+            builder: (_) => CollectionDetailPage(collection: args.collection),
+            settings: settings,
+          );
+        }
+        return _errorRoute('Collection detail needs a CollectionItem argument.');
       default:
         return _errorRoute('No route defined for ${settings.name}.');
     }

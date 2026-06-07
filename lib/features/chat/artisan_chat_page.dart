@@ -523,7 +523,6 @@ class _HeroBanner extends StatelessWidget {
                     color: Colors.white,
                   ),
                 ),
-                
               ],
             ),
           ),

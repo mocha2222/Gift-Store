@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'checkout_page.dart';
 
 class CartPage extends StatelessWidget {
-  const CartPage({Key? key}) : super(key: key);
+  const CartPage({super.key});
 
   @override
   Widget build(BuildContext context) {

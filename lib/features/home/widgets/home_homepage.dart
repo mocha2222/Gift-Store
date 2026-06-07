@@ -129,7 +129,8 @@ class _HomeHomepageState extends State<HomeHomepage> {
             child: AppSectionHeader(
               title: 'Curated Collections',
               actionLabel: 'View All',
-              onActionTap: () {},
+              onActionTap: () =>
+                  Navigator.of(context).pushNamed(AppRoutes.collections),
             ),
           ),
         ),

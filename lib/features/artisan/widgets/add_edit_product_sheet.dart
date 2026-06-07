@@ -349,7 +349,7 @@ class _AddEditProductSheetState extends State<AddEditProductSheet> {
                     border: Border.all(color: const Color(0xFFEAD5A8)),
                   ),
                   child: DropdownButtonFormField<String>(
-                    value: _category,
+                    initialValue: _category,
                     decoration: const InputDecoration(
                       border: InputBorder.none,
                       contentPadding: EdgeInsets.symmetric(
