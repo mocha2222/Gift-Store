@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../pages/cart_page.dart';
+import '../router/app_router.dart';
 
 class AppHeader extends StatelessWidget {
   const AppHeader({
@@ -51,9 +51,7 @@ class AppHeader extends StatelessWidget {
           else if (showCart)
             HeaderIconButton(
               icon: Icons.shopping_cart_outlined,
-              onTap: () => Navigator.of(
-                context,
-              ).push(MaterialPageRoute(builder: (_) => const CartPage())),
+              onTap: () => Navigator.of(context).pushNamed(AppRoutes.cart),
             )
           else
             const SizedBox(width: 36),

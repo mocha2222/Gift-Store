@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../data/home_mock_data.dart';
 import '../../widgets/app_drawer.dart';
 import '../../widgets/app_footer_nav.dart';
 import '../../widgets/app_header.dart';
+import '../../services/cart_service.dart';
 import 'widgets/product_actions.dart';
 import 'widgets/product_images.dart';
 import 'widgets/product_reviews_section.dart';
@@ -30,7 +32,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     super.initState();
     _gallery = <String>[
       widget.item.imageUrl,
-      'https://images.unsplash.com/photo-1524638067-feba7e8b1d7d?w=700&q=80',
+      'https://images.unsplash.com/photo-1584916201218-f4242ceb4809?w=700&q=80',
       'https://images.unsplash.com/photo-1545239351-1141bd82e8a6?w=700&q=80',
     ];
   }
@@ -67,7 +69,8 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                         Expanded(
                           child: Text(
                             'Product Detail',
-                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            style: Theme.of(context).textTheme.titleLarge
+                                ?.copyWith(
                                   fontSize: 18,
                                   fontWeight: FontWeight.w800,
                                   color: const Color(0xFF231408),
@@ -80,11 +83,16 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                           color: const Color(0xFF231408),
                         ),
                         IconButton(
-                          onPressed: () => setState(() => _isFavorite = !_isFavorite),
+                          onPressed: () =>
+                              setState(() => _isFavorite = !_isFavorite),
                           icon: Icon(
-                            _isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+                            _isFavorite
+                                ? Icons.favorite_rounded
+                                : Icons.favorite_border_rounded,
                           ),
-                          color: _isFavorite ? const Color(0xFFC0392B) : const Color(0xFF231408),
+                          color: _isFavorite
+                              ? const Color(0xFFC0392B)
+                              : const Color(0xFF231408),
                         ),
                       ],
                     ),
@@ -99,7 +107,8 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                         ProductImages(
                           gallery: _gallery,
                           selectedIndex: _selectedImage,
-                          onSelected: (index) => setState(() => _selectedImage = index),
+                          onSelected: (index) =>
+                              setState(() => _selectedImage = index),
                           colors: colors,
                         ),
                         const SizedBox(height: 18),
@@ -144,15 +153,24 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                             ),
                             const Spacer(),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 6,
+                              ),
                               decoration: BoxDecoration(
                                 color: const Color(0xFFFFF7EC),
                                 borderRadius: BorderRadius.circular(12),
-                                border: Border.all(color: const Color(0xFFE3D3BE)),
+                                border: Border.all(
+                                  color: const Color(0xFFE3D3BE),
+                                ),
                               ),
                               child: const Row(
                                 children: [
-                                  Icon(Icons.star_rounded, size: 16, color: Color(0xFFF5A623)),
+                                  Icon(
+                                    Icons.star_rounded,
+                                    size: 16,
+                                    color: Color(0xFFF5A623),
+                                  ),
                                   SizedBox(width: 4),
                                   Text(
                                     '4.9 (124)',
@@ -179,7 +197,9 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                           ),
                         ),
                         const SizedBox(height: 16),
-                        const _SectionTitle(title: 'Cultural background / story'),
+                        const _SectionTitle(
+                          title: 'Cultural background / story',
+                        ),
                         const SizedBox(height: 8),
                         const Text(
                           'Inspired by Khmer weaving traditions, this piece reflects the warm color palette, patient handcraft, and symbolic patterns found in Cambodian artisan communities.',
@@ -195,7 +215,8 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                         ProductSpecTile(
                           icon: Icons.inventory_2_outlined,
                           title: 'Material information',
-                          value: 'Mulberry silk, hand-dyed with natural indigo and plant-based pigments',
+                          value:
+                              'Mulberry silk, hand-dyed with natural indigo and plant-based pigments',
                         ),
                         const SizedBox(height: 10),
                         if (widget.item.dimensions != null) ...[
@@ -215,17 +236,30 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                         ProductActions(
                           quantity: _quantity,
                           isFavorite: _isFavorite,
-                          onDecrement: _quantity > 1 ? () => setState(() => _quantity--) : () {},
+                          onDecrement: _quantity > 1
+                              ? () => setState(() => _quantity--)
+                              : () {},
                           onIncrement: () => setState(() => _quantity++),
-                          onToggleFavorite: () => setState(() => _isFavorite = !_isFavorite),
+                          onToggleFavorite: () =>
+                              setState(() => _isFavorite = !_isFavorite),
                           onAddToFavorites: () {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Added to favorites')),
+                              const SnackBar(
+                                content: Text('Added to favorites'),
+                              ),
                             );
                           },
                           onAddToCart: () {
+                            context.read<CartService>().addItem(
+                              widget.item,
+                              _quantity,
+                            );
                             ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('Added $_quantity item(s) to cart')),
+                              SnackBar(
+                                content: Text(
+                                  'Added $_quantity item(s) to cart',
+                                ),
+                              ),
                             );
                           },
                         ),

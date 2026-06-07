@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../data/home_mock_data.dart';
 import '../../../router/app_router.dart';
+import '../../../services/cart_service.dart';
 
 class GiftCard extends StatefulWidget {
   const GiftCard({super.key, required this.item});
@@ -97,10 +99,9 @@ class _GiftCardState extends State<GiftCard> {
                     const SizedBox(height: 4),
                     Text(
                       widget.item.subtitle,
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodyMedium
-                          ?.copyWith(color: const Color(0xFF7A6655)),
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: const Color(0xFF7A6655),
+                      ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -109,9 +110,7 @@ class _GiftCardState extends State<GiftCard> {
                       children: [
                         Text(
                           widget.item.price,
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyLarge
+                          style: Theme.of(context).textTheme.bodyLarge
                               ?.copyWith(
                                 color: const Color(0xFF8C6500),
                                 fontWeight: FontWeight.w800,
@@ -148,16 +147,15 @@ class _GiftCardState extends State<GiftCard> {
                       width: double.infinity,
                       child: FilledButton(
                         onPressed: () {
-                          Navigator.of(context).pushNamed(
-                            AppRoutes.productDetail,
-                            arguments: ProductDetailArgs(item: widget.item),
+                          context.read<CartService>().addItem(widget.item);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Added item to cart')),
                           );
                         },
                         style: FilledButton.styleFrom(
                           backgroundColor: const Color(0xFFD8AE73),
                           foregroundColor: const Color(0xFF4A321B),
-                          padding:
-                              const EdgeInsets.symmetric(vertical: 13),
+                          padding: const EdgeInsets.symmetric(vertical: 13),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
                           ),

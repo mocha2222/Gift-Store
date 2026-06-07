@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../data/home_mock_data.dart';
+import '../../../services/cart_service.dart';
 
 class QuizResultCard extends StatefulWidget {
   const QuizResultCard({super.key, required this.item});
@@ -76,7 +78,9 @@ class _QuizResultCardState extends State<QuizResultCard> {
                   left: 8,
                   child: Container(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 7, vertical: 3),
+                      horizontal: 7,
+                      vertical: 3,
+                    ),
                     decoration: BoxDecoration(
                       color: const Color(0xFFB8770D),
                       borderRadius: BorderRadius.circular(6),
@@ -116,9 +120,7 @@ class _QuizResultCardState extends State<QuizResultCard> {
                     children: List.generate(
                       5,
                       (i) => Icon(
-                        i < 4
-                            ? Icons.star_rounded
-                            : Icons.star_half_rounded,
+                        i < 4 ? Icons.star_rounded : Icons.star_half_rounded,
                         color: const Color(0xFFF5A623),
                         size: 12,
                       ),
@@ -137,14 +139,19 @@ class _QuizResultCardState extends State<QuizResultCard> {
                   SizedBox(
                     width: double.infinity,
                     child: FilledButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        context.read<CartService>().addItem(widget.item);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Added item to cart')),
+                        );
+                      },
                       style: FilledButton.styleFrom(
                         backgroundColor: const Color(0xFFD8AE73),
                         foregroundColor: const Color(0xFF4A321B),
-                        padding:
-                            const EdgeInsets.symmetric(vertical: 7),
+                        padding: const EdgeInsets.symmetric(vertical: 7),
                         shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8)),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
                         textStyle: const TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w700,

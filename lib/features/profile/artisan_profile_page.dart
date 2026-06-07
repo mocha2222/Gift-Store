@@ -50,22 +50,22 @@ class _ArtisanProfilePageState extends State<ArtisanProfilePage> {
         ArtisanProduct(
           title: 'Silk Wallet',
           price: '\$22.00',
-          imagePath: 'lib/assets/images/artisans/Silk-wallet.jpg',
+          imagePath: 'assets/images/products/Silk-wallet.jpg',
         ),
         ArtisanProduct(
           title: 'Coin Pouch',
           price: '\$16.00',
-          imagePath: 'lib/assets/images/artisans/Silk-wallet.jpg',
+          imagePath: 'assets/images/products/Silk-wallet.jpg',
         ),
         ArtisanProduct(
           title: 'Passport Sleeve',
           price: '\$24.00',
-          imagePath: 'lib/assets/images/artisans/Silk-wallet.jpg',
+          imagePath: 'assets/images/products/Silk-wallet.jpg',
         ),
         ArtisanProduct(
           title: 'Card Holder',
           price: '\$19.00',
-          imagePath: 'lib/assets/images/artisans/Silk-wallet.jpg',
+          imagePath: 'assets/images/products/Silk-wallet.jpg',
         ),
       ];
     }
@@ -74,22 +74,22 @@ class _ArtisanProfilePageState extends State<ArtisanProfilePage> {
       ArtisanProduct(
         title: 'Handwoven Scarf',
         price: '\$28.00',
-        imagePath: 'lib/assets/images/artisans/Krama.jpg',
+        imagePath: 'assets/images/products/Krama.jpg',
       ),
       ArtisanProduct(
         title: 'Krama Wrap',
         price: '\$34.00',
-        imagePath: 'lib/assets/images/artisans/Krama.jpg',
+        imagePath: 'assets/images/products/Krama.jpg',
       ),
       ArtisanProduct(
         title: 'Wooden Bowl',
         price: '\$29.00',
-        imagePath: 'lib/assets/images/artisans/Krama.jpg',
+        imagePath: 'assets/images/products/Krama.jpg',
       ),
       ArtisanProduct(
         title: 'Keepsake Box',
         price: '\$36.00',
-        imagePath: 'lib/assets/images/artisans/Krama.jpg',
+        imagePath: 'assets/images/products/Krama.jpg',
       ),
     ];
   }

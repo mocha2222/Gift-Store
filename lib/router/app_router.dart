@@ -19,6 +19,8 @@ import '../features/collection/collection_detail_page.dart';
 import '../features/explore/explore_page.dart';
 import '../features/profile/profile_page.dart';
 import '../features/promotions/promotions_page.dart';
+import '../pages/cart_page.dart';
+import '../pages/checkout_page.dart';
 
 class AppRoutes {
   static const login = '/login';
@@ -26,6 +28,8 @@ class AppRoutes {
   static const home = '/home';
   static const quiz = '/quiz';
   static const productDetail = '/product-detail';
+  static const cart = '/cart';
+  static const checkout = '/checkout';
   static const admin = '/admin';
   static const map = '/map';
   static const artisan = '/artisan';
@@ -113,10 +117,26 @@ class AppRouter {
           );
         }
         return _errorRoute('Product detail needs a GiftItem argument.');
+      case AppRoutes.cart:
+        return MaterialPageRoute(
+          builder: (_) => const CartPage(),
+          settings: settings,
+        );
+      case AppRoutes.checkout:
+        return MaterialPageRoute(
+          builder: (_) => const CheckoutPage(),
+          settings: settings,
+        );
       case AppRoutes.admin:
-        return MaterialPageRoute(builder: (_) => const AdminShellPage(), settings: settings);
+        return MaterialPageRoute(
+          builder: (_) => const AdminShellPage(),
+          settings: settings,
+        );
       case AppRoutes.artisan:
-        return MaterialPageRoute(builder: (_) => const ArtisanShellPage(), settings: settings);
+        return MaterialPageRoute(
+          builder: (_) => const ArtisanShellPage(),
+          settings: settings,
+        );
       case AppRoutes.map:
         return MaterialPageRoute(builder: (_) => const MapPage(), settings: settings);
       case AppRoutes.collections:
