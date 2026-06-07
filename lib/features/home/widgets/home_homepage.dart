@@ -103,7 +103,8 @@ class _HomeHomepageState extends State<HomeHomepage> {
             child: AppSectionHeader(
               title: 'Special Offers',
               actionLabel: 'View All',
-              onActionTap: () {},
+              onActionTap: () =>
+                  Navigator.of(context).pushNamed(AppRoutes.promotions),
             ),
           ),
         ),
