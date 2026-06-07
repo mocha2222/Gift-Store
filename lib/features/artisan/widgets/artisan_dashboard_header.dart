@@ -28,7 +28,7 @@ class ArtisanDashboardHeader extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFFB8770D).withOpacity(0.3),
+            color: const Color(0xFFB8770D).withValues(alpha: 0.3),
             blurRadius: 16, offset: const Offset(0, 6),
           ),
         ],
@@ -43,9 +43,9 @@ class ArtisanDashboardHeader extends StatelessWidget {
                 width: 52, height: 52,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Colors.white.withOpacity(0.2),
+                  color: Colors.white.withValues(alpha: 0.2),
                   border: Border.all(
-                      color: Colors.white.withOpacity(0.5), width: 2),
+                      color: Colors.white.withValues(alpha: 0.5), width: 2),
                 ),
                 child: Center(
                   child: Text(
@@ -65,7 +65,7 @@ class ArtisanDashboardHeader extends StatelessWidget {
                     Text('Welcome back,',
                         style: TextStyle(
                           fontSize: 12,
-                          color: Colors.white.withOpacity(0.8),
+                          color: Colors.white.withValues(alpha: 0.8),
                         )),
                     Text(name,
                         style: const TextStyle(
@@ -75,7 +75,7 @@ class ArtisanDashboardHeader extends StatelessWidget {
                     Text(craft,
                         style: TextStyle(
                           fontSize: 12,
-                          color: Colors.white.withOpacity(0.8),
+                          color: Colors.white.withValues(alpha: 0.8),
                         )),
                   ],
                 ),
@@ -132,7 +132,7 @@ class _StatChip extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 10),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.15),
+          color: Colors.white.withValues(alpha: 0.15),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Column(
@@ -147,7 +147,7 @@ class _StatChip extends StatelessWidget {
             Text(label,
                 style: TextStyle(
                   fontSize: 10,
-                  color: Colors.white.withOpacity(0.8),
+                  color: Colors.white.withValues(alpha: 0.8),
                 )),
           ],
         ),

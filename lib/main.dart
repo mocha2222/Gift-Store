@@ -4,7 +4,7 @@ import 'router/app_router.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final prefs      = await SharedPreferences.getInstance();
+  final prefs = await SharedPreferences.getInstance();
   final isLoggedIn = prefs.getString('user_email') != null;
   runApp(GiftShopApp(isLoggedIn: isLoggedIn));
 }
@@ -18,6 +18,7 @@ class GiftShopApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       initialRoute: isLoggedIn ? AppRoutes.home : AppRoutes.login,
+      // initialRoute: AppRoutes.artisanDashboard, //test without login
       onGenerateRoute: AppRouter.onGenerateRoute,
     );
   }

@@ -366,3 +366,152 @@ const makers = [
     ],
   ),
 ];
+
+// Collection specific mock items
+final forHerGifts = [
+  trendingGifts[0], // Khmer Silk Krama
+  const GiftItem(
+    title: 'Silver Lotus Earrings',
+    subtitle: 'Sterling silver studs styled after Cambodia\'s sacred lotus.',
+    price: '\$45.00',
+    imageUrl: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=600&q=80',
+    accent: Color(0xFF5B7FA6),
+    dimensions: '1.2cm diameter',
+  ),
+  const GiftItem(
+    title: 'Golden Silk Scarf',
+    subtitle: 'Shimmering natural golden silk woven by hand in Siem Reap.',
+    price: '\$55.00',
+    imageUrl: 'https://images.unsplash.com/photo-1601924994987-69e26d50dc26?w=600&q=80',
+    accent: Color(0xFF8C6500),
+    dimensions: '170cm x 45cm',
+  ),
+  const GiftItem(
+    title: 'Jasmine Blossom Essential Oil',
+    subtitle: 'Pure steam-distilled local jasmine essential oil for wellness.',
+    price: '\$18.00',
+    imageUrl: 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?w=600&q=80',
+    accent: Color(0xFF4A7C59),
+    dimensions: '15ml bottle',
+  ),
+  const GiftItem(
+    title: 'Handcrafted Bead Bracelet',
+    subtitle: 'Brightly colored ceramic beads strung together by local artisans.',
+    price: '\$12.00',
+    imageUrl: 'https://images.unsplash.com/photo-1573408301185-9146fe634ad0?w=600&q=80',
+    accent: Color(0xFF6B4C9A),
+    dimensions: 'Elastic (fits all)',
+  ),
+  const GiftItem(
+    title: 'Lotus Flower Clay Incense Burner',
+    subtitle: 'Traditional clay burner shaped like a lotus blossom.',
+    price: '\$16.00',
+    imageUrl: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=600&q=80',
+    accent: Color(0xFF7A5230),
+    dimensions: '10cm x 10cm x 5cm',
+  ),
+];
+
+final forHimGifts = [
+  trendingGifts[2], // Kampot Pepper Gift Box
+  trendingGifts[3], // Carved Jackfruit Elephant
+  const GiftItem(
+    title: 'Premium Wood Card Holder',
+    subtitle: 'Sleek double-sided card holder carved from reclaimed rosewood.',
+    price: '\$25.00',
+    imageUrl: 'https://images.unsplash.com/photo-1622560480605-d83c853bc5c3?w=600&q=80',
+    accent: Color(0xFF7A5230),
+    dimensions: '10cm x 6.5cm',
+  ),
+  const GiftItem(
+    title: 'Wild Forest Honey',
+    subtitle: '100% organic raw honey harvested from the forests of Mondulkiri.',
+    price: '\$29.00',
+    imageUrl: 'https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=600&q=80',
+    accent: Color(0xFF8C6500),
+    dimensions: '350g jar',
+  ),
+  const GiftItem(
+    title: 'Hand-woven Bamboo Hat',
+    subtitle: 'Traditional sun hat woven with natural split bamboo fibers.',
+    price: '\$15.00',
+    imageUrl: 'https://images.unsplash.com/photo-1533468432434-200dec3bde92?w=600&q=80',
+    accent: Color(0xFF4A7C59),
+    dimensions: '40cm diameter',
+  ),
+  const GiftItem(
+    title: 'Engraved Coconut Shell Bowl',
+    subtitle: 'Polished coconut shell bowl with hand-etched geometric patterns.',
+    price: '\$10.00',
+    imageUrl: 'https://images.unsplash.com/photo-1544816155-12df9643f363?w=600&q=80',
+    accent: Color(0xFF7A5230),
+    dimensions: '12cm diameter',
+  ),
+];
+
+final weddingGifts = [
+  trendingGifts[1], // Silver Apsara Plaque
+  trendingGifts[0], // Khmer Silk Krama
+  const GiftItem(
+    title: 'Golden Silk Bed Runner',
+    subtitle: 'Intricate golden silk brocade perfect for modern or traditional bedrooms.',
+    price: '\$120.00',
+    imageUrl: 'https://images.unsplash.com/photo-1584100936595-c0654b55a2e2?w=600&q=80',
+    accent: Color(0xFF8C6500),
+    dimensions: '220cm x 50cm',
+  ),
+  const GiftItem(
+    title: 'Betel Silver Box',
+    subtitle: 'Hand-shaped silver-plated copper box used traditionally for greetings.',
+    price: '\$85.00',
+    imageUrl: 'https://images.unsplash.com/photo-1618220179428-22790b461013?w=600&q=80',
+    accent: Color(0xFF5B7FA6),
+    dimensions: '12cm x 12cm x 10cm',
+  ),
+  const GiftItem(
+    title: 'Ceramic Tea Set',
+    subtitle: 'Hand-thrown clay teapot with four matching cups in a celadon glaze.',
+    price: '\$75.00',
+    imageUrl: 'https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=600&q=80',
+    accent: Color(0xFF7A5230),
+    dimensions: 'Teapot: 600ml, Cups: 120ml',
+  ),
+];
+
+final touristGifts = [
+  trendingGifts[3], // Carved Jackfruit Elephant
+  trendingGifts[2], // Kampot Pepper Gift Box
+  trendingGifts[0], // Khmer Silk Krama
+  const GiftItem(
+    title: 'Angkor Wat Sandstone Relief',
+    subtitle: 'Sandstone relief plaque replica featuring carvings of Angkor Wat.',
+    price: '\$18.00',
+    imageUrl: 'https://images.unsplash.com/photo-1608958415710-cb83713028d7?w=600&q=80',
+    accent: Color(0xFF7A5230),
+    dimensions: '15cm x 10cm',
+  ),
+  const GiftItem(
+    title: 'Siem Reap Clay Mug',
+    subtitle: 'Stoneware mug hand-pressed with banana leaf textures.',
+    price: '\$14.00',
+    imageUrl: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=600&q=80',
+    accent: Color(0xFF8C6500),
+    dimensions: '350ml',
+  ),
+];
+
+List<GiftItem> getGiftsForCollection(String collectionName) {
+  switch (collectionName) {
+    case 'For Her':
+      return forHerGifts;
+    case 'For Him':
+      return forHimGifts;
+    case 'Wedding':
+      return weddingGifts;
+    case 'Tourist':
+      return touristGifts;
+    default:
+      return trendingGifts;
+  }
+}
+

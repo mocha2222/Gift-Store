@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../router/app_router.dart';
+
 class HeroCard extends StatelessWidget {
   const HeroCard({super.key, required this.onPressed});
 
@@ -76,7 +78,8 @@ class HeroCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 20),
                   FilledButton(
-                    onPressed: onPressed,
+                    onPressed: () =>
+                        Navigator.of(context).pushNamed(AppRoutes.collections),
                     style: FilledButton.styleFrom(
                       backgroundColor: const Color(0xFFD8AE73),
                       foregroundColor: const Color(0xFF4A321B),
@@ -85,9 +88,10 @@ class HeroCard extends StatelessWidget {
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12)),
                     ),
-                    child: const Text(
+                    child: Text(
                       'Explore the Collection',
-                      style: TextStyle(fontWeight: FontWeight.w700),
+                      style: const TextStyle(fontWeight: FontWeight.w700),
+
                     ),
                   ),
                 ],
