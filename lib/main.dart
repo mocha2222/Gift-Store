@@ -8,24 +8,40 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final prefs = await SharedPreferences.getInstance();
   final isLoggedIn = prefs.getString('user_email') != null;
+  final role = prefs.getString('user_role') ?? 'customer';
+  
+  String startRoute = AppRoutes.login;
+  if (isLoggedIn) {
+    if (role == 'admin') {
+      startRoute = AppRoutes.admin;
+    } else if (role == 'artisan') {
+      startRoute = AppRoutes.artisan;
+    } else {
+      startRoute = AppRoutes.home;
+    }
+  }
+
   runApp(
     ChangeNotifierProvider(
       create: (_) => CartService(),
-      child: GiftShopApp(isLoggedIn: isLoggedIn),
+      child: GiftShopApp(initialRoute: startRoute),
     ),
   );
 }
 
 class GiftShopApp extends StatelessWidget {
-  final bool isLoggedIn;
-  const GiftShopApp({super.key, required this.isLoggedIn});
+  final String initialRoute;
+  const GiftShopApp({super.key, required this.initialRoute});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      initialRoute: isLoggedIn ? AppRoutes.home : AppRoutes.login,
-      // initialRoute: AppRoutes.artisanDashboard, //test without login
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF8C6500)),
+        useMaterial3: true,
+      ),
+      initialRoute: initialRoute,
       onGenerateRoute: AppRouter.onGenerateRoute,
     );
   }

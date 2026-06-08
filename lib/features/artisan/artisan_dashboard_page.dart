@@ -22,25 +22,10 @@ class ArtisanDashboardPage extends StatelessWidget {
   Widget build(BuildContext context) {
     const bool hasUnreadMessages = true;
 
-    return Scaffold(
-      key: PageStorageKey<String>(AppRoutes.artisanDashboard),
-      backgroundColor: backgroundColor,
-      body: Column(
+    return Container(
+      color: backgroundColor,
+      child: Column(
         children: [
-          AppHeader(
-            showMenu: false,
-            showCart: false,
-            actions: [
-              HeaderIconButton(
-                icon: Icons.notifications_outlined,
-                onTap: () => _openNotifications(context),
-              ),
-              HeaderIconButton(
-                icon: Icons.settings_outlined,
-                onTap: () => _openSettings(context),
-              ),
-            ],
-          ),
           Expanded(
             child: CustomScrollView(
               slivers: [

@@ -7,6 +7,8 @@ import 'artisan_management_page.dart';
 import 'dashboard_page.dart';
 import 'order_management_page.dart';
 import 'product_management_page.dart';
+import '../../widgets/app_drawer.dart';
+import '../../services/admin_api.dart';
 
 class AdminShellPage extends StatefulWidget {
   const AdminShellPage({super.key});
@@ -18,6 +20,22 @@ class AdminShellPage extends StatefulWidget {
 class _AdminShellPageState extends State<AdminShellPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   int _index = 0;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    await AdminApi.loadAdminData();
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
 
   static const List<String> _titles = [
     'Dashboard Overview',
@@ -42,15 +60,7 @@ class _AdminShellPageState extends State<AdminShellPage> {
       backgroundColor: const Color(0xFFF7F0E4),
       drawer: isWide
           ? null
-          : Drawer(
-              child: _AdminDrawer(
-                currentIndex: _index,
-                onChanged: (value) {
-                  Navigator.of(context).pop();
-                  setState(() => _index = value);
-                },
-              ),
-            ),
+          : const AppDrawer(),
       bottomNavigationBar: isWide
           ? null
           : NavigationBar(
@@ -89,130 +99,20 @@ class _AdminShellPageState extends State<AdminShellPage> {
                 onChanged: (value) => setState(() => _index = value),
               ),
             Expanded(
-              child: Column(
-                children: [
-                  _AdminTopBar(
-                    title: _titles[_index],
-                    onMenuTap: isWide ? null : () => _scaffoldKey.currentState?.openDrawer(),
-                  ),
-                  Expanded(child: _pages[_index]),
-                ],
-              ),
+              child: _isLoading 
+                  ? const Center(child: CircularProgressIndicator())
+                  : Column(
+                      children: [
+                        _AdminTopBar(
+                          title: _titles[_index],
+                          onMenuTap: isWide ? null : () => _scaffoldKey.currentState?.openDrawer(),
+                        ),
+                        Expanded(child: _pages[_index]),
+                      ],
+                    ),
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _AdminDrawer extends StatelessWidget {
-  const _AdminDrawer({required this.currentIndex, required this.onChanged});
-
-  final int currentIndex;
-  final ValueChanged<int> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return ListView(
-      padding: EdgeInsets.zero,
-      children: [
-        Container(
-          padding: const EdgeInsets.fromLTRB(20, 56, 20, 20),
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Color(0xFF1F2937), Color(0xFF8C6500)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-          ),
-          child: const Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Icon(Icons.admin_panel_settings_rounded, color: Colors.white, size: 36),
-              SizedBox(height: 12),
-              Text(
-                'Gift Shop Admin',
-                style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w800),
-              ),
-              SizedBox(height: 6),
-              Text(
-                'Manage artisans, products, orders, and revenue',
-                style: TextStyle(color: Color(0xFFFFE8C7), fontSize: 13),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 12),
-        _DrawerTile(
-          icon: Icons.dashboard_outlined,
-          label: 'Dashboard',
-          selected: currentIndex == 0,
-          onTap: () => onChanged(0),
-        ),
-        _DrawerTile(
-          icon: Icons.storefront_outlined,
-          label: 'Artisan Management',
-          selected: currentIndex == 1,
-          onTap: () => onChanged(1),
-        ),
-        _DrawerTile(
-          icon: Icons.inventory_2_outlined,
-          label: 'Product Management',
-          selected: currentIndex == 2,
-          onTap: () => onChanged(2),
-        ),
-        _DrawerTile(
-          icon: Icons.receipt_long_outlined,
-          label: 'Order Management',
-          selected: currentIndex == 3,
-          onTap: () => onChanged(3),
-        ),
-        const Padding(
-          padding: EdgeInsets.symmetric(vertical: 8),
-          child: Divider(color: Color(0xFFE2D3BE), indent: 12, endIndent: 12),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-          child: ListTile(
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-            leading: const Icon(Icons.logout, color: Color(0xFFC0392B)),
-            title: const Text('Sign Out', style: TextStyle(color: Color(0xFFC0392B), fontWeight: FontWeight.w600)),
-            onTap: () async {
-              final prefs = await SharedPreferences.getInstance();
-              await prefs.clear();
-              if (context.mounted) Navigator.of(context).pushReplacementNamed(AppRoutes.login);
-            },
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _DrawerTile extends StatelessWidget {
-  const _DrawerTile({
-    required this.icon,
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-      child: ListTile(
-        selected: selected,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-        leading: Icon(icon, color: selected ? const Color(0xFF8C6500) : const Color(0xFF4B5563)),
-        title: Text(label),
-        onTap: onTap,
       ),
     );
   }

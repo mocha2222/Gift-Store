@@ -11,15 +11,14 @@ class ProductManagementPage extends StatefulWidget {
 }
 
 class _ProductManagementPageState extends State<ProductManagementPage> {
-  late final List<AdminProduct> _products = List.of(adminProducts);
   String? _artisanFilter;
 
   @override
   Widget build(BuildContext context) {
-    final artisans = _products.map((e) => e.artisan).toSet().toList()..sort();
+    final artisans = adminProducts.map((e) => e.artisan).toSet().toList()..sort();
     final filtered = _artisanFilter == null
-        ? _products
-        : _products.where((product) => product.artisan == _artisanFilter).toList();
+        ? adminProducts
+        : adminProducts.where((product) => product.artisan == _artisanFilter).toList();
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(18),
@@ -67,7 +66,7 @@ class _ProductManagementPageState extends State<ProductManagementPage> {
                   final product = filtered[index];
                   return ProductCard(
                     product: product,
-                    onDelete: () => setState(() => _products.remove(product)),
+                    onDelete: () => setState(() => adminProducts.remove(product)),
                   );
                 },
               );

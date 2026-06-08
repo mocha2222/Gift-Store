@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../widgets/app_section_header.dart';
 import '../profile/widgets/profile_stats_row.dart';
 import 'widgets/dashboard_widgets.dart';
+import 'admin_models.dart';
 
 class AdminDashboardPage extends StatelessWidget {
   const AdminDashboardPage({super.key});
@@ -22,12 +23,12 @@ class AdminDashboardPage extends StatelessWidget {
             onActionTap: () {},
           ),
           const SizedBox(height: 10),
-          const ProfileStatsRow(
+          ProfileStatsRow(
             stats: [
-              (label: 'Revenue', value: '\$18,640.75'),
-              (label: 'Orders', value: '248'),
-              (label: 'Artisans', value: '42'),
-              (label: 'Customers', value: '1,118'),
+              (label: 'Revenue', value: '\$${adminOverview.totalRevenue.toStringAsFixed(2)}'),
+              (label: 'Orders', value: '${adminOverview.totalOrders}'),
+              (label: 'Artisans', value: '${adminOverview.totalArtisans}'),
+              (label: 'Customers', value: '${adminOverview.totalCustomers}'),
             ],
           ),
           const SizedBox(height: 18),

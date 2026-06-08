@@ -135,22 +135,26 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                         Row(
                           children: [
                             Text(
-                              widget.item.price,
+                              widget.item.discount > 0 
+                                  ? '\$${((double.tryParse(widget.item.price.replaceAll('\$', '')) ?? 0.0) * (1 - widget.item.discount / 100)).toStringAsFixed(2)}'
+                                  : widget.item.price,
                               style: const TextStyle(
                                 fontSize: 30,
                                 fontWeight: FontWeight.w900,
                                 color: Color(0xFFB8770D),
                               ),
                             ),
-                            const SizedBox(width: 12),
-                            Text(
-                              '\$110.00',
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.brown.withOpacity(0.55),
-                                decoration: TextDecoration.lineThrough,
+                            if (widget.item.discount > 0) ...[
+                              const SizedBox(width: 12),
+                              Text(
+                                '\$${(double.tryParse(widget.item.price.replaceAll('\$', '')) ?? 0.0).toStringAsFixed(2)}',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.brown.withOpacity(0.55),
+                                  decoration: TextDecoration.lineThrough,
+                                ),
                               ),
-                            ),
+                            ],
                             const Spacer(),
                             Container(
                               padding: const EdgeInsets.symmetric(
@@ -201,9 +205,11 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                           title: 'Cultural background / story',
                         ),
                         const SizedBox(height: 8),
-                        const Text(
-                          'Inspired by Khmer weaving traditions, this piece reflects the warm color palette, patient handcraft, and symbolic patterns found in Cambodian artisan communities.',
-                          style: TextStyle(
+                        Text(
+                          widget.item.culturalBackground.isNotEmpty
+                              ? widget.item.culturalBackground
+                              : 'Inspired by Khmer weaving traditions, this piece reflects the warm color palette, patient handcraft, and symbolic patterns found in Cambodian artisan communities.',
+                          style: const TextStyle(
                             fontSize: 15,
                             height: 1.6,
                             color: Color(0xFF4F453A),
@@ -215,8 +221,9 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                         ProductSpecTile(
                           icon: Icons.inventory_2_outlined,
                           title: 'Material information',
-                          value:
-                              'Mulberry silk, hand-dyed with natural indigo and plant-based pigments',
+                          value: widget.item.materialInfo.isNotEmpty 
+                              ? widget.item.materialInfo 
+                              : 'Mulberry silk, hand-dyed with natural indigo and plant-based pigments',
                         ),
                         const SizedBox(height: 10),
                         if (widget.item.dimensions != null) ...[
@@ -230,7 +237,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                         ProductSpecTile(
                           icon: Icons.store_outlined,
                           title: 'Stock availability',
-                          value: 'In stock (5 left)',
+                          value: 'In stock (${widget.item.stock} left)',
                         ),
                         const SizedBox(height: 16),
                         ProductActions(
@@ -266,9 +273,11 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                         const SizedBox(height: 18),
                         const _SectionTitle(title: 'Story behind this piece'),
                         const SizedBox(height: 8),
-                        const Text(
-                          'Every thread reflects long-standing craftsmanship passed down through families in Cambodia, turning a gift into a piece of living culture.',
-                          style: TextStyle(
+                        Text(
+                          widget.item.story.isNotEmpty
+                              ? widget.item.story
+                              : 'Every thread reflects long-standing craftsmanship passed down through families in Cambodia, turning a gift into a piece of living culture.',
+                          style: const TextStyle(
                             fontSize: 15,
                             height: 1.6,
                             color: Color(0xFF4F453A),

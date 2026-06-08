@@ -19,10 +19,17 @@ class AppDrawer extends StatelessWidget {
         child: Column(
           children: [
             Expanded(
-              child: ListView(
-                padding: EdgeInsets.zero,
-                children: [
-                  Container(
+              child: FutureBuilder<SharedPreferences>(
+                future: SharedPreferences.getInstance(),
+                builder: (context, snapshot) {
+                  final prefs = snapshot.data;
+                  final isArtisan = prefs?.getString('user_role') == 'artisan';
+                  final isAdmin = prefs?.getString('user_role') == 'admin';
+
+                  return ListView(
+                    padding: EdgeInsets.zero,
+                    children: [
+                      Container(
                     height: 112,
                     padding: const EdgeInsets.fromLTRB(18, 18, 18, 16),
                     decoration: const BoxDecoration(
@@ -149,6 +156,40 @@ class AppDrawer extends StatelessWidget {
                       }
                     },
                   ),
+                  if (isArtisan) ...[
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      child: Divider(),
+                    ),
+                    _DrawerItem(
+                      icon: Icons.dashboard_customize_outlined,
+                      label: 'Artisan Dashboard',
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        final currentRoute = ModalRoute.of(context)?.settings.name;
+                        if (currentRoute != AppRoutes.artisan) {
+                          Navigator.of(context).pushNamed(AppRoutes.artisan);
+                        }
+                      },
+                    ),
+                  ],
+                  if (isAdmin) ...[
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      child: Divider(),
+                    ),
+                    _DrawerItem(
+                      icon: Icons.admin_panel_settings_outlined,
+                      label: 'Admin Dashboard',
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        final currentRoute = ModalRoute.of(context)?.settings.name;
+                        if (currentRoute != AppRoutes.admin) {
+                          Navigator.of(context).pushNamed(AppRoutes.admin);
+                        }
+                      },
+                    ),
+                  ],
                   _DrawerItem(
                     icon: Icons.logout_rounded,
                     label: 'Sign Out',
@@ -168,7 +209,8 @@ class AppDrawer extends StatelessWidget {
                     },
                   ),
                 ],
-              ),
+              );
+            }),
             ),
             const Divider(height: 1),
             FutureBuilder<SharedPreferences>(

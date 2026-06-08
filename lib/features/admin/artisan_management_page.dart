@@ -12,7 +12,6 @@ class ArtisanManagementPage extends StatefulWidget {
 }
 
 class _ArtisanManagementPageState extends State<ArtisanManagementPage> {
-  late final List<AdminArtisan> _artisans = List.of(adminArtisans);
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +35,7 @@ class _ArtisanManagementPageState extends State<ArtisanManagementPage> {
                   return GridView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    itemCount: _artisans.length,
+                    itemCount: adminArtisans.length,
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: columns,
                       mainAxisExtent: 220,
@@ -44,7 +43,7 @@ class _ArtisanManagementPageState extends State<ArtisanManagementPage> {
                       crossAxisSpacing: 14,
                     ),
                     itemBuilder: (context, index) {
-                      final artisan = _artisans[index];
+                      final artisan = adminArtisans[index];
                       return ArtisanCard(
                         artisan: artisan,
                         onView: () => _showProfileDialog(artisan),
@@ -52,7 +51,7 @@ class _ArtisanManagementPageState extends State<ArtisanManagementPage> {
                           final nextStatus = artisan.status == AdminArtisanStatus.suspended
                               ? AdminArtisanStatus.active
                               : AdminArtisanStatus.suspended;
-                          _artisans[index] = artisan.copyWith(status: nextStatus);
+                          adminArtisans[index] = artisan.copyWith(status: nextStatus);
                         }),
                       );
                     },
@@ -106,7 +105,7 @@ class _ArtisanManagementPageState extends State<ArtisanManagementPage> {
                     );
                     
                     setState(() {
-                      _artisans.insert(
+                      adminArtisans.insert(
                         0,
                         AdminArtisan(
                           name: nameController.text.trim(),

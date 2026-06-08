@@ -19,6 +19,9 @@ class AuthApi {
     await prefs.setString('user_email', (body['user']?['email'] ?? email) as String);
     await prefs.setString('user_role', (body['user']?['role'] ?? 'customer') as String);
     await prefs.setString('user_name', (body['user']?['name'] ?? '') as String);
+    if (body['artisan_id'] != null) {
+      await prefs.setString('artisan_id', body['artisan_id'] as String);
+    }
     final profileImage = body['user']?['profile_image'];
     if (profileImage != null && profileImage.toString().isNotEmpty) {
       await prefs.setString('user_avatar_bytes', profileImage as String);
@@ -42,6 +45,9 @@ class AuthApi {
     await prefs.setString('user_email', (body['user']?['email'] ?? email) as String);
     await prefs.setString('user_role', (body['user']?['role'] ?? role) as String);
     await prefs.setString('user_name', (body['user']?['name'] ?? name) as String);
+    if (body['artisan_id'] != null) {
+      await prefs.setString('artisan_id', body['artisan_id'] as String);
+    }
     final profileImage = body['user']?['profile_image'];
     if (profileImage != null && profileImage.toString().isNotEmpty) {
       await prefs.setString('user_avatar_bytes', profileImage as String);

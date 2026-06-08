@@ -11,12 +11,11 @@ class OrderManagementPage extends StatefulWidget {
 }
 
 class _OrderManagementPageState extends State<OrderManagementPage> {
-  late final List<AdminOrder> _orders = List.of(adminOrders);
   AdminOrderStatus? _filter;
 
   @override
   Widget build(BuildContext context) {
-    final filtered = _filter == null ? _orders : _orders.where((order) => order.status == _filter).toList();
+    final filtered = _filter == null ? adminOrders : adminOrders.where((order) => order.status == _filter).toList();
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(18),
@@ -54,8 +53,8 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
                 order: order,
                 onDetails: () => _showDetails(order),
                 onStatusChanged: (status) => setState(() {
-                  final index = _orders.indexOf(order);
-                  _orders[index] = order.copyWith(status: status);
+                  final index = adminOrders.indexOf(order);
+                  adminOrders[index] = order.copyWith(status: status);
                 }),
               ),
             ),

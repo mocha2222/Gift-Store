@@ -23,6 +23,11 @@ class GiftItem {
   final Color accent;
   final String? dimensions;
   final List<ProductReview> reviews;
+  final String story;
+  final String culturalBackground;
+  final String materialInfo;
+  final int stock;
+  final int discount;
 
   const GiftItem({
     this.id = '',
@@ -33,6 +38,11 @@ class GiftItem {
     required this.accent,
     this.dimensions,
     this.reviews = const [],
+    this.story = '',
+    this.culturalBackground = '',
+    this.materialInfo = '',
+    this.stock = 10,
+    this.discount = 0,
   });
 
   factory GiftItem.fromJson(Map<String, dynamic> json) {
@@ -53,6 +63,11 @@ class GiftItem {
       imageUrl: json['image']?.toString() ?? '',
       accent: accents[colorHashCode % accents.length],
       dimensions: json['dimensions']?.toString(),
+      story: json['story']?.toString() ?? '',
+      culturalBackground: json['cultural_background']?.toString() ?? '',
+      materialInfo: json['material_info']?.toString() ?? '',
+      stock: json['stock'] is int ? json['stock'] : int.tryParse(json['stock']?.toString() ?? '0') ?? 0,
+      discount: json['discount'] is int ? json['discount'] : int.tryParse(json['discount']?.toString() ?? '0') ?? 0,
     );
   }
 }

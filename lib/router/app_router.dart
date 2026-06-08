@@ -33,7 +33,6 @@ class AppRoutes {
   static const admin = '/admin';
   static const map = '/map';
   static const artisan = '/artisan';
-  static const artisanDashboard = '/artisan-dashboard';
   static const artisanNotifications = '/artisan-notifications';
   static const artisanSettings = '/artisan-settings';
   static const artisanChat = '/artisan-chat';
@@ -83,11 +82,7 @@ class AppRouter {
           builder: (_) => const QuizPage(),
           settings: settings,
         );
-      case AppRoutes.artisanDashboard:
-        return MaterialPageRoute(
-          builder: (_) => const ArtisanDashboardPage(),
-          settings: settings,
-        );
+
       case AppRoutes.artisanNotifications:
         return MaterialPageRoute(
           builder: (_) => const ArtisanNotificationsPage(),

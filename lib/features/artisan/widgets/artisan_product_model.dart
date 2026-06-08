@@ -7,6 +7,11 @@ class ArtisanProductModel {
   final String     price;
   final String     category;
   final String     imagePath;
+  final String     culturalBackground;
+  final String     materialInfo;
+  final String     story;
+  final int        stock;
+  final int        discount;
   final bool       isAvailable;
   final DateTime   createdAt;
   final Uint8List? imageBytes;
@@ -18,6 +23,11 @@ class ArtisanProductModel {
     required this.price,
     required this.category,
     required this.imagePath,
+    this.culturalBackground = '',
+    this.materialInfo = '',
+    this.story = '',
+    this.stock = 0,
+    this.discount = 0,
     this.isAvailable = true,
     this.imageBytes,
     DateTime? createdAt,
@@ -29,6 +39,11 @@ class ArtisanProductModel {
     String?     price,
     String?     category,
     String?     imagePath,
+    String?     culturalBackground,
+    String?     materialInfo,
+    String?     story,
+    int?        stock,
+    int?        discount,
     bool?       isAvailable,
     Uint8List?  imageBytes,
   }) {
@@ -39,6 +54,11 @@ class ArtisanProductModel {
       price:       price       ?? this.price,
       category:    category    ?? this.category,
       imagePath:   imagePath   ?? this.imagePath,
+      culturalBackground: culturalBackground ?? this.culturalBackground,
+      materialInfo: materialInfo ?? this.materialInfo,
+      story:       story       ?? this.story,
+      stock:       stock       ?? this.stock,
+      discount:    discount    ?? this.discount,
       isAvailable: isAvailable ?? this.isAvailable,
       imageBytes:  imageBytes  ?? this.imageBytes,
       createdAt:   createdAt,
@@ -52,6 +72,11 @@ class ArtisanProductModel {
     'price':       price,
     'category':    category,
     'imagePath':   imagePath,
+    'culturalBackground': culturalBackground,
+    'materialInfo': materialInfo,
+    'story':       story,
+    'stock':       stock,
+    'discount':    discount,
     'isAvailable': isAvailable,
     'createdAt':   createdAt.toIso8601String(),
   };
@@ -61,9 +86,14 @@ class ArtisanProductModel {
       id:          json['id'],
       title:       json['title'],
       description: json['description'],
-      price:       json['price'],
-      category:    json['category'],
-      imagePath:   json['imagePath'],
+      price:       json['price']?.toString() ?? '0',
+      category:    json['category'] ?? 'Other',
+      imagePath:   json['imagePath'] ?? '',
+      culturalBackground: json['culturalBackground'] ?? '',
+      materialInfo: json['materialInfo'] ?? '',
+      story:       json['story'] ?? '',
+      stock:       json['stock'] ?? 0,
+      discount:    json['discount'] ?? 0,
       isAvailable: json['isAvailable'] ?? true,
       createdAt:   DateTime.tryParse(json['createdAt'] ?? '') ?? DateTime.now(),
     );
