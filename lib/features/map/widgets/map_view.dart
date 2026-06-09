@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 import 'map_mock_data.dart';
 import 'shop_bottom_sheet.dart';
 
-class MapView extends StatelessWidget {
+class MapView extends StatefulWidget {
   const MapView({
     super.key,
     required this.shops,
@@ -12,6 +14,13 @@ class MapView extends StatelessWidget {
   final List<ShopLocation> shops;
   final String selectedCategory;
 
+  @override
+  State<MapView> createState() => _MapViewState();
+}
+
+class _MapViewState extends State<MapView> {
+  final _mapController = MapController();
+
   static const _categoryColors = {
     'Silk':    Color(0xFF6B4C9A),
     'Silver':  Color(0xFF5B7FA6),
@@ -20,149 +29,203 @@ class MapView extends StatelessWidget {
     'Jewelry': Color(0xFFB8770D),
   };
 
+  final _cambodiaCenter = LatLng(12.5657, 104.9910);
+
   @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: const Color(0xFFE8E0D0),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFD4C4A8)),
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
-        child: Stack(
-          children: [
-            CustomPaint(
-              size: const Size(double.infinity, double.infinity),
-              painter: _MapGridPainter(),
-            ),
-
-            Positioned(
-              top: 12, left: 16,
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 10, vertical: 6),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.9),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Row(children: [
-                  Icon(Icons.map_outlined,
-                      size: 14, color: Color(0xFFB8770D)),
-                  SizedBox(width: 6),
-                  Text('Cambodia · Shop Locations',
-                      style: TextStyle(
-                        fontSize: 11, fontWeight: FontWeight.w600,
-                        color: Color(0xFF5E4A35),
-                      )),
-                ]),
-              ),
-            ),
-
-            ...shops.map((shop) => _buildPin(context, shop)),
-
-            Positioned(
-              bottom: 12, right: 12,
-              child: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.9),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Column(children: [
-                  Icon(Icons.add, size: 18, color: Color(0xFF5E4A35)),
-                  SizedBox(height: 4),
-                  Icon(Icons.remove, size: 18, color: Color(0xFF5E4A35)),
-                ]),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+  void dispose() {
+    _mapController.dispose();
+    super.dispose();
   }
 
-  Widget _buildPin(BuildContext context, ShopLocation shop) {
-    final latRange  = 13.8 - 10.4; 
-    final lngRange  = 107.6 - 102.3;
-    final xFrac = (shop.lng - 102.3) / lngRange;
-    final yFrac = 1.0 - (shop.lat - 10.4) / latRange;
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(20),
+      child: Stack(
+        children: [
+          FlutterMap(
+            mapController: _mapController,
+            options: MapOptions(
+              initialCenter: _cambodiaCenter,
+              initialZoom: 7.0,
+              minZoom: 5.0,
+              maxZoom: 18.0,
+              interactionOptions: const InteractionOptions(
+                flags: InteractiveFlag.all,
+              ),
+            ),
+            children: [
+              TileLayer(
+                urlTemplate:
+                    'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                userAgentPackageName: 'com.example.giftstore',
+                maxZoom: 18,
+              ),
 
-    final color = _categoryColors[shop.category] ?? const Color(0xFFB8770D);
+              MarkerLayer(
+                markers: widget.shops.map((shop) {
+                  final color = _categoryColors[shop.category]
+                      ?? const Color(0xFFB8770D);
+                  return Marker(
+                    point: LatLng(shop.lat, shop.lng),
+                    width: 48,
+                    height: 56,
+                    child: GestureDetector(
+                      onTap: () =>
+                          ShopBottomSheet.show(context, shop),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            width: 36,
+                            height: 36,
+                            decoration: BoxDecoration(
+                              color: color,
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                  color: Colors.white, width: 2.5),
+                              boxShadow: [
+                                BoxShadow(
+                                  // ← fix 4: withValues instead of withOpacity
+                                  color: color.withValues(alpha: 0.45),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 3),
+                                ),
+                              ],
+                            ),
+                            child: const Icon(
+                              Icons.store_rounded,
+                              color: Colors.white,
+                              size: 18,
+                            ),
+                          ),
+                          Container(
+                            width: 2.5,
+                            height: 10,
+                            color: color,
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
+            ],
+          ),
 
-    return Positioned(
-
-      left: xFrac * 280 + 20,
-      top: yFrac * 180 + 20,
-      child: GestureDetector(
-        onTap: () => ShopBottomSheet.show(context, shop),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: 8, vertical: 4),
+          Positioned(
+            top: 12, right: 12,
+            child: Container(
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(6),
-                boxShadow: [BoxShadow(
-                  color: color.withOpacity(0.3),
-                  blurRadius: 6, offset: const Offset(0, 2),
-                )],
+                borderRadius: BorderRadius.circular(10),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.12),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
-              child: Text(shop.name.split(' ').first,
-                  style: TextStyle(
-                    fontSize: 9, fontWeight: FontWeight.w700,
-                    color: color,
-                  )),
+              child: Column(
+                children: [
+                  _ZoomButton(
+                    icon: Icons.add,
+                    isTop: true,
+                    onTap: () => _mapController.move(
+                      _mapController.camera.center,
+                      _mapController.camera.zoom + 1,
+                    ),
+                  ),
+                  Container(
+                    height: 0.5,
+                    width: 36,
+                    color: const Color(0xFFEAD5A8),
+                  ),
+                  _ZoomButton(
+                    icon: Icons.remove,
+                    isTop: false,
+                    onTap: () => _mapController.move(
+                      _mapController.camera.center,
+                      _mapController.camera.zoom - 1,
+                    ),
+                  ),
+                ],
+              ),
             ),
-            Container(
-              width: 28, height: 28,
+          ),
+
+          Positioned(
+            bottom: 12, right: 12,
+            child: GestureDetector(
+              onTap: () => _mapController.move(_cambodiaCenter, 7.0),
+              child: Container(
+                width: 38, height: 38,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.12),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: const Icon(Icons.my_location_rounded,
+                    color: Color(0xFFB8770D), size: 20),
+              ),
+            ),
+          ),
+
+          Positioned(
+            bottom: 8, left: 8,
+            child: Container(
+              padding: const EdgeInsets.symmetric(
+                  horizontal: 6, vertical: 3),
               decoration: BoxDecoration(
-                color: color,
-                shape: BoxShape.circle,
-                border: Border.all(color: Colors.white, width: 2),
-                boxShadow: [BoxShadow(
-                  color: color.withOpacity(0.4),
-                  blurRadius: 8, offset: const Offset(0, 3),
-                )],
+                color: Colors.white.withValues(alpha: 0.8),
+                borderRadius: BorderRadius.circular(4),
               ),
-              child: const Icon(Icons.store_rounded,
-                  color: Colors.white, size: 14),
+              child: const Text(
+                '© OpenStreetMap contributors',
+                style: TextStyle(
+                    fontSize: 8, color: Color(0xFF555555)),
+              ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 }
 
-class _MapGridPainter extends CustomPainter {
+class _ZoomButton extends StatelessWidget {
+  const _ZoomButton({
+    required this.icon,
+    required this.onTap,
+    required this.isTop,
+  });
+
+  final IconData icon;
+  final VoidCallback onTap;
+  final bool isTop;
+
   @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = const Color(0xFFCFC4B0).withOpacity(0.4)
-      ..strokeWidth = 0.5;
-
-    for (var y = 0.0; y < size.height; y += 30) {
-      canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
-    }
-    for (var x = 0.0; x < size.width; x += 30) {
-      canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
-    }
-    final road = Paint()
-      ..color = const Color(0xFFD4C4A8)
-      ..strokeWidth = 3
-      ..strokeCap = StrokeCap.round;
-
-    canvas.drawLine(Offset(0, size.height * 0.4),
-        Offset(size.width, size.height * 0.55), road);
-    canvas.drawLine(Offset(size.width * 0.3, 0),
-        Offset(size.width * 0.45, size.height), road);
-    canvas.drawLine(Offset(size.width * 0.7, 0),
-        Offset(size.width * 0.6, size.height), road);
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 36, height: 36,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.vertical(
+            top:    isTop ? const Radius.circular(10) : Radius.zero,
+            bottom: isTop ? Radius.zero : const Radius.circular(10),
+          ),
+        ),
+        child: Icon(icon, size: 20,
+            color: const Color(0xFF5E4A35)),
+      ),
+    );
   }
-
-  @override
-  bool shouldRepaint(_) => false;
 }

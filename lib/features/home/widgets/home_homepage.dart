@@ -6,7 +6,6 @@ import '../../profile/artisan_profile_page.dart';
 import '../../../data/home_mock_data.dart';
 import '../../../widgets/app_section_header.dart';
 
-import 'search_bar_widget.dart';
 import 'hero_card.dart';
 import 'discipline_chip.dart';
 import 'quiz_banner.dart';
@@ -36,17 +35,9 @@ class _HomeHomepageState extends State<HomeHomepage> {
   Widget build(BuildContext context) {
     return CustomScrollView(
       slivers: [
-        const SliverToBoxAdapter(
-          child: Padding(
-            padding: EdgeInsets.fromLTRB(16, 18, 16, 0),
-            child: SearchBarWidget(),
-          ),
-        ),
-        const SliverToBoxAdapter(child: SizedBox(height: 18)),
-
         SliverToBoxAdapter(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: const EdgeInsets.fromLTRB(16, 18, 16, 0),
             child: HeroCard(onPressed: () {}),
           ),
         ),
@@ -166,22 +157,27 @@ class _HomeHomepageState extends State<HomeHomepage> {
           child: FutureBuilder<List<GiftItem>>(
             future: _productsFuture,
             builder: (context, snapshot) {
+              // Loading
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Padding(
                   padding: EdgeInsets.all(40),
                   child: Center(
-                    child: CircularProgressIndicator(color: Color(0xFFD8AE73)),
+                    child: CircularProgressIndicator(
+                        color: Color(0xFFD8AE73)),
                   ),
                 );
               }
+              // Error
               if (snapshot.hasError) {
                 return Padding(
                   padding: const EdgeInsets.all(16),
-                  child: Text('Failed to load products. ${snapshot.error}',
-                      style: const TextStyle(color: Color(0xFFC0392B))),
+                  child: Text(
+                    'Failed to load products. ${snapshot.error}',
+                    style: const TextStyle(color: Color(0xFFC0392B)),
+                  ),
                 );
               }
-
+              // Empty
               final products = snapshot.data ?? [];
               if (products.isEmpty) {
                 return const Padding(
@@ -189,14 +185,15 @@ class _HomeHomepageState extends State<HomeHomepage> {
                   child: Text('No products currently available.'),
                 );
               }
-
+              // Product list
               return Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Column(
                   children: [
                     for (int i = 0; i < products.length; i++) ...[
                       GiftCard(item: products[i]),
-                      if (i < products.length - 1) const SizedBox(height: 16),
+                      if (i < products.length - 1)
+                        const SizedBox(height: 16),
                     ],
                   ],
                 ),
