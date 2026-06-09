@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 
 import '../../../router/app_router.dart';
-import '../../../services/product_api.dart';
 import '../../profile/artisan_profile_page.dart';
 import '../../../data/home_mock_data.dart';
 import '../../../widgets/app_section_header.dart';
 
-import 'search_bar_widget.dart';
 import 'hero_card.dart';
 import 'discipline_chip.dart';
 import 'quiz_banner.dart';
@@ -24,29 +22,14 @@ class HomeHomepage extends StatefulWidget {
 
 class _HomeHomepageState extends State<HomeHomepage> {
   int _selectedDiscipline = 0;
-  late Future<List<GiftItem>> _productsFuture;
-
-  @override
-  void initState() {
-    super.initState();
-    _productsFuture = ProductApi.getProducts();
-  }
 
   @override
   Widget build(BuildContext context) {
     return CustomScrollView(
       slivers: [
-        const SliverToBoxAdapter(
-          child: Padding(
-            padding: EdgeInsets.fromLTRB(16, 18, 16, 0),
-            child: SearchBarWidget(),
-          ),
-        ),
-        const SliverToBoxAdapter(child: SizedBox(height: 18)),
-
         SliverToBoxAdapter(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: const EdgeInsets.fromLTRB(16, 18, 16, 0),
             child: HeroCard(onPressed: () {}),
           ),
         ),
@@ -85,7 +68,6 @@ class _HomeHomepageState extends State<HomeHomepage> {
           ),
         ),
         const SliverToBoxAdapter(child: SizedBox(height: 28)),
-
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -103,8 +85,7 @@ class _HomeHomepageState extends State<HomeHomepage> {
             child: AppSectionHeader(
               title: 'Special Offers',
               actionLabel: 'View All',
-              onActionTap: () =>
-                  Navigator.of(context).pushNamed(AppRoutes.promotions),
+              onActionTap: () {},
             ),
           ),
         ),
@@ -130,8 +111,7 @@ class _HomeHomepageState extends State<HomeHomepage> {
             child: AppSectionHeader(
               title: 'Curated Collections',
               actionLabel: 'View All',
-              onActionTap: () =>
-                  Navigator.of(context).pushNamed(AppRoutes.collections),
+              onActionTap: () {},
             ),
           ),
         ),
@@ -162,46 +142,13 @@ class _HomeHomepageState extends State<HomeHomepage> {
           ),
         ),
         const SliverToBoxAdapter(child: SizedBox(height: 12)),
-        SliverToBoxAdapter(
-          child: FutureBuilder<List<GiftItem>>(
-            future: _productsFuture,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Padding(
-                  padding: EdgeInsets.all(40),
-                  child: Center(
-                    child: CircularProgressIndicator(color: Color(0xFFD8AE73)),
-                  ),
-                );
-              }
-              if (snapshot.hasError) {
-                return Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Text('Failed to load products. ${snapshot.error}',
-                      style: const TextStyle(color: Color(0xFFC0392B))),
-                );
-              }
-
-              final products = snapshot.data ?? [];
-              if (products.isEmpty) {
-                return const Padding(
-                  padding: EdgeInsets.all(16),
-                  child: Text('No products currently available.'),
-                );
-              }
-
-              return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Column(
-                  children: [
-                    for (int i = 0; i < products.length; i++) ...[
-                      GiftCard(item: products[i]),
-                      if (i < products.length - 1) const SizedBox(height: 16),
-                    ],
-                  ],
-                ),
-              );
-            },
+        SliverPadding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          sliver: SliverList.separated(
+            itemCount: trendingGifts.length,
+            separatorBuilder: (_, __) => const SizedBox(height: 16),
+            itemBuilder: (context, index) =>
+                GiftCard(item: trendingGifts[index]),
           ),
         ),
         const SliverToBoxAdapter(child: SizedBox(height: 28)),
