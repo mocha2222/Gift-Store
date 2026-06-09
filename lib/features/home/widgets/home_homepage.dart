@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 
 import '../../../router/app_router.dart';
+import '../../../services/product_api.dart';
 import '../../profile/artisan_profile_page.dart';
 import '../../../data/home_mock_data.dart';
 import '../../../widgets/app_section_header.dart';
 
+// ── Extracted widgets ──────────────────────────────────────────────────────
 import 'hero_card.dart';
 import 'discipline_chip.dart';
 import 'quiz_banner.dart';
@@ -22,11 +24,19 @@ class HomeHomepage extends StatefulWidget {
 
 class _HomeHomepageState extends State<HomeHomepage> {
   int _selectedDiscipline = 0;
+  late Future<List<GiftItem>> _productsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _productsFuture = ProductApi.getProducts();
+  }
 
   @override
   Widget build(BuildContext context) {
     return CustomScrollView(
       slivers: [
+        // ── Hero card ───────────────────────────────────────────────────
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(16, 18, 16, 0),
@@ -35,6 +45,7 @@ class _HomeHomepageState extends State<HomeHomepage> {
         ),
         const SliverToBoxAdapter(child: SizedBox(height: 28)),
 
+        // ── Curated Disciplines ─────────────────────────────────────────
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -68,6 +79,8 @@ class _HomeHomepageState extends State<HomeHomepage> {
           ),
         ),
         const SliverToBoxAdapter(child: SizedBox(height: 28)),
+
+        // ── Quiz banner ─────────────────────────────────────────────────
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -79,13 +92,15 @@ class _HomeHomepageState extends State<HomeHomepage> {
         ),
         const SliverToBoxAdapter(child: SizedBox(height: 28)),
 
+        // ── Special Offers ──────────────────────────────────────────────
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: AppSectionHeader(
               title: 'Special Offers',
               actionLabel: 'View All',
-              onActionTap: () {},
+              onActionTap: () =>
+                  Navigator.of(context).pushNamed(AppRoutes.promotions),
             ),
           ),
         ),
@@ -105,13 +120,15 @@ class _HomeHomepageState extends State<HomeHomepage> {
         ),
         const SliverToBoxAdapter(child: SizedBox(height: 28)),
 
+        // ── Curated Collections ─────────────────────────────────────────
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: AppSectionHeader(
               title: 'Curated Collections',
               actionLabel: 'View All',
-              onActionTap: () {},
+              onActionTap: () =>
+                  Navigator.of(context).pushNamed(AppRoutes.collections),
             ),
           ),
         ),
@@ -131,6 +148,7 @@ class _HomeHomepageState extends State<HomeHomepage> {
         ),
         const SliverToBoxAdapter(child: SizedBox(height: 28)),
 
+        // ── Trending Gifts — loaded from backend ────────────────────────
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -142,17 +160,57 @@ class _HomeHomepageState extends State<HomeHomepage> {
           ),
         ),
         const SliverToBoxAdapter(child: SizedBox(height: 12)),
-        SliverPadding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          sliver: SliverList.separated(
-            itemCount: trendingGifts.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 16),
-            itemBuilder: (context, index) =>
-                GiftCard(item: trendingGifts[index]),
+        SliverToBoxAdapter(
+          child: FutureBuilder<List<GiftItem>>(
+            future: _productsFuture,
+            builder: (context, snapshot) {
+              // Loading
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Padding(
+                  padding: EdgeInsets.all(40),
+                  child: Center(
+                    child: CircularProgressIndicator(
+                        color: Color(0xFFD8AE73)),
+                  ),
+                );
+              }
+              // Error
+              if (snapshot.hasError) {
+                return Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Text(
+                    'Failed to load products. ${snapshot.error}',
+                    style: const TextStyle(color: Color(0xFFC0392B)),
+                  ),
+                );
+              }
+              // Empty
+              final products = snapshot.data ?? [];
+              if (products.isEmpty) {
+                return const Padding(
+                  padding: EdgeInsets.all(16),
+                  child: Text('No products currently available.'),
+                );
+              }
+              // Product list
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Column(
+                  children: [
+                    for (int i = 0; i < products.length; i++) ...[
+                      GiftCard(item: products[i]),
+                      if (i < products.length - 1)
+                        const SizedBox(height: 16),
+                    ],
+                  ],
+                ),
+              );
+            },
           ),
         ),
         const SliverToBoxAdapter(child: SizedBox(height: 28)),
 
+        // ── Meet the Makers ─────────────────────────────────────────────
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
