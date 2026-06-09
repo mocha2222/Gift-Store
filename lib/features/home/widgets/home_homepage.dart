@@ -6,7 +6,6 @@ import '../../profile/artisan_profile_page.dart';
 import '../../../data/home_mock_data.dart';
 import '../../../widgets/app_section_header.dart';
 
-// ── Extracted widgets ──────────────────────────────────────────────────────
 import 'hero_card.dart';
 import 'discipline_chip.dart';
 import 'quiz_banner.dart';
@@ -36,7 +35,6 @@ class _HomeHomepageState extends State<HomeHomepage> {
   Widget build(BuildContext context) {
     return CustomScrollView(
       slivers: [
-        // ── Hero card ───────────────────────────────────────────────────
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(16, 18, 16, 0),
@@ -45,7 +43,6 @@ class _HomeHomepageState extends State<HomeHomepage> {
         ),
         const SliverToBoxAdapter(child: SizedBox(height: 28)),
 
-        // ── Curated Disciplines ─────────────────────────────────────────
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -80,7 +77,6 @@ class _HomeHomepageState extends State<HomeHomepage> {
         ),
         const SliverToBoxAdapter(child: SizedBox(height: 28)),
 
-        // ── Quiz banner ─────────────────────────────────────────────────
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -92,7 +88,6 @@ class _HomeHomepageState extends State<HomeHomepage> {
         ),
         const SliverToBoxAdapter(child: SizedBox(height: 28)),
 
-        // ── Special Offers ──────────────────────────────────────────────
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -120,7 +115,6 @@ class _HomeHomepageState extends State<HomeHomepage> {
         ),
         const SliverToBoxAdapter(child: SizedBox(height: 28)),
 
-        // ── Curated Collections ─────────────────────────────────────────
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -148,7 +142,6 @@ class _HomeHomepageState extends State<HomeHomepage> {
         ),
         const SliverToBoxAdapter(child: SizedBox(height: 28)),
 
-        // ── Trending Gifts — loaded from backend ────────────────────────
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -210,7 +203,6 @@ class _HomeHomepageState extends State<HomeHomepage> {
         ),
         const SliverToBoxAdapter(child: SizedBox(height: 28)),
 
-        // ── Meet the Makers ─────────────────────────────────────────────
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
