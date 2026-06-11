@@ -2,13 +2,23 @@ import 'package:flutter/material.dart';
 
 import '../data/home_mock_data.dart';
 import '../features/auth/login_page.dart';
+import '../features/chat/artisan_chat_page.dart';
+import '../features/artisan/artisan_notifications_page.dart';
+import '../features/artisan/artisan_signout_page.dart';
+import '../features/artisan/artisan_settings_page.dart';
 import '../features/auth/signup_page.dart';
 import '../features/admin/admin_shell_page.dart';
 import '../features/artisan/artisan_shell_page.dart';
+import '../features/artisan/artisan_dashboard_page.dart';
 import '../features/detail/product_detail_page.dart';
 import '../features/home/home_page.dart';
 import '../features/quiz/quiz_page.dart';
 import '../features/map/map_page.dart';
+import '../features/collection/collections_page.dart';
+import '../features/collection/collection_detail_page.dart';
+import '../features/explore/explore_page.dart';
+import '../features/profile/profile_page.dart';
+import '../features/promotions/promotions_page.dart';
 import '../pages/cart_page.dart';
 import '../pages/checkout_page.dart';
 import '../pages/product_review_page.dart';
@@ -27,12 +37,30 @@ class AppRoutes {
   static const admin = '/admin';
   static const map = '/map';
   static const artisan = '/artisan';
+  static const artisanNotifications = '/artisan-notifications';
+  static const artisanSettings = '/artisan-settings';
+  static const artisanChat = '/artisan-chat';
+  static const artisanSignOut = '/artisan-sign-out';
+  static const collections = '/collections';
+  static const collection = '/collection';
+  static const collectionDetail = '/collection-detail';
+  static const explore = '/explore';
+  static const profile = '/profile';
+  static const promotions = '/promotions';
+
+  static String? get collectionsPage => null;
 }
 
 class ProductDetailArgs {
   const ProductDetailArgs({required this.item});
 
   final GiftItem item;
+}
+
+class CollectionDetailArgs {
+  const CollectionDetailArgs({required this.collection});
+
+  final CollectionItem collection;
 }
 
 class AppRouter {
@@ -56,6 +84,27 @@ class AppRouter {
       case AppRoutes.quiz:
         return MaterialPageRoute(
           builder: (_) => const QuizPage(),
+          settings: settings,
+        );
+
+      case AppRoutes.artisanNotifications:
+        return MaterialPageRoute(
+          builder: (_) => const ArtisanNotificationsPage(),
+          settings: settings,
+        );
+      case AppRoutes.artisanSettings:
+        return MaterialPageRoute(
+          builder: (_) => const ArtisanSettingsPage(),
+          settings: settings,
+        );
+      case AppRoutes.artisanChat:
+        return MaterialPageRoute(
+          builder: (_) => const ArtisanChatPage(),
+          settings: settings,
+        );
+      case AppRoutes.artisanSignOut:
+        return MaterialPageRoute(
+          builder: (_) => const ArtisanSignOutPage(),
           settings: settings,
         );
       case AppRoutes.productDetail:
@@ -109,10 +158,39 @@ class AppRouter {
           settings: settings,
         );
       case AppRoutes.map:
+        return MaterialPageRoute(builder: (_) => const MapPage(), settings: settings);
+      case AppRoutes.collections:
+      case AppRoutes.collection:
         return MaterialPageRoute(
-          builder: (_) => const MapPage(),
+          builder: (_) => const CollectionsPage(),
           settings: settings,
         );
+      case AppRoutes.explore:
+        return MaterialPageRoute(
+          builder: (_) => const ExplorePage(),
+          settings: settings,
+        );
+      case AppRoutes.promotions:
+        return MaterialPageRoute(
+          builder: (_) => const PromotionsPage(),
+          settings: settings,
+        );
+      case AppRoutes.profile:
+        final args = settings.arguments;
+        final showAppBar = args is bool ? args : false;
+        return MaterialPageRoute(
+          builder: (_) => ProfilePage(showAppBar: showAppBar),
+          settings: settings,
+        );
+      case AppRoutes.collectionDetail:
+        final args = settings.arguments;
+        if (args is CollectionDetailArgs) {
+          return MaterialPageRoute(
+            builder: (_) => CollectionDetailPage(collection: args.collection),
+            settings: settings,
+          );
+        }
+        return _errorRoute('Collection detail needs a CollectionItem argument.');
       default:
         return _errorRoute('No route defined for ${settings.name}.');
     }

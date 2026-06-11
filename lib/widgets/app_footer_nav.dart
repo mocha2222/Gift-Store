@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gift_shop/features/profile/profile_page.dart';
+import '../router/app_router.dart';
 
 class AppFooterNav extends StatelessWidget {
   const AppFooterNav({super.key, this.currentIndex = 0, this.onTap});
@@ -37,13 +37,31 @@ class AppFooterNav extends StatelessWidget {
                     return;
                   }
 
-                  // Default behavior: open Profile page when profile item tapped
-                  if (index == items.length - 1) {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => const ProfilePage(showAppBar: true),
-                      ),
-                    );
+                  final currentRoute = ModalRoute.of(context)?.settings.name;
+
+                  // Default behavior: navigate based on tab index
+                  if (index == 0) {
+                    if (currentRoute != AppRoutes.home) {
+                      Navigator.of(context).pushNamedAndRemoveUntil(
+                        AppRoutes.home,
+                        (route) => false,
+                      );
+                    }
+                  } else if (index == 1) {
+                    if (currentRoute != AppRoutes.explore) {
+                      Navigator.of(context).pushNamed(AppRoutes.explore);
+                    }
+                  } else if (index == 3) {
+                    if (currentRoute != AppRoutes.map) {
+                      Navigator.of(context).pushNamed(AppRoutes.map);
+                    }
+                  } else if (index == items.length - 1) {
+                    if (currentRoute != AppRoutes.profile) {
+                      Navigator.of(context).pushNamed(
+                        AppRoutes.profile,
+                        arguments: true,
+                      );
+                    }
                   }
                 },
                 child: _FooterItem(

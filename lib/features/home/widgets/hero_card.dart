@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../router/app_router.dart';
+
 class HeroCard extends StatelessWidget {
   const HeroCard({super.key, required this.onPressed});
 
@@ -31,66 +33,84 @@ class HeroCard extends StatelessWidget {
             ),
             Padding(
               padding: const EdgeInsets.all(24),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 5),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFD8AE73).withOpacity(0.3),
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                          color: const Color(0xFFD8AE73).withOpacity(0.7)),
-                    ),
-                    child: const Text(
-                      '✦  Established in Siem Reap  ✦',
-                      style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w700,
-                        color: Color(0xFFFFE4A0),
-                        letterSpacing: 1.2,
+              child: Align(
+                alignment: Alignment.bottomLeft,
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerLeft,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 5),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFD8AE73).withOpacity(0.3),
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                                color: const Color(0xFFD8AE73).withOpacity(0.7)),
+                          ),
+                          child: const Text(
+                            '✦  Established in Siem Reap  ✦',
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w700,
+                              color: Color(0xFFFFE4A0),
+                              letterSpacing: 1.2,
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
+                      const SizedBox(height: 12),
+                      const FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'Crafted in\nCambodia',
+                          style: TextStyle(
+                            fontSize: 36,
+                            fontWeight: FontWeight.w900,
+                            color: Colors.white,
+                            height: 1.1,
+                            letterSpacing: -0.5,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      const Text(
+                        'Ancient techniques preserved through generations. Every piece tells a story.',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Color(0xCCFFFFFF),
+                          height: 1.5,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerLeft,
+                        child: FilledButton(
+                          onPressed: () =>
+                              Navigator.of(context).pushNamed(AppRoutes.collections),
+                          style: FilledButton.styleFrom(
+                            backgroundColor: const Color(0xFFD8AE73),
+                            foregroundColor: const Color(0xFF4A321B),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 24, vertical: 14),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12)),
+                          ),
+                          child: const Text(
+                            'Explore the Collection',
+                            style: TextStyle(fontWeight: FontWeight.w700),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 12),
-                  const Text(
-                    'Crafted in\nCambodia',
-                    style: TextStyle(
-                      fontSize: 36,
-                      fontWeight: FontWeight.w900,
-                      color: Colors.white,
-                      height: 1.1,
-                      letterSpacing: -0.5,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Ancient techniques preserved through generations. Every piece tells a story.',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Color(0xCCFFFFFF),
-                      height: 1.5,
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  FilledButton(
-                    onPressed: onPressed,
-                    style: FilledButton.styleFrom(
-                      backgroundColor: const Color(0xFFD8AE73),
-                      foregroundColor: const Color(0xFF4A321B),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 24, vertical: 14),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12)),
-                    ),
-                    child: const Text(
-                      'Explore the Collection',
-                      style: TextStyle(fontWeight: FontWeight.w700),
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
           ],

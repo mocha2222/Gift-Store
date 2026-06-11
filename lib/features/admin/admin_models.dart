@@ -31,6 +31,22 @@ class AdminArtisan {
       followers: followers,
     );
   }
+
+  factory AdminArtisan.fromJson(Map<String, dynamic> json) {
+    AdminArtisanStatus parseStatus(String? s) {
+      if (s == 'active') return AdminArtisanStatus.active;
+      if (s == 'suspended') return AdminArtisanStatus.suspended;
+      return AdminArtisanStatus.pendingSetup;
+    }
+    return AdminArtisan(
+      name: json['shop_name'] ?? 'Unknown',
+      role: json['craft_type'] ?? 'Artisan',
+      location: json['region'] ?? 'Unknown',
+      status: parseStatus(json['status']),
+      products: json['products_count'] ?? 0,
+      followers: 0,
+    );
+  }
 }
 
 class AdminProduct {
@@ -49,6 +65,22 @@ class AdminProduct {
   final double price;
   final int stock;
   final bool isFeatured;
+
+  factory AdminProduct.fromJson(Map<String, dynamic> json) {
+    final artisan = json['artisan_id'];
+    final artisanName = (artisan is Map && artisan.containsKey('shop_name')) ? artisan['shop_name'] : 'Unknown';
+    final category = json['category_id'];
+    final categoryName = (category is Map && category.containsKey('category_name')) ? category['category_name'] : 'Other';
+
+    return AdminProduct(
+      name: json['name'] ?? 'Unknown',
+      artisan: artisanName,
+      category: categoryName,
+      price: (json['price'] ?? 0).toDouble(),
+      stock: json['stock'] ?? 0,
+      isFeatured: json['is_featured'] ?? false,
+    );
+  }
 }
 
 class AdminOrder {
@@ -78,6 +110,31 @@ class AdminOrder {
       date: date,
     );
   }
+
+  factory AdminOrder.fromJson(Map<String, dynamic> json) {
+    AdminOrderStatus parseStatus(String? s) {
+      switch (s) {
+        case 'confirmed': return AdminOrderStatus.confirmed;
+        case 'shipped': return AdminOrderStatus.shipped;
+        case 'delivered': return AdminOrderStatus.delivered;
+        case 'cancelled': return AdminOrderStatus.cancelled;
+        default: return AdminOrderStatus.pending;
+      }
+    }
+    
+    final user = json['user_id'];
+    final userName = (user is Map && user.containsKey('name')) ? user['name'] : 'Unknown';
+    final itemsList = json['items'] as List<dynamic>? ?? [];
+
+    return AdminOrder(
+      id: json['_id']?.toString().substring(0, 8) ?? 'ORD-???',
+      customer: userName,
+      total: (json['total_price'] ?? 0).toDouble(),
+      status: parseStatus(json['status']),
+      items: itemsList.length,
+      date: json['createdAt'] != null ? DateTime.parse(json['createdAt']) : DateTime.now(),
+    );
+  }
 }
 
 class AdminOverview {
@@ -94,109 +151,15 @@ class AdminOverview {
   final int totalCustomers;
 }
 
-const adminOverview = AdminOverview(
-  totalRevenue: 18640.75,
-  totalOrders: 248,
-  totalArtisans: 42,
-  totalCustomers: 1118,
+List<AdminArtisan> adminArtisans = [];
+List<AdminProduct> adminProducts = [];
+List<AdminOrder> adminOrders = [];
+AdminOverview adminOverview = const AdminOverview(
+  totalRevenue: 0,
+  totalOrders: 0,
+  totalArtisans: 0,
+  totalCustomers: 0,
 );
-
-final adminArtisans = <AdminArtisan>[
-  const AdminArtisan(
-    name: 'Chantha Silk Co-op',
-    role: 'Silk Weaver',
-    location: 'Takeo Province',
-    status: AdminArtisanStatus.active,
-    products: 14,
-    followers: 184,
-  ),
-  const AdminArtisan(
-    name: 'Sarath Silverworks',
-    role: 'Silversmith',
-    location: 'Phnom Penh',
-    status: AdminArtisanStatus.pendingSetup,
-    products: 9,
-    followers: 149,
-  ),
-  const AdminArtisan(
-    name: 'Rith Wood Studio',
-    role: 'Wood Carver',
-    location: 'Siem Reap',
-    status: AdminArtisanStatus.suspended,
-    products: 11,
-    followers: 97,
-  ),
-];
-
-final adminProducts = <AdminProduct>[
-  const AdminProduct(
-    name: 'Khmer Silk Krama',
-    artisan: 'Chantha Silk Co-op',
-    category: 'Textile',
-    price: 28,
-    stock: 18,
-    isFeatured: true,
-  ),
-  const AdminProduct(
-    name: 'Silver Apsara Plaque',
-    artisan: 'Sarath Silverworks',
-    category: 'Decor',
-    price: 145,
-    stock: 6,
-    isFeatured: true,
-  ),
-  const AdminProduct(
-    name: 'Kampot Pepper Gift Box',
-    artisan: 'Rith Wood Studio',
-    category: 'Edible',
-    price: 35,
-    stock: 29,
-    isFeatured: false,
-  ),
-  const AdminProduct(
-    name: 'Carved Jackfruit Elephant',
-    artisan: 'Rith Wood Studio',
-    category: 'Souvenir',
-    price: 22,
-    stock: 11,
-    isFeatured: false,
-  ),
-];
-
-final adminOrders = <AdminOrder>[
-  AdminOrder(
-    id: 'ORD-1042',
-    customer: 'Sokha Neang',
-    total: 108,
-    status: AdminOrderStatus.pending,
-    items: 3,
-    date: DateTime(2026, 6, 2),
-  ),
-  AdminOrder(
-    id: 'ORD-1041',
-    customer: 'Mina Chen',
-    total: 254,
-    status: AdminOrderStatus.shipped,
-    items: 5,
-    date: DateTime(2026, 6, 1),
-  ),
-  AdminOrder(
-    id: 'ORD-1040',
-    customer: 'Ratan Vuth',
-    total: 86,
-    status: AdminOrderStatus.confirmed,
-    items: 2,
-    date: DateTime(2026, 6, 1),
-  ),
-  AdminOrder(
-    id: 'ORD-1039',
-    customer: 'Dara Sok',
-    total: 312,
-    status: AdminOrderStatus.delivered,
-    items: 6,
-    date: DateTime(2026, 5, 30),
-  ),
-];
 
 Color statusColor(AdminArtisanStatus status) {
   switch (status) {

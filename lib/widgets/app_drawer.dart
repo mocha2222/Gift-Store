@@ -1,13 +1,12 @@
 import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../features/profile/profile_page.dart';
 import '../features/profile/widgets/profile_avatar.dart';
+import '../router/app_router.dart';
 
 class AppDrawer extends StatelessWidget {
   const AppDrawer({super.key});
@@ -20,10 +19,17 @@ class AppDrawer extends StatelessWidget {
         child: Column(
           children: [
             Expanded(
-              child: ListView(
-                padding: EdgeInsets.zero,
-                children: [
-                  Container(
+              child: FutureBuilder<SharedPreferences>(
+                future: SharedPreferences.getInstance(),
+                builder: (context, snapshot) {
+                  final prefs = snapshot.data;
+                  final isArtisan = prefs?.getString('user_role') == 'artisan';
+                  final isAdmin = prefs?.getString('user_role') == 'admin';
+
+                  return ListView(
+                    padding: EdgeInsets.zero,
+                    children: [
+                      Container(
                     height: 112,
                     padding: const EdgeInsets.fromLTRB(18, 18, 18, 16),
                     decoration: const BoxDecoration(
@@ -60,7 +66,16 @@ class AppDrawer extends StatelessWidget {
                   _DrawerItem(
                     icon: Icons.home_rounded,
                     label: 'Home',
-                    onTap: () => Navigator.of(context).pop(),
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      final currentRoute = ModalRoute.of(context)?.settings.name;
+                      if (currentRoute != AppRoutes.home) {
+                        Navigator.of(context).pushNamedAndRemoveUntil(
+                          AppRoutes.home,
+                          (route) => false,
+                        );
+                      }
+                    },
                   ),
                   _DrawerItem(
                     icon: Icons.info_outline_rounded,
@@ -70,17 +85,35 @@ class AppDrawer extends StatelessWidget {
                   _DrawerItem(
                     icon: Icons.explore_outlined,
                     label: 'Explore',
-                    onTap: () => Navigator.of(context).pop(),
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      final currentRoute = ModalRoute.of(context)?.settings.name;
+                      if (currentRoute != AppRoutes.explore) {
+                        Navigator.of(context).pushNamed(AppRoutes.explore);
+                      }
+                    },
                   ),
                   _DrawerItem(
                     icon: Icons.grid_view_rounded,
                     label: 'Category',
-                    onTap: () => Navigator.of(context).pop(),
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      final currentRoute = ModalRoute.of(context)?.settings.name;
+                      if (currentRoute != AppRoutes.collections) {
+                        Navigator.of(context).pushNamed(AppRoutes.collections);
+                      }
+                    },
                   ),
                   _DrawerItem(
                     icon: Icons.collections_bookmark_outlined,
                     label: 'Collection',
-                    onTap: () => Navigator.of(context).pop(),
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      final currentRoute = ModalRoute.of(context)?.settings.name;
+                      if (currentRoute != AppRoutes.collections) {
+                        Navigator.of(context).pushNamed(AppRoutes.collections);
+                      }
+                    },
                   ),
                   _DrawerItem(
                     icon: Icons.favorite_border_rounded,
@@ -90,14 +123,23 @@ class AppDrawer extends StatelessWidget {
                   _DrawerItem(
                     icon: Icons.location_on_outlined,
                     label: 'Nearby',
-                    onTap: () => Navigator.of(context).pop(),
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      final currentRoute = ModalRoute.of(context)?.settings.name;
+                      if (currentRoute != AppRoutes.map) {
+                        Navigator.of(context).pushNamed(AppRoutes.map);
+                      }
+                    },
                   ),
                   _DrawerItem(
                     icon: Icons.quiz_outlined,
                     label: 'Quiz Challenge',
                     onTap: () {
                       Navigator.of(context).pop();
-                      Navigator.of(context).pushNamed('/quiz');
+                      final currentRoute = ModalRoute.of(context)?.settings.name;
+                      if (currentRoute != AppRoutes.quiz) {
+                        Navigator.of(context).pushNamed(AppRoutes.quiz);
+                      }
                     },
                   ),
                   _DrawerItem(
@@ -105,13 +147,49 @@ class AppDrawer extends StatelessWidget {
                     label: 'Profile',
                     onTap: () {
                       Navigator.of(context).pop();
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => const ProfilePage(showAppBar: true),
-                        ),
-                      );
+                      final currentRoute = ModalRoute.of(context)?.settings.name;
+                      if (currentRoute != AppRoutes.profile) {
+                        Navigator.of(context).pushNamed(
+                          AppRoutes.profile,
+                          arguments: true,
+                        );
+                      }
                     },
                   ),
+                  if (isArtisan) ...[
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      child: Divider(),
+                    ),
+                    _DrawerItem(
+                      icon: Icons.dashboard_customize_outlined,
+                      label: 'Artisan Dashboard',
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        final currentRoute = ModalRoute.of(context)?.settings.name;
+                        if (currentRoute != AppRoutes.artisan) {
+                          Navigator.of(context).pushNamed(AppRoutes.artisan);
+                        }
+                      },
+                    ),
+                  ],
+                  if (isAdmin) ...[
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      child: Divider(),
+                    ),
+                    _DrawerItem(
+                      icon: Icons.admin_panel_settings_outlined,
+                      label: 'Admin Dashboard',
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        final currentRoute = ModalRoute.of(context)?.settings.name;
+                        if (currentRoute != AppRoutes.admin) {
+                          Navigator.of(context).pushNamed(AppRoutes.admin);
+                        }
+                      },
+                    ),
+                  ],
                   _DrawerItem(
                     icon: Icons.logout_rounded,
                     label: 'Sign Out',
@@ -131,7 +209,8 @@ class AppDrawer extends StatelessWidget {
                     },
                   ),
                 ],
-              ),
+              );
+            }),
             ),
             const Divider(height: 1),
             FutureBuilder<SharedPreferences>(
@@ -173,11 +252,13 @@ class AppDrawer extends StatelessWidget {
                       borderRadius: BorderRadius.circular(16),
                       onTap: () {
                         Navigator.of(context).pop();
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => const ProfilePage(showAppBar: true),
-                          ),
-                        );
+                        final currentRoute = ModalRoute.of(context)?.settings.name;
+                        if (currentRoute != AppRoutes.profile) {
+                          Navigator.of(context).pushNamed(
+                            AppRoutes.profile,
+                            arguments: true,
+                          );
+                        }
                       },
                       child: Container(
                         padding: const EdgeInsets.symmetric(

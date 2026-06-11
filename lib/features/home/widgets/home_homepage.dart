@@ -103,7 +103,8 @@ class _HomeHomepageState extends State<HomeHomepage> {
             child: AppSectionHeader(
               title: 'Special Offers',
               actionLabel: 'View All',
-              onActionTap: () {},
+              onActionTap: () =>
+                  Navigator.of(context).pushNamed(AppRoutes.promotions),
             ),
           ),
         ),
@@ -129,7 +130,8 @@ class _HomeHomepageState extends State<HomeHomepage> {
             child: AppSectionHeader(
               title: 'Curated Collections',
               actionLabel: 'View All',
-              onActionTap: () {},
+              onActionTap: () =>
+                  Navigator.of(context).pushNamed(AppRoutes.collections),
             ),
           ),
         ),
@@ -160,47 +162,47 @@ class _HomeHomepageState extends State<HomeHomepage> {
           ),
         ),
         const SliverToBoxAdapter(child: SizedBox(height: 12)),
-        FutureBuilder<List<GiftItem>>(
-          future: _productsFuture,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const SliverToBoxAdapter(
-                child: Padding(
+        SliverToBoxAdapter(
+          child: FutureBuilder<List<GiftItem>>(
+            future: _productsFuture,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Padding(
                   padding: EdgeInsets.all(40),
                   child: Center(
                     child: CircularProgressIndicator(color: Color(0xFFD8AE73)),
                   ),
-                ),
-              );
-            }
-            if (snapshot.hasError) {
-              return SliverToBoxAdapter(
-                child: Padding(
+                );
+              }
+              if (snapshot.hasError) {
+                return Padding(
                   padding: const EdgeInsets.all(16),
-                  child: Text('Failed to load products. ${snapshot.error}', style: const TextStyle(color: Color(0xFFC0392B))),
-                ),
-              );
-            }
-            
-            final products = snapshot.data ?? [];
-            if (products.isEmpty) {
-              return const SliverToBoxAdapter(
-                child: Padding(
+                  child: Text('Failed to load products. ${snapshot.error}',
+                      style: const TextStyle(color: Color(0xFFC0392B))),
+                );
+              }
+
+              final products = snapshot.data ?? [];
+              if (products.isEmpty) {
+                return const Padding(
                   padding: EdgeInsets.all(16),
                   child: Text('No products currently available.'),
+                );
+              }
+
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Column(
+                  children: [
+                    for (int i = 0; i < products.length; i++) ...[
+                      GiftCard(item: products[i]),
+                      if (i < products.length - 1) const SizedBox(height: 16),
+                    ],
+                  ],
                 ),
               );
-            }
-            
-            return SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              sliver: SliverList.separated(
-                itemCount: products.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 16),
-                itemBuilder: (context, index) => GiftCard(item: products[index]),
-              ),
-            );
-          },
+            },
+          ),
         ),
         const SliverToBoxAdapter(child: SizedBox(height: 28)),
 

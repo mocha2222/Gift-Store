@@ -1,6 +1,10 @@
 import 'dart:typed_data';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../../../services/product_api.dart';
+import '../../../services/category_api.dart';
 import 'artisan_product_model.dart';
 
 class AddEditProductSheet extends StatefulWidget {
@@ -8,9 +12,9 @@ class AddEditProductSheet extends StatefulWidget {
 
   final ArtisanProductModel? existing;
 
-  static Future<ArtisanProductModel?> show(
+  static Future<bool?> show(
       BuildContext context, {ArtisanProductModel? existing}) {
-    return showModalBottomSheet<ArtisanProductModel>(
+    return showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
@@ -27,6 +31,11 @@ class _AddEditProductSheetState extends State<AddEditProductSheet> {
   final _titleCtrl = TextEditingController();
   final _descCtrl  = TextEditingController();
   final _priceCtrl = TextEditingController();
+  final _culturalCtrl = TextEditingController();
+  final _materialCtrl = TextEditingController();
+  final _storyCtrl = TextEditingController();
+  final _stockCtrl = TextEditingController();
+  final _discountCtrl = TextEditingController();
   String _category  = artisanCategories.first;
   bool   _isLoading = false;
 
@@ -43,6 +52,11 @@ class _AddEditProductSheetState extends State<AddEditProductSheet> {
       _titleCtrl.text = widget.existing!.title;
       _descCtrl.text  = widget.existing!.description;
       _priceCtrl.text = widget.existing!.price.replaceAll('\$', '');
+      _culturalCtrl.text = widget.existing!.culturalBackground;
+      _materialCtrl.text = widget.existing!.materialInfo;
+      _storyCtrl.text = widget.existing!.story;
+      _stockCtrl.text = widget.existing!.stock.toString();
+      _discountCtrl.text = widget.existing!.discount.toString();
       _category       = widget.existing!.category;
       _existingPath   = widget.existing!.imagePath;
     }
@@ -53,6 +67,11 @@ class _AddEditProductSheetState extends State<AddEditProductSheet> {
     _titleCtrl.dispose();
     _descCtrl.dispose();
     _priceCtrl.dispose();
+    _culturalCtrl.dispose();
+    _materialCtrl.dispose();
+    _storyCtrl.dispose();
+    _stockCtrl.dispose();
+    _discountCtrl.dispose();
     super.dispose();
   }
 
@@ -143,27 +162,66 @@ class _AddEditProductSheetState extends State<AddEditProductSheet> {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isLoading = true);
 
-    await Future.delayed(const Duration(milliseconds: 700));
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final artisanId = prefs.getString('artisan_id');
+      if (artisanId == null) throw Exception('Artisan ID missing. Please log out and log in again.');
 
-    final imagePath = (_pickedBytes != null)
-        ? (_pickedFileName ?? 'picked_image')
-        : (_existingPath ??
-            'https://images.unsplash.com/photo-1567361808960-dec9cb578182?w=400&q=80');
+      // Fetch or create category
+      final categories = await CategoryApi.getCategories();
+      var category = categories.where((c) => c.name.toLowerCase() == _category.toLowerCase()).firstOrNull;
+      category ??= await CategoryApi.ensureCategoryExists(_category);
 
-    final product = ArtisanProductModel(
-      id: widget.existing?.id ??
-          DateTime.now().millisecondsSinceEpoch.toString(),
-      title:       _titleCtrl.text.trim(),
-      description: _descCtrl.text.trim(),
-      price:       '\$${_priceCtrl.text.trim()}',
-      category:    _category,
-      imagePath:   imagePath,
-      isAvailable: widget.existing?.isAvailable ?? true,
-      createdAt:   widget.existing?.createdAt,
-      imageBytes:  _pickedBytes,
-    );
+      String? base64Image;
+      if (_pickedBytes != null) {
+        base64Image = 'data:image/jpeg;base64,${base64Encode(_pickedBytes!)}';
+      } else if (_existingPath != null) {
+        base64Image = _existingPath;
+      }
 
-    if (mounted) Navigator.pop(context, product);
+      if (widget.existing != null) {
+        await ProductApi.updateProduct(
+          id: widget.existing!.id,
+          categoryId: category.id,
+          name: _titleCtrl.text.trim(),
+          description: _descCtrl.text.trim(),
+          price: _priceCtrl.text.trim(),
+          category: _category,
+          culturalBackground: _culturalCtrl.text.trim(),
+          materialInfo: _materialCtrl.text.trim(),
+          story: _storyCtrl.text.trim(),
+          stock: int.tryParse(_stockCtrl.text.trim()) ?? 0,
+          discount: int.tryParse(_discountCtrl.text.trim()) ?? 0,
+          imageBase64: base64Image,
+        );
+      } else {
+        await ProductApi.createProduct(
+          artisanId: artisanId,
+          categoryId: category.id,
+          name: _titleCtrl.text.trim(),
+          description: _descCtrl.text.trim(),
+          price: _priceCtrl.text.trim(),
+          category: _category,
+          culturalBackground: _culturalCtrl.text.trim(),
+          materialInfo: _materialCtrl.text.trim(),
+          story: _storyCtrl.text.trim(),
+          stock: int.tryParse(_stockCtrl.text.trim()) ?? 0,
+          discount: int.tryParse(_discountCtrl.text.trim()) ?? 0,
+          imageBase64: base64Image,
+        );
+      }
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Product added successfully!')));
+        Navigator.pop(context, true);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to save product: $e')));
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 
   @override
@@ -313,6 +371,16 @@ class _AddEditProductSheetState extends State<AddEditProductSheet> {
                 ),
                 const SizedBox(height: 16),
 
+
+
+                _buildLabel('Material Information'),
+                _buildField(
+                  controller: _materialCtrl,
+                  hint: 'Materials used, size, dimensions...',
+                  validator: (v) => v == null || v.isEmpty ? 'Required' : null,
+                ),
+                const SizedBox(height: 16),
+
                 _buildLabel('Description'),
                 _buildField(
                   controller: _descCtrl,
@@ -341,6 +409,57 @@ class _AddEditProductSheetState extends State<AddEditProductSheet> {
                 ),
                 const SizedBox(height: 16),
 
+                _buildLabel('Stock'),
+                _buildField(
+                  controller: _stockCtrl,
+                  hint: 'Available quantity',
+                  keyboardType: TextInputType.number,
+                  validator: (v) {
+                    if (v == null || v.isEmpty) return 'Enter available quantity';
+                    if (int.tryParse(v) == null) {
+                      return 'Enter a valid integer';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+
+                _buildLabel('Discount (%)'),
+                _buildField(
+                  controller: _discountCtrl,
+                  hint: '0',
+                  keyboardType: TextInputType.number,
+                  validator: (v) {
+                    if (v == null || v.isEmpty) return 'Enter discount percentage';
+                    final val = int.tryParse(v);
+                    if (val == null || val < 0 || val > 100) {
+                      return 'Enter a valid percentage (0-100)';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+
+                _buildLabel('Cultural Background'),
+                _buildField(
+                  controller: _culturalCtrl,
+                  hint: 'Where did this tradition originate?',
+                  maxLines: 2,
+                  validator: (v) => (v == null || v.trim().isEmpty)
+                      ? 'Please enter the cultural background' : null,
+                ),
+                const SizedBox(height: 16),
+
+                _buildLabel('Story Behind the Piece'),
+                _buildField(
+                  controller: _storyCtrl,
+                  hint: 'Tell the story of how this is made...',
+                  maxLines: 3,
+                  validator: (v) => (v == null || v.trim().isEmpty)
+                      ? 'Please enter the story behind this piece' : null,
+                ),
+                const SizedBox(height: 16),
+
                 _buildLabel('Category'),
                 Container(
                   decoration: BoxDecoration(
@@ -349,7 +468,7 @@ class _AddEditProductSheetState extends State<AddEditProductSheet> {
                     border: Border.all(color: const Color(0xFFEAD5A8)),
                   ),
                   child: DropdownButtonFormField<String>(
-                    value: _category,
+                    initialValue: _category,
                     decoration: const InputDecoration(
                       border: InputBorder.none,
                       contentPadding: EdgeInsets.symmetric(

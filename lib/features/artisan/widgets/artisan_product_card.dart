@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'artisan_product_model.dart';
 
@@ -28,6 +29,17 @@ class ArtisanProductCard extends StatelessWidget {
 
     if (product.imageBytes != null) {
       return Image.memory(product.imageBytes!, fit: BoxFit.cover);
+    }
+
+    if (product.imagePath.startsWith('data:image')) {
+      try {
+        final base64Str = product.imagePath.split(',').last;
+        final bytes = base64Decode(base64Str);
+        return Image.memory(bytes, fit: BoxFit.cover,
+            errorBuilder: (_, __, ___) => _placeholder(catColor));
+      } catch (e) {
+        return _placeholder(catColor);
+      }
     }
 
     if (product.imagePath.startsWith('http')) {
@@ -131,11 +143,29 @@ class ArtisanProductCard extends StatelessWidget {
                       maxLines: 1, overflow: TextOverflow.ellipsis),
                   const SizedBox(height: 6),
                   Row(children: [
-                    Text(product.price,
-                        style: const TextStyle(
-                          fontSize: 14, fontWeight: FontWeight.w800,
-                          color: Color(0xFF8C6500),
-                        )),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (product.discount > 0)
+                          Text('\$${double.tryParse(product.price.replaceAll('\$', ''))?.toStringAsFixed(2) ?? product.price}',
+                            style: const TextStyle(
+                              fontSize: 11,
+                              decoration: TextDecoration.lineThrough,
+                              color: Color(0xFF9E7E5A),
+                            ),
+                          ),
+                        Text(
+                          '\$${(
+                            (double.tryParse(product.price.replaceAll('\$', '')) ?? 0.0) * 
+                            (1 - product.discount / 100)
+                          ).toStringAsFixed(2)}',
+                          style: const TextStyle(
+                            fontSize: 14, fontWeight: FontWeight.w800,
+                            color: Color(0xFF8C6500),
+                          ),
+                        ),
+                      ],
+                    ),
                     const Spacer(),
                     GestureDetector(
                       onTap: onEdit,

@@ -1,8 +1,19 @@
 import 'package:flutter/material.dart';
-import '../../../router/app_router.dart';
+import '../router/app_router.dart';
 
 class AppHeader extends StatelessWidget {
-  const AppHeader({super.key});
+  const AppHeader({
+    super.key,
+    this.showCart = true,
+    this.showMenu = true,
+    this.title = 'Khmer Treasures',
+    this.actions,
+  });
+
+  final bool showCart;
+  final bool showMenu;
+  final String title;
+  final List<Widget>? actions;
 
   @override
   Widget build(BuildContext context) {
@@ -15,13 +26,16 @@ class AppHeader extends StatelessWidget {
       ),
       child: Row(
         children: [
-          _HeaderIconButton(
-            icon: Icons.menu_rounded,
-            onTap: () => Scaffold.of(context).openDrawer(),
-          ),
+          if (showMenu)
+            HeaderIconButton(
+              icon: Icons.menu_rounded,
+              onTap: () => Scaffold.of(context).openDrawer(),
+            )
+          else
+            const SizedBox(width: 36),
           const Spacer(),
           Text(
-            'Khmer Treasures',
+            title,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
               fontSize: 24,
               color: const Color(0xFF8C6500),
@@ -29,18 +43,26 @@ class AppHeader extends StatelessWidget {
             textAlign: TextAlign.center,
           ),
           const Spacer(),
-          _HeaderIconButton(
-            icon: Icons.shopping_cart_outlined,
-            onTap: () => Navigator.of(context).pushNamed(AppRoutes.cart),
-          ),
+          if (actions != null)
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: actions!,
+            )
+          else if (showCart)
+            HeaderIconButton(
+              icon: Icons.shopping_cart_outlined,
+              onTap: () => Navigator.of(context).pushNamed(AppRoutes.cart),
+            )
+          else
+            const SizedBox(width: 36),
         ],
       ),
     );
   }
 }
 
-class _HeaderIconButton extends StatelessWidget {
-  const _HeaderIconButton({required this.icon, required this.onTap});
+class HeaderIconButton extends StatelessWidget {
+  const HeaderIconButton({super.key, required this.icon, required this.onTap});
 
   final IconData icon;
   final VoidCallback onTap;

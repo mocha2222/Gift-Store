@@ -277,7 +277,7 @@ class _SwitchCard extends StatelessWidget {
           Switch(
             value: value,
             onChanged: onChanged,
-            activeColor: const Color(0xFFB8770D),
+            activeThumbColor: const Color(0xFFB8770D),
           ),
         ],
       ),

@@ -25,11 +25,11 @@ class GiftShopShell extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       drawer: const AppDrawer(),
-      body: const Column(
+      body: Column(
         children: [
           AppHeader(),
-          Expanded(child: HomeHomepage()),
-          SafeArea(top: false, child: AppFooterNav()),
+          const Expanded(child: HomeHomepage()),
+          const SafeArea(top: false, child: AppFooterNav()),
         ],
       ),
     );

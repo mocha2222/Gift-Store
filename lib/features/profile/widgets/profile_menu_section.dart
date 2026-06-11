@@ -48,8 +48,11 @@ class ProfileMenuSection extends StatelessWidget {
             borderRadius: BorderRadius.circular(20),
             border: Border.all(color: const Color(0xFFE2D3BE)),
           ),
-          child: Column(
-            children: [
+          clipBehavior: Clip.antiAlias,
+          child: Material(
+            type: MaterialType.transparency,
+            child: Column(
+              children: [
               for (var index = 0; index < items.length; index++) ...[
                 ListTile(
                   onTap: items[index].onTap,
@@ -102,6 +105,7 @@ class ProfileMenuSection extends StatelessWidget {
               ],
             ],
           ),
+        ),
         ),
       ],
     );
