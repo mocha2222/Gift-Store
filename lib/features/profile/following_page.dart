@@ -43,6 +43,7 @@ class _FollowingPageState extends State<FollowingPage> {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => ArtisanProfilePage(
+          artisanId: currentMaker?.id ?? artisan.id,
           name: currentMaker?.name ?? artisan.name,
           region: artisan.region,
           craft: artisan.craft,
@@ -182,20 +183,35 @@ class _FollowingPageState extends State<FollowingPage> {
                         ),
                         clipBehavior: Clip.antiAlias,
                         child: avatarUrl != null && avatarUrl.isNotEmpty
-                            ? Image.asset(
-                                avatarUrl,
-                                fit: BoxFit.cover,
-                                errorBuilder: (_, __, ___) => Center(
-                                  child: Text(
-                                    artisan.initials,
-                                    style: GoogleFonts.cormorantGaramond(
-                                      fontSize: 22,
-                                      fontWeight: FontWeight.w700,
-                                      color: Colors.white,
+                            ? (avatarUrl.startsWith('http')
+                                ? Image.network(
+                                    avatarUrl,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (_, __, ___) => Center(
+                                      child: Text(
+                                        artisan.initials,
+                                        style: GoogleFonts.cormorantGaramond(
+                                          fontSize: 22,
+                                          fontWeight: FontWeight.w700,
+                                          color: Colors.white,
+                                        ),
+                                      ),
                                     ),
-                                  ),
-                                ),
-                              )
+                                  )
+                                : Image.asset(
+                                    avatarUrl,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (_, __, ___) => Center(
+                                      child: Text(
+                                        artisan.initials,
+                                        style: GoogleFonts.cormorantGaramond(
+                                          fontSize: 22,
+                                          fontWeight: FontWeight.w700,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                  ))
                             : Center(
                                 child: Text(
                                   artisan.initials,
@@ -264,6 +280,7 @@ class _FollowingPageState extends State<FollowingPage> {
 
 class _FollowedArtisan {
   const _FollowedArtisan({
+    required this.id,
     required this.name,
     required this.region,
     required this.craft,
@@ -272,6 +289,8 @@ class _FollowedArtisan {
     required this.followerCount,
     required this.products,
   });
+
+  final String id;
 
   final String name;
   final String region;
@@ -309,6 +328,7 @@ class _FollowedArtisan {
                   .toList()
             : <ArtisanProduct>[];
         return _FollowedArtisan(
+          id: read('id'),
           name: read('name'),
           region: read('region'),
           craft: read('craft'),
@@ -325,6 +345,7 @@ class _FollowedArtisan {
     }
 
     return _FollowedArtisan(
+      id: '',
       name: value,
       region: '',
       craft: '',

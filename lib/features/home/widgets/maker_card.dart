@@ -31,18 +31,31 @@ class MakerCard extends StatelessWidget {
                     color: const Color(0xFFF3E7D4), width: 3),
               ),
               child: ClipOval(
-                child: Image.asset(
-                  item.avatarUrl,
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => Container(
-                    color: const Color(0xFFD8AE73),
-                    child: const Icon(
-                      Icons.person_rounded,
-                      size: 36,
-                      color: Colors.white,
+                child: item.avatarUrl.startsWith('http')
+                  ? Image.network(
+                      item.avatarUrl,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => Container(
+                        color: const Color(0xFFD8AE73),
+                        child: const Icon(
+                          Icons.person_rounded,
+                          size: 36,
+                          color: Colors.white,
+                        ),
+                      ),
+                    )
+                  : Image.asset(
+                      item.avatarUrl,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => Container(
+                        color: const Color(0xFFD8AE73),
+                        child: const Icon(
+                          Icons.person_rounded,
+                          size: 36,
+                          color: Colors.white,
+                        ),
+                      ),
                     ),
-                  ),
-                ),
               ),
             ),
             const SizedBox(height: 12),

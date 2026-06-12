@@ -24,11 +24,13 @@ class HomeHomepage extends StatefulWidget {
 class _HomeHomepageState extends State<HomeHomepage> {
   int _selectedDiscipline = 0;
   late Future<List<GiftItem>> _productsFuture;
+  late Future<List<MakerItem>> _makersFuture;
 
   @override
   void initState() {
     super.initState();
     _productsFuture = ProductApi.getProducts();
+    _makersFuture = ProductApi.getMakers();
   }
 
   @override
@@ -219,40 +221,70 @@ class _HomeHomepageState extends State<HomeHomepage> {
         const SliverToBoxAdapter(child: SizedBox(height: 14)),
 
         SliverToBoxAdapter(
-          child: SizedBox(
-            height: 280,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              separatorBuilder: (_, __) => const SizedBox(width: 12),
-              itemCount: makers.length,
-              itemBuilder: (context, index) {
-                final maker = makers[index];
-                final parts = maker.role.split(' · ');
-                final craft =
-                    parts.isNotEmpty ? parts.first : maker.role;
-                final region = parts.length > 1 ? parts.last : '';
+          child: FutureBuilder<List<MakerItem>>(
+            future: _makersFuture,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const SizedBox(
+                  height: 280,
+                  child: Center(
+                    child: CircularProgressIndicator(color: Color(0xFFD8AE73)),
+                  ),
+                );
+              }
+              if (snapshot.hasError) {
+                return SizedBox(
+                  height: 280,
+                  child: Center(
+                    child: Text('Failed to load makers: ${snapshot.error}'),
+                  ),
+                );
+              }
+              final loadedMakers = snapshot.data ?? [];
+              if (loadedMakers.isEmpty) {
+                return const SizedBox(
+                  height: 280,
+                  child: Center(child: Text('No makers found.')),
+                );
+              }
+              
+              return SizedBox(
+                height: 280,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  separatorBuilder: (_, __) => const SizedBox(width: 12),
+                  itemCount: loadedMakers.length,
+                  itemBuilder: (context, index) {
+                    final maker = loadedMakers[index];
+                    final parts = maker.role.split(' · ');
+                    final craft =
+                        parts.isNotEmpty ? parts.first : maker.role;
+                    final region = parts.length > 1 ? parts.last : '';
 
-                return MakerCard(
-                  item: maker,
-                  onTap: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => ArtisanProfilePage(
-                          name: maker.name,
-                          region: region,
-                          craft: craft,
-                          story: maker.quote,
-                          followerCount: maker.followerCount,
-                          avatarUrl: maker.avatarUrl,
-                          products: maker.products,
-                        ),
-                      ),
+                    return MakerCard(
+                      item: maker,
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => ArtisanProfilePage(
+                              artisanId: maker.id,
+                              name: maker.name,
+                              region: region,
+                              craft: craft,
+                              story: maker.quote,
+                              followerCount: maker.followerCount,
+                              avatarUrl: maker.avatarUrl,
+                              products: maker.products,
+                            ),
+                          ),
+                        );
+                      },
                     );
                   },
-                );
-              },
-            ),
+                ),
+              );
+            },
           ),
         ),
         const SliverToBoxAdapter(child: SizedBox(height: 32)),

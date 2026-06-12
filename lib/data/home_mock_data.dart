@@ -28,6 +28,7 @@ class GiftItem {
   final String materialInfo;
   final int stock;
   final int discount;
+  final String category;
 
   const GiftItem({
     this.id = '',
@@ -43,6 +44,7 @@ class GiftItem {
     this.materialInfo = '',
     this.stock = 10,
     this.discount = 0,
+    this.category = 'Other',
   });
 
   factory GiftItem.fromJson(Map<String, dynamic> json) {
@@ -68,6 +70,7 @@ class GiftItem {
       materialInfo: json['material_info']?.toString() ?? '',
       stock: json['stock'] is int ? json['stock'] : int.tryParse(json['stock']?.toString() ?? '0') ?? 0,
       discount: json['discount'] is int ? json['discount'] : int.tryParse(json['discount']?.toString() ?? '0') ?? 0,
+      category: json['category_id'] is Map ? (json['category_id']['category_name']?.toString() ?? 'Other') : 'Other',
     );
   }
 }
@@ -276,6 +279,7 @@ class ArtisanProduct {
 }
 
 class MakerItem {
+  final String id;
   final String name;
   final String role;
   final String quote;
@@ -283,6 +287,7 @@ class MakerItem {
   final int followerCount;
   final List<ArtisanProduct> products;
   const MakerItem({
+    this.id = '',
     required this.name,
     required this.role,
     required this.quote,

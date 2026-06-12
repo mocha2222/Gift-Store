@@ -5,12 +5,14 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../data/home_mock_data.dart';
+import '../../services/product_api.dart';
 import '../auth/login_page.dart';
 import 'widgets/profile_stats_row.dart';
 
 class ArtisanProfilePage extends StatefulWidget {
   const ArtisanProfilePage({
     super.key,
+    required this.artisanId,
     required this.name,
     required this.region,
     required this.craft,
@@ -19,6 +21,8 @@ class ArtisanProfilePage extends StatefulWidget {
     required this.products,
     this.followerCount = 128,
   });
+
+  final String artisanId;
 
   final String name;
   final String region;
@@ -39,9 +43,12 @@ class _ArtisanProfilePageState extends State<ArtisanProfilePage> {
   bool _isLoggedIn = false;
   late int _followerCount;
 
+  bool _isLoadingProducts = false;
+  List<ArtisanProduct> _fetchedProducts = [];
+
   List<ArtisanProduct> get _displayProducts {
-    if (widget.products.isNotEmpty) {
-      return widget.products;
+    if (_fetchedProducts.isNotEmpty) {
+      return _fetchedProducts;
     }
 
     final avatarUrl = widget.avatarUrl ?? '';
@@ -95,6 +102,7 @@ class _ArtisanProfilePageState extends State<ArtisanProfilePage> {
   }
 
   Map<String, dynamic> get _artisanRecord => {
+    'id': widget.artisanId,
     'name': widget.name,
     'region': widget.region,
     'craft': widget.craft,
@@ -108,8 +116,30 @@ class _ArtisanProfilePageState extends State<ArtisanProfilePage> {
   void initState() {
     super.initState();
     _followerCount = widget.followerCount;
+    _fetchedProducts = widget.products;
     _loadLoginState();
     _loadFollowState();
+    if (widget.artisanId.isNotEmpty) {
+      _fetchProducts();
+    }
+  }
+
+  Future<void> _fetchProducts() async {
+    setState(() => _isLoadingProducts = true);
+    try {
+      // Import needed if not present
+      final details = await ProductApi.getMakerDetails(widget.artisanId);
+      if (mounted) {
+        setState(() {
+          _fetchedProducts = details.products;
+          _isLoadingProducts = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoadingProducts = false);
+      }
+    }
   }
 
   Future<void> _loadLoginState() async {
@@ -252,22 +282,39 @@ class _ArtisanProfilePageState extends State<ArtisanProfilePage> {
                         child:
                             widget.avatarUrl != null &&
                                 widget.avatarUrl!.isNotEmpty
-                            ? Image.asset(
-                                widget.avatarUrl!,
-                                fit: BoxFit.cover,
-                                width: 64,
-                                height: 64,
-                                errorBuilder: (_, __, ___) => Center(
-                                  child: Text(
-                                    _initials,
-                                    style: GoogleFonts.cormorantGaramond(
-                                      fontSize: 24,
-                                      fontWeight: FontWeight.w700,
-                                      color: const Color(0xFF4A321B),
+                            ? (widget.avatarUrl!.startsWith('http')
+                                ? Image.network(
+                                    widget.avatarUrl!,
+                                    fit: BoxFit.cover,
+                                    width: 64,
+                                    height: 64,
+                                    errorBuilder: (_, __, ___) => Center(
+                                      child: Text(
+                                        _initials,
+                                        style: GoogleFonts.cormorantGaramond(
+                                          fontSize: 24,
+                                          fontWeight: FontWeight.w700,
+                                          color: const Color(0xFF4A321B),
+                                        ),
+                                      ),
                                     ),
-                                  ),
-                                ),
-                              )
+                                  )
+                                : Image.asset(
+                                    widget.avatarUrl!,
+                                    fit: BoxFit.cover,
+                                    width: 64,
+                                    height: 64,
+                                    errorBuilder: (_, __, ___) => Center(
+                                      child: Text(
+                                        _initials,
+                                        style: GoogleFonts.cormorantGaramond(
+                                          fontSize: 24,
+                                          fontWeight: FontWeight.w700,
+                                          color: const Color(0xFF4A321B),
+                                        ),
+                                      ),
+                                    ),
+                                  ))
                             : Center(
                                 child: Text(
                                   _initials,
@@ -444,18 +491,24 @@ class _ArtisanProfilePageState extends State<ArtisanProfilePage> {
           ),
           SliverPadding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            sliver: SliverGrid(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
-                childAspectRatio: 0.78,
-              ),
-              delegate: SliverChildBuilderDelegate(
-                (context, index) => _ItemCard(item: _displayProducts[index]),
-                childCount: _displayProducts.length,
-              ),
-            ),
+            sliver: _isLoadingProducts
+                ? const SliverToBoxAdapter(
+                    child: Center(
+                      child: CircularProgressIndicator(color: Color(0xFFD8AE73)),
+                    ),
+                  )
+                : SliverGrid(
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 12,
+                      mainAxisSpacing: 12,
+                      childAspectRatio: 0.78,
+                    ),
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) => _ItemCard(item: _displayProducts[index]),
+                      childCount: _displayProducts.length,
+                    ),
+                  ),
           ),
           const SliverToBoxAdapter(child: SizedBox(height: 32)),
         ],

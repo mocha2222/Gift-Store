@@ -172,4 +172,77 @@ class ProductApi {
       throw Exception('Failed to delete product: ${res.body}');
     }
   }
+  static Future<List<MakerItem>> getMakers() async {
+    final uri = Uri.parse('$_base/artisans');
+    final res = await http.get(uri, headers: {'Content-Type': 'application/json'});
+    
+    if (res.statusCode != 200) {
+      throw Exception('Failed to load makers: ${res.body}');
+    }
+
+    final List<dynamic> body = jsonDecode(res.body);
+    return body.map((json) {
+      final name = json['shop_name']?.toString() ?? 'Unknown Artisan';
+      final craftType = json['craft_type']?.toString() ?? 'Craftsman';
+      final region = json['region']?.toString() ?? 'Cambodia';
+      final role = '$craftType · $region';
+      final quote = json['story']?.toString() ?? 'Dedicated to the craft.';
+      final avatarUrl = json['cover_image']?.toString() ?? 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&q=80';
+      
+      final productsJson = json['products'] as List<dynamic>? ?? [];
+      final products = productsJson.map((p) {
+        return ArtisanProduct(
+          title: p['name']?.toString() ?? '',
+          price: '\$${p['price']?.toString() ?? ''}',
+          imagePath: p['image']?.toString() ?? '',
+        );
+      }).toList();
+      
+      return MakerItem(
+        id: json['_id']?.toString() ?? '',
+        name: name,
+        role: role,
+        quote: quote,
+        avatarUrl: avatarUrl,
+        followerCount: 150,
+        products: products,
+      );
+    }).toList();
+  }
+
+  static Future<MakerItem> getMakerDetails(String id) async {
+    final uri = Uri.parse('$_base/artisans/$id');
+    final res = await http.get(uri, headers: {'Content-Type': 'application/json'});
+    
+    if (res.statusCode != 200) {
+      throw Exception('Failed to load maker details: ${res.body}');
+    }
+
+    final json = jsonDecode(res.body);
+    final name = json['shop_name']?.toString() ?? 'Unknown Artisan';
+    final craftType = json['craft_type']?.toString() ?? 'Craftsman';
+    final region = json['region']?.toString() ?? 'Cambodia';
+    final role = '$craftType · $region';
+    final quote = json['story']?.toString() ?? 'Dedicated to the craft.';
+    final avatarUrl = json['cover_image']?.toString() ?? 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&q=80';
+    
+    final productsJson = json['products'] as List<dynamic>? ?? [];
+    final products = productsJson.map((p) {
+      return ArtisanProduct(
+        title: p['name']?.toString() ?? '',
+        price: '\$${p['price']?.toString() ?? ''}',
+        imagePath: p['image']?.toString() ?? '',
+      );
+    }).toList();
+    
+    return MakerItem(
+      id: json['_id']?.toString() ?? id,
+      name: name,
+      role: role,
+      quote: quote,
+      avatarUrl: avatarUrl,
+      followerCount: 150,
+      products: products,
+    );
+  }
 }
