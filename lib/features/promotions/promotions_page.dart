@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../../data/home_mock_data.dart';
+import '../../router/app_router.dart';
 import '../../widgets/app_drawer.dart';
 import '../../widgets/app_footer_nav.dart';
 import '../../widgets/app_header.dart';
+import 'widget/discount_product_model.dart';
 
 class PromotionsPage extends StatelessWidget {
   const PromotionsPage({super.key});
@@ -22,7 +22,6 @@ class PromotionsPage extends StatelessWidget {
             child: CustomScrollView(
               physics: const BouncingScrollPhysics(),
               slivers: [
-                // Page Header
                 SliverToBoxAdapter(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 18),
@@ -31,7 +30,7 @@ class PromotionsPage extends StatelessWidget {
                       children: [
                         const SizedBox(height: 14),
                         Text(
-                          'Special Offers & Promotions',
+                          'Discount Products',
                           style: GoogleFonts.cormorantGaramond(
                             color: const Color(0xFF2C261E),
                             fontSize: 28,
@@ -40,7 +39,7 @@ class PromotionsPage extends StatelessWidget {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'Save on authentic Khmer treasures with our exclusive seasonal offers and coupon codes.',
+                          'Browse products currently on discount — tap any item to view details and use the promo code at checkout.',
                           style: GoogleFonts.inter(
                             color: const Color(0xFF61584E),
                             fontSize: 13,
@@ -53,16 +52,15 @@ class PromotionsPage extends StatelessWidget {
                   ),
                 ),
 
-                // Promotions List
                 SliverPadding(
                   padding: const EdgeInsets.fromLTRB(18, 0, 18, 32),
                   sliver: SliverList(
                     delegate: SliverChildBuilderDelegate(
                       (context, index) {
-                        final item = promotions[index];
-                        return _PromoTile(item: item);
+                        final discount = discountProducts[index];
+                        return _DiscountProductTile(discount: discount);
                       },
-                      childCount: promotions.length,
+                      childCount: discountProducts.length,
                     ),
                   ),
                 ),
@@ -76,180 +74,150 @@ class PromotionsPage extends StatelessWidget {
   }
 }
 
-class _PromoTile extends StatelessWidget {
-  const _PromoTile({required this.item});
+class _DiscountProductTile extends StatelessWidget {
+  const _DiscountProductTile({required this.discount});
 
-  final PromoItem item;
-
-  void _copyToClipboard(BuildContext context) {
-    Clipboard.setData(ClipboardData(text: item.code));
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Promo code "${item.code}" copied to clipboard!'),
-        backgroundColor: const Color(0xFF4A321B),
-        behavior: SnackBarBehavior.floating,
-        duration: const Duration(seconds: 2),
-      ),
-    );
-  }
+  final DiscountProduct discount;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 18),
-      decoration: BoxDecoration(
-        color: const Color(0xFFFFF7EC),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFE2D3BE)),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x0A000000),
-            blurRadius: 10,
-            offset: Offset(0, 4),
-          ),
-        ],
+    return GestureDetector(
+      onTap: () => Navigator.of(context).pushNamed(
+        AppRoutes.productDetail,
+        arguments: ProductDetailArgs(item: discount.item),
       ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Top Accent Bar / Discount Badge
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              color: item.color,
-              child: Row(
-                children: [
-                  const Icon(
-                    Icons.local_offer_rounded,
-                    color: Colors.white,
-                    size: 18,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    '${item.discountPercent}% OFF DISCOUNT',
-                    style: GoogleFonts.inter(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w800,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 18),
+        decoration: BoxDecoration(
+          color: const Color(0xFFFFF7EC),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: const Color(0xFFE2D3BE)),
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x0A000000),
+              blurRadius: 10,
+              offset: Offset(0, 4),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Top Accent Bar / Discount Badge
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                color: discount.badgeColor,
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.local_offer_rounded,
                       color: Colors.white,
-                      letterSpacing: 0.5,
+                      size: 18,
                     ),
-                  ),
-                  const Spacer(),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Text(
-                      'ACTIVE',
+                    const SizedBox(width: 8),
+                    Text(
+                      '${discount.discountPercent}% OFF',
                       style: GoogleFonts.inter(
-                        fontSize: 9,
+                        fontSize: 11,
                         fontWeight: FontWeight.w800,
                         color: Colors.white,
+                        letterSpacing: 0.5,
                       ),
                     ),
-                  ),
-                ],
-              ),
-            ),
-            // Promotion Details
-            Padding(
-              padding: const EdgeInsets.all(18),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    item.title,
-                    style: GoogleFonts.cormorantGaramond(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w700,
-                      color: const Color(0xFF2C261E),
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    item.description,
-                    style: GoogleFonts.inter(
-                      fontSize: 13,
-                      color: const Color(0xFF61584E),
-                      height: 1.45,
-                    ),
-                  ),
-                  const SizedBox(height: 18),
-                  // Coupon Code Box
-                  InkWell(
-                    onTap: () => _copyToClipboard(context),
-                    borderRadius: BorderRadius.circular(12),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                    const Spacer(),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF5EAD6),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: item.color.withOpacity(0.3)),
+                        color: Colors.white.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(6),
                       ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'PROMO CODE',
-                                  style: GoogleFonts.inter(
-                                    fontSize: 9,
-                                    fontWeight: FontWeight.w700,
-                                    color: const Color(0xFF9E7E5A),
-                                  ),
-                                ),
-                                const SizedBox(height: 2),
-                                Text(
-                                  item.code,
-                                  style: GoogleFonts.inter(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w800,
-                                    color: item.color,
-                                    letterSpacing: 1.5,
-                                  ),
-                                ),
-                              ],
-                            ),
+                      child: Text(
+                        'ACTIVE',
+                        style: GoogleFonts.inter(
+                          fontSize: 9,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              Padding(
+                padding: const EdgeInsets.all(18),
+                child: Row(
+                  children: [
+
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: SizedBox(
+                        width: 100,
+                        height: 100,
+                        child: Image.network(
+                          discount.item.imageUrl,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => Container(
+                            color: discount.item.accent.withValues(alpha: 0.2),
+                            child: Icon(Icons.image_outlined,
+                                color: discount.item.accent, size: 32),
                           ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                            decoration: BoxDecoration(
-                              color: item.color,
-                              borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            discount.item.title,
+                            style: GoogleFonts.cormorantGaramond(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w700,
+                              color: const Color(0xFF2C261E),
                             ),
-                            child: Row(
-                              children: [
-                                const Icon(
-                                  Icons.copy_rounded,
-                                  color: Colors.white,
-                                  size: 14,
-                                ),
-                                const SizedBox(width: 6),
-                                Text(
-                                  'COPY',
-                                  style: GoogleFonts.inter(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w700,
-                                    color: Colors.white,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Was ${discount.originalPrice}',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.brown.withOpacity(0.55),
+                                      decoration: TextDecoration.lineThrough,
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    'Now ${discount.discountedPrice}',
+                                    style: GoogleFonts.inter(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w800,
+                                      color: const Color(0xFFB8770D),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
                         ],
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
