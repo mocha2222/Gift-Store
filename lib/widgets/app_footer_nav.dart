@@ -51,6 +51,10 @@ class AppFooterNav extends StatelessWidget {
                     if (currentRoute != AppRoutes.explore) {
                       Navigator.of(context).pushNamed(AppRoutes.explore);
                     }
+                  } else if (index == 2) {
+                    if (currentRoute != AppRoutes.favorites) {
+                      Navigator.of(context).pushNamed(AppRoutes.favorites);
+                    }
                   } else if (index == 3) {
                     if (currentRoute != AppRoutes.map) {
                       Navigator.of(context).pushNamed(AppRoutes.map);

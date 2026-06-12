@@ -6,6 +6,7 @@ import '../../widgets/app_drawer.dart';
 import '../../widgets/app_header.dart';
 import 'artisan_dashboard_page.dart';
 import 'artisan_products_page.dart';
+import '../orders/artisan_orders_page.dart';
 
 class ArtisanShellPage extends StatefulWidget {
   const ArtisanShellPage({super.key});
@@ -45,6 +46,7 @@ class _ArtisanShellPageState extends State<ArtisanShellPage> {
   final List<Widget> _pages = const [
     ArtisanDashboardPage(),
     ArtisanProductsPage(),
+    ArtisanOrdersPage(),
   ];
 
   @override
@@ -75,6 +77,11 @@ class _ArtisanShellPageState extends State<ArtisanShellPage> {
             icon: Icon(Icons.inventory_2_outlined),
             selectedIcon: Icon(Icons.inventory_2_rounded, color: Color(0xFF8C6500)),
             label: 'Products',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.shopping_bag_outlined),
+            selectedIcon: Icon(Icons.shopping_bag_rounded, color: Color(0xFF8C6500)),
+            label: 'Orders',
           ),
         ],
       ),

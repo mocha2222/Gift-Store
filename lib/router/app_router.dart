@@ -19,6 +19,8 @@ import '../features/collection/collection_detail_page.dart';
 import '../features/explore/explore_page.dart';
 import '../features/profile/profile_page.dart';
 import '../features/promotions/promotions_page.dart';
+import '../features/favorites/favorites_page.dart';
+import '../features/orders/artisan_orders_page.dart';
 import '../pages/cart_page.dart';
 import '../pages/checkout_page.dart';
 import '../pages/product_review_page.dart';
@@ -41,12 +43,14 @@ class AppRoutes {
   static const artisanSettings = '/artisan-settings';
   static const artisanChat = '/artisan-chat';
   static const artisanSignOut = '/artisan-sign-out';
+  static const artisanOrders = '/artisan-orders';
   static const collections = '/collections';
   static const collection = '/collection';
   static const collectionDetail = '/collection-detail';
   static const explore = '/explore';
   static const profile = '/profile';
   static const promotions = '/promotions';
+  static const favorites = '/favorites';
 
   static String? get collectionsPage => null;
 }
@@ -176,6 +180,16 @@ class AppRouter {
       case AppRoutes.promotions:
         return MaterialPageRoute(
           builder: (_) => const PromotionsPage(),
+          settings: settings,
+        );
+      case AppRoutes.favorites:
+        return MaterialPageRoute(
+          builder: (_) => const FavoritesPage(),
+          settings: settings,
+        );
+      case AppRoutes.artisanOrders:
+        return MaterialPageRoute(
+          builder: (_) => const ArtisanOrdersPage(),
           settings: settings,
         );
       case AppRoutes.profile:
