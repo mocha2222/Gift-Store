@@ -9,7 +9,7 @@ import '../features/artisan/artisan_settings_page.dart';
 import '../features/auth/signup_page.dart';
 import '../features/admin/admin_shell_page.dart';
 import '../features/artisan/artisan_shell_page.dart';
-import '../features/artisan/artisan_dashboard_page.dart';
+// import '../features/artisan/artisan_dashboard_page.dart';
 import '../features/detail/product_detail_page.dart';
 import '../features/home/home_page.dart';
 import '../features/quiz/quiz_page.dart';
@@ -158,7 +158,10 @@ class AppRouter {
           settings: settings,
         );
       case AppRoutes.map:
-        return MaterialPageRoute(builder: (_) => const MapPage(), settings: settings);
+        return MaterialPageRoute(
+          builder: (_) => const MapPage(),
+          settings: settings,
+        );
       case AppRoutes.collections:
       case AppRoutes.collection:
         return MaterialPageRoute(
@@ -190,7 +193,9 @@ class AppRouter {
             settings: settings,
           );
         }
-        return _errorRoute('Collection detail needs a CollectionItem argument.');
+        return _errorRoute(
+          'Collection detail needs a CollectionItem argument.',
+        );
       default:
         return _errorRoute('No route defined for ${settings.name}.');
     }

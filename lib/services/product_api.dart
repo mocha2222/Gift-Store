@@ -9,13 +9,18 @@ class ProductApi {
     defaultValue: 'http://localhost:3000/api',
   );
 
+  /// Fetches products, optionally filtered by an artisan ID.
   static Future<List<GiftItem>> getProducts({String? artisanId}) async {
     var url = '$_base/products';
     if (artisanId != null) {
       url += '?artisan_id=$artisanId';
     }
     final uri = Uri.parse(url);
-    final res = await http.get(uri, headers: {'Content-Type': 'application/json'});
+    final res = await http.get(
+      uri,
+      headers: {'Content-Type': 'application/json'},
+    );
+
     if (res.statusCode != 200) {
       throw Exception('Failed to load products: ${res.body}');
     }
@@ -55,17 +60,24 @@ class ProductApi {
     }
   }
 
-  static Future<List<ArtisanProductModel>> getArtisanProducts(String artisanId) async {
+  static Future<List<ArtisanProductModel>> getArtisanProducts(
+    String artisanId,
+  ) async {
     final uri = Uri.parse('$_base/products?artisan_id=$artisanId');
-    final res = await http.get(uri, headers: {'Content-Type': 'application/json'});
-    
+    final res = await http.get(
+      uri,
+      headers: {'Content-Type': 'application/json'},
+    );
+
     if (res.statusCode != 200) {
       throw Exception('Failed to load products: ${res.body}');
     }
-    
+
     final List<dynamic> body = jsonDecode(res.body);
     return body.map((json) {
-      final category = json['category_id'] is Map ? (json['category_id']['category_name'] ?? 'Other') : 'Other';
+      final category = json['category_id'] is Map
+          ? (json['category_id']['category_name'] ?? 'Other')
+          : 'Other';
       return ArtisanProductModel(
         id: json['_id']?.toString() ?? '',
         title: json['name']?.toString() ?? 'Unnamed Product',
@@ -76,9 +88,15 @@ class ProductApi {
         culturalBackground: json['cultural_background']?.toString() ?? '',
         materialInfo: json['material_info']?.toString() ?? '',
         story: json['story']?.toString() ?? '',
-        stock: json['stock'] is int ? json['stock'] : int.tryParse(json['stock']?.toString() ?? '0') ?? 0,
-        discount: json['discount'] is int ? json['discount'] : int.tryParse(json['discount']?.toString() ?? '0') ?? 0,
-        createdAt: json['createdAt'] != null ? DateTime.tryParse(json['createdAt']) : null,
+        stock: json['stock'] is int
+            ? json['stock']
+            : int.tryParse(json['stock']?.toString() ?? '0') ?? 0,
+        discount: json['discount'] is int
+            ? json['discount']
+            : int.tryParse(json['discount']?.toString() ?? '0') ?? 0,
+        createdAt: json['createdAt'] != null
+            ? DateTime.tryParse(json['createdAt'])
+            : null,
       );
     }).toList();
   }
@@ -98,7 +116,7 @@ class ProductApi {
     String? imageBase64,
   }) async {
     final uri = Uri.parse('$_base/products');
-    
+
     final payload = {
       'artisan_id': artisanId,
       'category_id': categoryId,
@@ -140,14 +158,15 @@ class ProductApi {
     String? imageBase64,
   }) async {
     final uri = Uri.parse('$_base/products/$id');
-    
+
     final payload = <String, dynamic>{};
     if (categoryId != null) payload['category_id'] = categoryId;
     if (name != null) payload['name'] = name;
     if (description != null) payload['description'] = description;
     if (price != null) payload['price'] = price;
     if (category != null) payload['category'] = category;
-    if (culturalBackground != null) payload['cultural_background'] = culturalBackground;
+    if (culturalBackground != null)
+      payload['cultural_background'] = culturalBackground;
     if (materialInfo != null) payload['material_info'] = materialInfo;
     if (story != null) payload['story'] = story;
     if (stock != null) payload['stock'] = stock;
@@ -167,7 +186,10 @@ class ProductApi {
 
   static Future<void> deleteProduct(String id) async {
     final uri = Uri.parse('$_base/products/$id');
-    final res = await http.delete(uri, headers: {'Content-Type': 'application/json'});
+    final res = await http.delete(
+      uri,
+      headers: {'Content-Type': 'application/json'},
+    );
     if (res.statusCode != 200) {
       throw Exception('Failed to delete product: ${res.body}');
     }

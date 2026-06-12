@@ -3,6 +3,38 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../router/app_router.dart';
 import '../services/cart_service.dart';
+import 'package:flutter/services.dart';
+
+class CardExpirationFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    final text = newValue.text;
+
+    // If characters are being deleted, just let it happen
+    if (newValue.selection.baseOffset < oldValue.selection.baseOffset) {
+      return newValue;
+    }
+
+    var buffer = StringBuffer();
+    for (int i = 0; i < text.length; i++) {
+      buffer.write(text[i]);
+      var nonZeroIndex = i + 1;
+      // Automatically add a slash after the 2nd digit, if it isn't already there
+      if (nonZeroIndex == 2 && nonZeroIndex != text.length) {
+        buffer.write('/');
+      }
+    }
+
+    final string = buffer.toString();
+    return newValue.copyWith(
+      text: string,
+      selection: TextSelection.collapsed(offset: string.length),
+    );
+  }
+}
 
 class CheckoutPage extends StatefulWidget {
   const CheckoutPage({super.key});
@@ -181,8 +213,17 @@ class _CheckoutPageState extends State<CheckoutPage> {
                           child: _buildTextField(
                             controller: _expiryCtrl,
                             label: 'Expiry (MM/YY)',
-                            keyboardType: TextInputType.datetime,
+                            keyboardType: TextInputType
+                                .number, // Changing to number is often cleaner on iOS/Android for dates
                             validator: _expiryValidator,
+                            inputFormatters: [
+                              FilteringTextInputFormatter
+                                  .digitsOnly, // Only allow numbers
+                              LengthLimitingTextInputFormatter(
+                                4,
+                              ), // Max 4 numbers (MMYY)
+                              CardExpirationFormatter(), // Adds the '/' automatically
+                            ],
                           ),
                         ),
                         const SizedBox(width: 12),
@@ -274,13 +315,31 @@ class _CheckoutPageState extends State<CheckoutPage> {
   }
 
   String? _expiryValidator(String? value) {
-    if (value == null || value.trim().isEmpty) {
-      return 'Expiration required';
+    if (value == null || value.isEmpty) {
+      return 'Required';
     }
-    if (!RegExp(r'^(0[1-9]|1[0-2])\/(\d{2})\$').hasMatch(value.trim())) {
+
+    // Check if it matches the MM/YY format exactly
+    final RegExp regex = RegExp(r'^(0[1-9]|1[0-2])\/?([0-9]{2})$');
+    if (!regex.hasMatch(value)) {
       return 'Use MM/YY format';
     }
-    return null;
+
+    // Split month and year
+    final parts = value.split('/');
+    final month = int.parse(parts[0]);
+    final year = int.parse('20${parts[1]}'); // Assumes 21st century (20YY)
+
+    // Check against current date
+    final now = DateTime.now();
+    final currentYear = now.year;
+    final currentMonth = now.month;
+
+    if (year < currentYear || (year == currentYear && month < currentMonth)) {
+      return 'Card has expired';
+    }
+
+    return null; // Input is valid!
   }
 
   String? _cvvValidator(String? value) {
@@ -299,11 +358,13 @@ class _CheckoutPageState extends State<CheckoutPage> {
     TextInputType keyboardType = TextInputType.text,
     bool obscureText = false,
     String? Function(String?)? validator,
+    List<TextInputFormatter>? inputFormatters,
   }) {
     return TextFormField(
       controller: controller,
       keyboardType: keyboardType,
       obscureText: obscureText,
+      inputFormatters: inputFormatters,
       decoration: InputDecoration(
         labelText: label,
         border: const OutlineInputBorder(),
