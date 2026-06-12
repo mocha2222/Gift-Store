@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../favorites/widgets/favorite_notifier.dart';
 import '../../../data/home_mock_data.dart';
 import '../../../router/app_router.dart';
 import '../../../services/cart_service.dart';
@@ -14,10 +15,10 @@ class GiftCard extends StatefulWidget {
 }
 
 class _GiftCardState extends State<GiftCard> {
-  bool _liked = false;
-
   @override
   Widget build(BuildContext context) {
+    final favorites = FavoriteProvider.of(context);
+    final isFav = favorites.isFavorite(widget.item);
     return GestureDetector(
       onTap: () {
         Navigator.of(context).pushNamed(
@@ -65,7 +66,7 @@ class _GiftCardState extends State<GiftCard> {
                     top: 12,
                     right: 12,
                     child: GestureDetector(
-                      onTap: () => setState(() => _liked = !_liked),
+                      onTap: () => favorites.toggle(widget.item),
                       child: Container(
                         width: 38,
                         height: 38,
@@ -74,11 +75,11 @@ class _GiftCardState extends State<GiftCard> {
                           shape: BoxShape.circle,
                         ),
                         child: Icon(
-                          _liked
+                          isFav
                               ? Icons.favorite_rounded
                               : Icons.favorite_border_rounded,
                           size: 20,
-                          color: _liked
+                          color: isFav
                               ? const Color(0xFFC0392B)
                               : const Color(0xFF554B44),
                         ),

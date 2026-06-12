@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'router/app_router.dart';
 import 'services/cart_service.dart';
+import 'features/favorites/widgets/favorite_notifier.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,8 +23,11 @@ void main() async {
   }
 
   runApp(
-    ChangeNotifierProvider(
-      create: (_) => CartService(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => CartService()),
+        ChangeNotifierProvider(create: (_) => FavoriteNotifier()),
+      ],
       child: GiftShopApp(initialRoute: startRoute),
     ),
   );
@@ -35,14 +39,17 @@ class GiftShopApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF8C6500)),
-        useMaterial3: true,
+    return FavoriteProvider(
+      notifier: Provider.of<FavoriteNotifier>(context, listen: false),
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF8C6500)),
+          useMaterial3: true,
+        ),
+        initialRoute: initialRoute,
+        onGenerateRoute: AppRouter.onGenerateRoute,
       ),
-      initialRoute: initialRoute,
-      onGenerateRoute: AppRouter.onGenerateRoute,
     );
   }
 }

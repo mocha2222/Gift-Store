@@ -6,6 +6,7 @@ import '../../widgets/app_drawer.dart';
 import '../../widgets/app_footer_nav.dart';
 import '../../widgets/app_header.dart';
 import '../../services/cart_service.dart';
+import '../favorites/widgets/favorite_notifier.dart';
 import 'widgets/product_actions.dart';
 import 'widgets/product_images.dart';
 import 'widgets/product_reviews_section.dart';
@@ -23,7 +24,6 @@ class ProductDetailPage extends StatefulWidget {
 class _ProductDetailPageState extends State<ProductDetailPage> {
   int _selectedImage = 0;
   int _quantity = 1;
-  bool _isFavorite = false;
 
   late final List<String> _gallery;
 
@@ -44,6 +44,9 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
       const Color(0xFFB8770D),
       const Color(0xFF7A4E2D),
     ];
+    
+    final favorites = FavoriteProvider.of(context);
+    final isFavorite = favorites.isFavorite(widget.item);
 
     return Scaffold(
       drawer: const AppDrawer(),
@@ -83,14 +86,13 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                           color: const Color(0xFF231408),
                         ),
                         IconButton(
-                          onPressed: () =>
-                              setState(() => _isFavorite = !_isFavorite),
+                          onPressed: () => favorites.toggle(widget.item),
                           icon: Icon(
-                            _isFavorite
+                            isFavorite
                                 ? Icons.favorite_rounded
                                 : Icons.favorite_border_rounded,
                           ),
-                          color: _isFavorite
+                          color: isFavorite
                               ? const Color(0xFFC0392B)
                               : const Color(0xFF231408),
                         ),
@@ -242,13 +244,13 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                         const SizedBox(height: 16),
                         ProductActions(
                           quantity: _quantity,
-                          isFavorite: _isFavorite,
+                          isFavorite: isFavorite,
                           onDecrement: _quantity > 1
                               ? () => setState(() => _quantity--)
                               : () {},
                           onIncrement: () => setState(() => _quantity++),
                           onToggleFavorite: () =>
-                              setState(() => _isFavorite = !_isFavorite),
+                              favorites.toggle(widget.item),
                           onAddToFavorites: () {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(

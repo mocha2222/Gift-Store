@@ -9,6 +9,8 @@ import 'hero_card.dart';
 import 'discipline_chip.dart';
 import 'quiz_banner.dart';
 import 'promo_card.dart';
+import 'discount_product_card.dart';
+import '../../promotions/widget/discount_product_model.dart';
 import 'collection_card.dart';
 import 'gift_card.dart';
 import 'maker_card.dart';
@@ -83,23 +85,23 @@ class _HomeHomepageState extends State<HomeHomepage> {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: AppSectionHeader(
-              title: 'Special Offers',
+              title: 'Discount Products',
               actionLabel: 'View All',
-              onActionTap: () {},
+              onActionTap: () => Navigator.of(context).pushNamed('/promotions'),
             ),
           ),
         ),
         const SliverToBoxAdapter(child: SizedBox(height: 12)),
         SliverToBoxAdapter(
           child: SizedBox(
-            height: 160,
+            height: 180,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 16),
               separatorBuilder: (_, __) => const SizedBox(width: 12),
-              itemCount: promotions.length,
+              itemCount: discountProducts.length,
               itemBuilder: (context, index) =>
-                  PromoCard(item: promotions[index]),
+                  DiscountProductCard(discount: discountProducts[index]),
             ),
           ),
         ),
