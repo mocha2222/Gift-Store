@@ -19,6 +19,7 @@ import '../features/collection/collection_detail_page.dart';
 import '../features/explore/explore_page.dart';
 import '../features/profile/profile_page.dart';
 import '../features/promotions/promotions_page.dart';
+import '../features/category/category_page.dart';
 import '../pages/cart_page.dart';
 import '../pages/checkout_page.dart';
 
@@ -43,6 +44,7 @@ class AppRoutes {
   static const explore = '/explore';
   static const profile = '/profile';
   static const promotions = '/promotions';
+  static const category = '/category';
 
   static String? get collectionsPage => null;
 }
@@ -143,6 +145,13 @@ class AppRouter {
       case AppRoutes.explore:
         return MaterialPageRoute(
           builder: (_) => const ExplorePage(),
+          settings: settings,
+        );
+      case AppRoutes.category:
+        final args = settings.arguments;
+        final initialCategoryName = args is String ? args : null;
+        return MaterialPageRoute(
+          builder: (_) => CategoryPage(initialCategoryName: initialCategoryName),
           settings: settings,
         );
       case AppRoutes.promotions:

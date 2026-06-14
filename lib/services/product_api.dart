@@ -6,10 +6,17 @@ import '../features/artisan/widgets/artisan_product_model.dart';
 class ProductApi {
   static const _base = String.fromEnvironment('API_BASE', defaultValue: 'http://localhost:3000/api');
 
-  static Future<List<GiftItem>> getProducts({String? artisanId}) async {
+  static Future<List<GiftItem>> getProducts({String? artisanId, String? categoryId}) async {
     var url = '$_base/products';
+    final queryParams = <String>[];
     if (artisanId != null) {
-      url += '?artisan_id=$artisanId';
+      queryParams.add('artisan_id=$artisanId');
+    }
+    if (categoryId != null) {
+      queryParams.add('category_id=$categoryId');
+    }
+    if (queryParams.isNotEmpty) {
+      url += '?${queryParams.join('&')}';
     }
     final uri = Uri.parse(url);
     final res = await http.get(uri, headers: {'Content-Type': 'application/json'});
