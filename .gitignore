@@ -1,3 +1,22 @@
-node_modules
-dist
+# Node dependencies
+node_modules/
+
+# Build / output folders
+dist/
+build/
+
+# Environment variables
 .env
+
+# Dart / Flutter
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+
+# Logs
+*.log
+
+# OS / IDE files
+.DS_Store
+.vscode/
+.idea/
