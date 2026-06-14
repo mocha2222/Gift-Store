@@ -153,7 +153,7 @@ class _CategoryPageState extends State<CategoryPage> {
         children: [
           const SizedBox(height: 14),
           Text(
-            'Browse Disciplines',
+            'Browse by Category',
             style: GoogleFonts.cormorantGaramond(
               color: const Color(0xFF2C261E),
               fontSize: 28,
