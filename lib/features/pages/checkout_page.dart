@@ -1,8 +1,9 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../router/app_router.dart';
-import '../services/cart_service.dart';
+import '../../router/app_router.dart';
+import '../../services/cart_service.dart';
 import 'package:flutter/services.dart';
 
 class CardExpirationFormatter extends TextInputFormatter {
@@ -79,7 +80,48 @@ class _CheckoutPageState extends State<CheckoutPage> {
     super.dispose();
   }
 
-  void _placeOrder(CartService cart) {
+  Future<void> _saveOrder({
+    required String orderId,
+    required String name,
+    required String address,
+    required String total,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    final ordersJson = prefs.getString('placed_orders') ?? '[]';
+    try {
+      final List<dynamic> orders = jsonDecode(ordersJson);
+      final now = DateTime.now();
+      final months = [
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'May',
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dec',
+      ];
+      final dateStr = '${months[now.month - 1]} ${now.day}, ${now.year}';
+
+      orders.insert(0, {
+        'orderId': orderId,
+        'customerName': name,
+        'deliveryAddress': address,
+        'totalPaid': total,
+        'date': dateStr,
+      });
+
+      await prefs.setString('placed_orders', jsonEncode(orders));
+    } catch (e) {
+      debugPrint('Error saving order: $e');
+    }
+  }
+
+  Future<void> _placeOrder(CartService cart) async {
     if (!_formKey.currentState!.validate()) return;
 
     if (!_isAccountPresent) {
@@ -91,11 +133,31 @@ class _CheckoutPageState extends State<CheckoutPage> {
       return;
     }
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Your order has been placed successfully!')),
+    final orderId = 'ORD-${(DateTime.now().millisecondsSinceEpoch % 1000000000).toString().padLeft(9, '0')}';
+    final name = _nameCtrl.text;
+    final address = _addressCtrl.text;
+    final total = '\$${cart.total.toStringAsFixed(2)}';
+
+    await _saveOrder(
+      orderId: orderId,
+      name: name,
+      address: address,
+      total: total,
     );
+
+    if (!mounted) return;
+
     cart.clear();
-    Navigator.of(context).popUntil((route) => route.isFirst);
+
+    Navigator.of(context).pushReplacementNamed(
+      AppRoutes.checkoutDetails,
+      arguments: CheckoutDetailsArgs(
+        orderId: orderId,
+        customerName: name,
+        deliveryAddress: address,
+        totalPaid: total,
+      ),
+    );
   }
 
   @override

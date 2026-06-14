@@ -8,6 +8,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../router/app_router.dart';
 import '../../services/user_api.dart';
 import '../auth/login_page.dart';
 import 'edit_profile_page.dart';
@@ -33,6 +34,7 @@ class _CustomerProfilePageState extends State<CustomerProfilePage> {
   String _initials = '';
   String _joined = '';
   int _followingCount = 0;
+  int _orderCount = 0;
   File? _localImage;
   Uint8List? _imageBytes;
 
@@ -94,6 +96,13 @@ class _CustomerProfilePageState extends State<CustomerProfilePage> {
       }
     }
 
+    final ordersJson = prefs.getString('placed_orders') ?? '[]';
+    int orderCount = 0;
+    try {
+      final List<dynamic> orders = jsonDecode(ordersJson);
+      orderCount = orders.length;
+    } catch (_) {}
+
     if (!mounted) return;
     setState(() {
       _name = prefs.getString('user_name') ?? 'Guest';
@@ -103,6 +112,7 @@ class _CustomerProfilePageState extends State<CustomerProfilePage> {
       _joined = prefs.getString('user_joined') ?? '';
       _followingCount =
           (prefs.getStringList('followed_artisans') ?? const []).length;
+      _orderCount = orderCount;
       _localImage = localFile;
       _imageBytes = imageBytes;
     });
@@ -213,14 +223,10 @@ class _CustomerProfilePageState extends State<CustomerProfilePage> {
   Future<void> _openOrdersPage() async {
     await Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => const _EmptyStatePage(
-          title: 'My Orders',
-          message:
-              'Your order history will appear here once checkout is added.',
-          icon: Icons.receipt_long_rounded,
-        ),
+        builder: (_) => const _OrdersHistoryPage(),
       ),
     );
+    _loadUserData();
   }
 
   Future<void> _openFavoritesPage() async {
@@ -246,6 +252,10 @@ class _CustomerProfilePageState extends State<CustomerProfilePage> {
     await Navigator.of(
       context,
     ).push(MaterialPageRoute(builder: (_) => const NotificationsPage()));
+  }
+
+  Future<void> _openAboutUsPage() async {
+    Navigator.of(context).pushNamed('/about-us');
   }
 
   Future<void> _confirmDeleteAccount() async {
@@ -449,7 +459,7 @@ class _CustomerProfilePageState extends State<CustomerProfilePage> {
             sliver: SliverToBoxAdapter(
               child: ProfileStatsRow(
                 stats: [
-                  (label: 'Orders', value: '0'),
+                  (label: 'Orders', value: '$_orderCount'),
                   (label: 'Favorite', value: '0'),
                   (label: 'Following', value: '$_followingCount'),
                 ],
@@ -503,6 +513,11 @@ class _CustomerProfilePageState extends State<CustomerProfilePage> {
                     icon: Icons.notifications_outlined,
                     label: 'Notifications',
                     onTap: _openNotificationsPage,
+                  ),
+                  ProfileMenuItem(
+                    icon: Icons.info_outline_rounded,
+                    label: 'About Us',
+                    onTap: _openAboutUsPage,
                   ),
                   ProfileMenuItem(
                     icon: Icons.logout_rounded,
@@ -621,6 +636,185 @@ class _EmptyStatePage extends StatelessWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _OrdersHistoryPage extends StatefulWidget {
+  const _OrdersHistoryPage();
+
+  @override
+  State<_OrdersHistoryPage> createState() => _OrdersHistoryPageState();
+}
+
+class _OrdersHistoryPageState extends State<_OrdersHistoryPage> {
+  List<dynamic> _orders = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadOrders();
+  }
+
+  Future<void> _loadOrders() async {
+    final prefs = await SharedPreferences.getInstance();
+    final ordersJson = prefs.getString('placed_orders') ?? '[]';
+    try {
+      setState(() {
+        _orders = jsonDecode(ordersJson);
+        _isLoading = false;
+      });
+    } catch (_) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Scaffold(
+        backgroundColor: Color(0xFFF7F0E4),
+        body: Center(child: CircularProgressIndicator(color: Color(0xFF8C6500))),
+      );
+    }
+
+    if (_orders.isEmpty) {
+      return const _EmptyStatePage(
+        title: 'My Orders',
+        message: 'You have not placed any orders yet.',
+        icon: Icons.receipt_long_rounded,
+      );
+    }
+
+    return Scaffold(
+      backgroundColor: const Color(0xFFF7F0E4),
+      appBar: AppBar(
+        leadingWidth: 64,
+        leading: Padding(
+          padding: const EdgeInsets.only(left: 14, top: 8, bottom: 8),
+          child: GestureDetector(
+            onTap: () => Navigator.of(context).maybePop(),
+            child: Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: const Color(0xFFEAD5A8)),
+              ),
+              child: const Icon(
+                Icons.arrow_back_rounded,
+                color: Color(0xFF231408),
+                size: 20,
+              ),
+            ),
+          ),
+        ),
+        title: Text(
+          'My Orders',
+          style: GoogleFonts.inter(
+            fontSize: 20,
+            fontWeight: FontWeight.w700,
+            color: const Color(0xFF8C6500),
+          ),
+        ),
+        backgroundColor: const Color(0xFFF7F0E4),
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        foregroundColor: const Color(0xFF231408),
+      ),
+      body: ListView.builder(
+        padding: const EdgeInsets.all(16.0),
+        itemCount: _orders.length,
+        itemBuilder: (context, index) {
+          final order = _orders[index] as Map<String, dynamic>;
+          final orderId = order['orderId'] as String? ?? 'ORD-0000000';
+          final date = order['date'] as String? ?? '';
+          final total = order['totalPaid'] as String? ?? '\$0.00';
+          final name = order['customerName'] as String? ?? '';
+          final address = order['deliveryAddress'] as String? ?? '';
+
+          return Container(
+            margin: const EdgeInsets.only(bottom: 12),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: const Color(0xFFEDE1CB)),
+            ),
+            child: ListTile(
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    orderId,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                      color: Color(0xFF4F453A),
+                    ),
+                  ),
+                  Text(
+                    total,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w800,
+                      fontSize: 15,
+                      color: Color(0xFF8C6500),
+                    ),
+                  ),
+                ],
+              ),
+              subtitle: Padding(
+                padding: const EdgeInsets.only(top: 8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      date,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: Color(0xFF9E7E5A),
+                      ),
+                    ),
+                    const Row(
+                      children: [
+                        Text(
+                          'View Details',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Color(0xFF8C6500),
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        SizedBox(width: 4),
+                        Icon(
+                          Icons.arrow_forward_ios_rounded,
+                          size: 12,
+                          color: Color(0xFF8C6500),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              onTap: () {
+                Navigator.of(context).pushNamed(
+                  AppRoutes.checkoutDetails,
+                  arguments: CheckoutDetailsArgs(
+                    orderId: orderId,
+                    customerName: name,
+                    deliveryAddress: address,
+                    totalPaid: total,
+                  ),
+                );
+              },
+            ),
+          );
+        },
       ),
     );
   }

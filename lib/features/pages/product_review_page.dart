@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import '../services/product_api.dart';
+import '../../services/product_api.dart';
 
 class ProductReviewPage extends StatefulWidget {
   const ProductReviewPage({

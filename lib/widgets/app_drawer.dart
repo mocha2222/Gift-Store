@@ -80,7 +80,13 @@ class AppDrawer extends StatelessWidget {
                   _DrawerItem(
                     icon: Icons.info_outline_rounded,
                     label: 'About Us',
-                    onTap: () => Navigator.of(context).pop(),
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      final currentRoute = ModalRoute.of(context)?.settings.name;
+                      if (currentRoute != AppRoutes.aboutUs) {
+                        Navigator.of(context).pushNamed(AppRoutes.aboutUs);
+                      }
+                    },
                   ),
                   _DrawerItem(
                     icon: Icons.explore_outlined,

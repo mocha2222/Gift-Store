@@ -19,10 +19,12 @@ import '../features/collection/collection_detail_page.dart';
 import '../features/explore/explore_page.dart';
 import '../features/profile/profile_page.dart';
 import '../features/promotions/promotions_page.dart';
-import '../pages/cart_page.dart';
-import '../pages/checkout_page.dart';
-import '../pages/product_review_page.dart';
-import '../pages/booking_flow.dart';
+import '../features/pages/cart_page.dart';
+import '../features/pages/checkout_page.dart';
+import '../features/pages/checkout_details.dart';
+import '../features/pages/product_review_page.dart';
+import '../features/pages/booking_flow.dart';
+import '../features/pages/about_us.dart';
 
 class AppRoutes {
   static const login = '/login';
@@ -47,6 +49,8 @@ class AppRoutes {
   static const explore = '/explore';
   static const profile = '/profile';
   static const promotions = '/promotions';
+  static const aboutUs = '/about-us';
+  static const checkoutDetails = '/checkout-details';
 
   static String? get collectionsPage => null;
 }
@@ -61,6 +65,22 @@ class CollectionDetailArgs {
   const CollectionDetailArgs({required this.collection});
 
   final CollectionItem collection;
+}
+
+class CheckoutDetailsArgs {
+  final String orderId;
+  final String customerName;
+  final String deliveryAddress;
+  final String totalPaid;
+  final String? date;
+
+  const CheckoutDetailsArgs({
+    required this.orderId,
+    required this.customerName,
+    required this.deliveryAddress,
+    required this.totalPaid,
+    this.date,
+  });
 }
 
 class AppRouter {
@@ -124,6 +144,24 @@ class AppRouter {
       case AppRoutes.checkout:
         return MaterialPageRoute(
           builder: (_) => const CheckoutPage(),
+          settings: settings,
+        );
+      case AppRoutes.checkoutDetails:
+        final args = settings.arguments;
+        if (args is CheckoutDetailsArgs) {
+          return MaterialPageRoute(
+            builder: (_) => CheckoutDetailsPage(
+              orderId: args.orderId,
+              customerName: args.customerName,
+              deliveryAddress: args.deliveryAddress,
+              totalPaid: args.totalPaid,
+              date: args.date,
+            ),
+            settings: settings,
+          );
+        }
+        return MaterialPageRoute(
+          builder: (_) => const CheckoutDetailsPage(),
           settings: settings,
         );
       case AppRoutes.productReview:
@@ -195,6 +233,11 @@ class AppRouter {
         }
         return _errorRoute(
           'Collection detail needs a CollectionItem argument.',
+        );
+      case AppRoutes.aboutUs:
+        return MaterialPageRoute(
+          builder: (_) => const AboutUsPage(),
+          settings: settings,
         );
       default:
         return _errorRoute('No route defined for ${settings.name}.');

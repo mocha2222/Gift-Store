@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:geolocator/geolocator.dart';
 
-import '../services/cart_service.dart';
-import '../services/booking_api.dart';
+import '../../services/cart_service.dart';
+import '../../services/booking_api.dart';
 
 class BookingFlowPage extends StatefulWidget {
   const BookingFlowPage({super.key});
