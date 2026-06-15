@@ -72,9 +72,13 @@ class _HomeHomepageState extends State<HomeHomepage> {
               itemCount: disciplines.length,
               itemBuilder: (context, index) => DisciplineChip(
                 item: disciplines[index],
-                selected: index == _selectedDiscipline,
-                onTap: () =>
-                    setState(() => _selectedDiscipline = index),
+                selected: false,
+                onTap: () {
+                  Navigator.of(context).pushNamed(
+                    AppRoutes.category,
+                    arguments: disciplines[index].label,
+                  );
+                },
               ),
             ),
           ),

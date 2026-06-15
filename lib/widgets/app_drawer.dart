@@ -105,8 +105,8 @@ class AppDrawer extends StatelessWidget {
                     onTap: () {
                       Navigator.of(context).pop();
                       final currentRoute = ModalRoute.of(context)?.settings.name;
-                      if (currentRoute != AppRoutes.collections) {
-                        Navigator.of(context).pushNamed(AppRoutes.collections);
+                      if (currentRoute != AppRoutes.category) {
+                        Navigator.of(context).pushNamed(AppRoutes.category);
                       }
                     },
                   ),
@@ -125,6 +125,17 @@ class AppDrawer extends StatelessWidget {
                     icon: Icons.favorite_border_rounded,
                     label: 'Favorites',
                     onTap: () => Navigator.of(context).pop(),
+                  ),
+                  _DrawerItem(
+                    icon: Icons.chat_bubble_outline_rounded,
+                    label: 'Chat',
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      final currentRoute = ModalRoute.of(context)?.settings.name;
+                      if (currentRoute != AppRoutes.artisanChat) {
+                        Navigator.of(context).pushNamed(AppRoutes.artisanChat);
+                      }
+                    },
                   ),
                   _DrawerItem(
                     icon: Icons.location_on_outlined,

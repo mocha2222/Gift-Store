@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../../widgets/app_drawer.dart';
+import '../../widgets/app_footer_nav.dart';
+import '../../widgets/app_header.dart';
 
 class ArtisanChatPage extends StatefulWidget {
   const ArtisanChatPage({super.key});
@@ -109,6 +113,21 @@ class _ArtisanChatPageState extends State<ArtisanChatPage> {
     ),
   ];
 
+  String? _userRole;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserRole();
+  }
+
+  Future<void> _loadUserRole() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _userRole = prefs.getString('user_role');
+    });
+  }
+
   @override
   void dispose() {
     _searchController.dispose();
@@ -124,6 +143,118 @@ class _ArtisanChatPageState extends State<ArtisanChatPage> {
           conversation.product.toLowerCase().contains(query) ||
           conversation.lastMessage.toLowerCase().contains(query);
     }).toList();
+
+    final mainScroll = CustomScrollView(
+      slivers: [
+        SliverPadding(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+          sliver: SliverToBoxAdapter(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              decoration: BoxDecoration(
+                color: _surfaceColor,
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(
+                  color: _primaryColor.withValues(alpha: 0.14),
+                ),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.search_rounded, color: _primaryColor),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: TextField(
+                      controller: _searchController,
+                      onChanged: (_) => setState(() {}),
+                      decoration: InputDecoration(
+                        hintText: 'Search conversations',
+                        hintStyle: GoogleFonts.inter(
+                          color: _textMutedColor,
+                          fontSize: 13,
+                        ),
+                        border: InputBorder.none,
+                      ),
+                      style: GoogleFonts.inter(
+                        color: _textDarkColor,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ),
+                  if (_searchController.text.isNotEmpty)
+                    GestureDetector(
+                      onTap: () {
+                        _searchController.clear();
+                        setState(() {});
+                      },
+                      child: const Icon(
+                        Icons.close_rounded,
+                        size: 18,
+                        color: _textMutedColor,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        SliverPadding(
+          padding: const EdgeInsets.fromLTRB(16, 18, 16, 10),
+          sliver: SliverToBoxAdapter(
+            child: Text(
+              'Inbox',
+              style: GoogleFonts.cormorantGaramond(
+                fontSize: 24,
+                fontWeight: FontWeight.w700,
+                color: _textDarkColor,
+              ),
+            ),
+          ),
+        ),
+        SliverPadding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+          sliver: SliverList(
+            delegate: SliverChildBuilderDelegate((context, index) {
+              final item = filteredConversations[index];
+              return Padding(
+                padding: EdgeInsets.only(
+                  bottom: index == filteredConversations.length - 1 ? 0 : 12,
+                ),
+                child: _ConversationTile(
+                  conversation: item,
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            ArtisanConversationPage(conversation: item),
+                      ),
+                    );
+                  },
+                ),
+              );
+            }, childCount: filteredConversations.length),
+          ),
+        ),
+      ],
+    );
+
+    final isCustomer =
+        _userRole == 'customer' ||
+        _userRole == null ||
+        _userRole.toString().isEmpty;
+
+    if (isCustomer) {
+      return Scaffold(
+        drawer: const AppDrawer(),
+        backgroundColor: _backgroundColor,
+        body: Column(
+          children: [
+            const AppHeader(showCart: true),
+            Expanded(child: mainScroll),
+            const SafeArea(top: false, child: AppFooterNav(currentIndex: 2)),
+          ],
+        ),
+      );
+    }
 
     return Scaffold(
       backgroundColor: _backgroundColor,
@@ -170,127 +301,7 @@ class _ArtisanChatPageState extends State<ArtisanChatPage> {
         scrolledUnderElevation: 0,
         foregroundColor: const Color(0xFF231408),
       ),
-      body: SafeArea(
-        child: CustomScrollView(
-          slivers: [
-            SliverPadding(
-              padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
-              sliver: SliverToBoxAdapter(
-                child: _HeroBanner(onComposeTap: () {}),
-              ),
-            ),
-            SliverPadding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-              sliver: SliverToBoxAdapter(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 14,
-                    vertical: 10,
-                  ),
-                  decoration: BoxDecoration(
-                    color: _surfaceColor,
-                    borderRadius: BorderRadius.circular(18),
-                    border: Border.all(
-                      color: _primaryColor.withValues(alpha: 0.14),
-                    ),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.search_rounded, color: _primaryColor),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: TextField(
-                          controller: _searchController,
-                          onChanged: (_) => setState(() {}),
-                          decoration: InputDecoration(
-                            hintText: 'Search conversations',
-                            hintStyle: GoogleFonts.inter(
-                              color: _textMutedColor,
-                              fontSize: 13,
-                            ),
-                            border: InputBorder.none,
-                          ),
-                          style: GoogleFonts.inter(
-                            color: _textDarkColor,
-                            fontSize: 13,
-                          ),
-                        ),
-                      ),
-                      if (_searchController.text.isNotEmpty)
-                        GestureDetector(
-                          onTap: () {
-                            _searchController.clear();
-                            setState(() {});
-                          },
-                          child: const Icon(
-                            Icons.close_rounded,
-                            size: 18,
-                            color: _textMutedColor,
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            SliverPadding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-              sliver: SliverToBoxAdapter(
-                child: Row(
-                  children: const [
-                    Expanded(
-                      child: _StatChip(value: '3', label: 'Unread'),
-                    ),
-                    SizedBox(width: 12),
-                    Expanded(
-                      child: _StatChip(value: '12m', label: 'Avg reply'),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            SliverPadding(
-              padding: const EdgeInsets.fromLTRB(16, 18, 16, 10),
-              sliver: SliverToBoxAdapter(
-                child: Text(
-                  'Inbox',
-                  style: GoogleFonts.cormorantGaramond(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w700,
-                    color: _textDarkColor,
-                  ),
-                ),
-              ),
-            ),
-            SliverPadding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-              sliver: SliverList(
-                delegate: SliverChildBuilderDelegate((context, index) {
-                  final item = filteredConversations[index];
-                  return Padding(
-                    padding: EdgeInsets.only(
-                      bottom: index == filteredConversations.length - 1
-                          ? 0
-                          : 12,
-                    ),
-                    child: _ConversationTile(
-                      conversation: item,
-                      onTap: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) =>
-                                ArtisanConversationPage(conversation: item),
-                          ),
-                        );
-                      },
-                    ),
-                  );
-                }, childCount: filteredConversations.length),
-              ),
-            ),
-          ],
-        ),
-      ),
+      body: SafeArea(child: mainScroll),
     );
   }
 }

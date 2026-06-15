@@ -29,6 +29,8 @@ class GiftItem {
   final int stock;
   final int discount;
   final String category;
+  final String? categoryId;
+  final String? categoryName;
 
   const GiftItem({
     this.id = '',
@@ -45,6 +47,8 @@ class GiftItem {
     this.stock = 10,
     this.discount = 0,
     this.category = 'Other',
+    this.categoryId,
+    this.categoryName,
   });
 
   factory GiftItem.fromJson(Map<String, dynamic> json) {
@@ -57,6 +61,17 @@ class GiftItem {
     ];
     final colorHashCode = (json['_id']?.hashCode ?? 0).abs();
     
+    String? catId;
+    String? catName;
+    if (json['category_id'] != null) {
+      if (json['category_id'] is Map) {
+        catId = json['category_id']['_id']?.toString() ?? json['category_id']['id']?.toString();
+        catName = json['category_id']['category_name']?.toString();
+      } else {
+        catId = json['category_id'].toString();
+      }
+    }
+
     return GiftItem(
       id: json['_id']?.toString() ?? '',
       title: json['name']?.toString() ?? 'Unnamed Product',
@@ -71,6 +86,8 @@ class GiftItem {
       stock: json['stock'] is int ? json['stock'] : int.tryParse(json['stock']?.toString() ?? '0') ?? 0,
       discount: json['discount'] is int ? json['discount'] : int.tryParse(json['discount']?.toString() ?? '0') ?? 0,
       category: json['category_id'] is Map ? (json['category_id']['category_name']?.toString() ?? 'Other') : 'Other',
+      categoryId: catId,
+      categoryName: catName,
     );
   }
 }

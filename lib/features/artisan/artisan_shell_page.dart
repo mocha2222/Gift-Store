@@ -7,6 +7,7 @@ import '../../widgets/app_header.dart';
 import 'artisan_dashboard_page.dart';
 import 'artisan_products_page.dart';
 import '../orders/artisan_orders_page.dart';
+import '../chat/artisan_chat_page.dart';
 
 class ArtisanShellPage extends StatefulWidget {
   const ArtisanShellPage({super.key});
@@ -47,6 +48,7 @@ class _ArtisanShellPageState extends State<ArtisanShellPage> {
     ArtisanDashboardPage(),
     ArtisanProductsPage(),
     ArtisanOrdersPage(),
+    ArtisanChatPage(),
   ];
 
   @override
@@ -83,24 +85,30 @@ class _ArtisanShellPageState extends State<ArtisanShellPage> {
             selectedIcon: Icon(Icons.shopping_bag_rounded, color: Color(0xFF8C6500)),
             label: 'Orders',
           ),
+          NavigationDestination(
+            icon: Icon(Icons.chat_outlined),
+            selectedIcon: Icon(Icons.chat_rounded, color: Color(0xFF8C6500)),
+            label: 'Chat',
+          ),
         ],
       ),
       body: SafeArea(
         child: Column(
           children: [
-            AppHeader(
-              showCart: false,
-              actions: [
-                HeaderIconButton(
-                  icon: Icons.notifications_outlined,
-                  onTap: () => Navigator.of(context).pushNamed(AppRoutes.artisanNotifications),
-                ),
-                HeaderIconButton(
-                  icon: Icons.settings_outlined,
-                  onTap: () => Navigator.of(context).pushNamed(AppRoutes.artisanSettings),
-                ),
-              ],
-            ),
+            if (_index != 2)
+              AppHeader(
+                showCart: false,
+                actions: [
+                  HeaderIconButton(
+                    icon: Icons.notifications_outlined,
+                    onTap: () => Navigator.of(context).pushNamed(AppRoutes.artisanNotifications),
+                  ),
+                  HeaderIconButton(
+                    icon: Icons.settings_outlined,
+                    onTap: () => Navigator.of(context).pushNamed(AppRoutes.artisanSettings),
+                  ),
+                ],
+              ),
             Expanded(child: _pages[_index]),
           ],
         ),

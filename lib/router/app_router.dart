@@ -26,6 +26,7 @@ import '../features/pages/checkout_details.dart';
 import '../features/pages/product_review_page.dart';
 import '../features/pages/booking_flow.dart';
 import '../features/pages/about_us.dart';
+import '../features/category/category_page.dart';
 
 class AppRoutes {
   static const login = '/login';
@@ -54,6 +55,7 @@ class AppRoutes {
   static const favorites = '/favorites';
   static const aboutUs = '/about-us';
   static const checkoutDetails = '/checkout-details';
+  static const category = '/category';
 
   static String? get collectionsPage => null;
 }
@@ -212,6 +214,13 @@ class AppRouter {
       case AppRoutes.explore:
         return MaterialPageRoute(
           builder: (_) => const ExplorePage(),
+          settings: settings,
+        );
+      case AppRoutes.category:
+        final args = settings.arguments;
+        final initialCategoryName = args is String ? args : null;
+        return MaterialPageRoute(
+          builder: (_) => CategoryPage(initialCategoryName: initialCategoryName),
           settings: settings,
         );
       case AppRoutes.promotions:

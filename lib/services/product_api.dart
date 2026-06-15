@@ -9,11 +9,18 @@ class ProductApi {
     defaultValue: 'http://localhost:3000/api',
   );
 
-  /// Fetches products, optionally filtered by an artisan ID.
-  static Future<List<GiftItem>> getProducts({String? artisanId}) async {
+  /// Fetches products, optionally filtered by an artisan ID and category ID.
+  static Future<List<GiftItem>> getProducts({String? artisanId, String? categoryId}) async {
     var url = '$_base/products';
+    final queryParams = <String>[];
     if (artisanId != null) {
-      url += '?artisan_id=$artisanId';
+      queryParams.add('artisan_id=$artisanId');
+    }
+    if (categoryId != null) {
+      queryParams.add('category_id=$categoryId');
+    }
+    if (queryParams.isNotEmpty) {
+      url += '?${queryParams.join('&')}';
     }
     final uri = Uri.parse(url);
     final res = await http.get(
