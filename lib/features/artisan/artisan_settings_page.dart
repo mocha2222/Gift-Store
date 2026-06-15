@@ -189,6 +189,15 @@ class _ArtisanSettingsPageState extends State<ArtisanSettingsPage> {
                   ),
                   const SizedBox(height: 10),
                   _ActionTile(
+                    icon: Icons.info_outline_rounded,
+                    title: 'About Us',
+                    subtitle: 'Learn more about the application.',
+                    onTap: () {
+                      Navigator.of(context).pushNamed(AppRoutes.aboutUs);
+                    },
+                  ),
+                  const SizedBox(height: 10),
+                  _ActionTile(
                     icon: Icons.logout_rounded,
                     title: 'Sign out',
                     subtitle:
