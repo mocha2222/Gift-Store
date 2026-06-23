@@ -258,49 +258,6 @@ class _ArtisanChatPageState extends State<ArtisanChatPage> {
 
     return Scaffold(
       backgroundColor: _backgroundColor,
-      appBar: AppBar(
-        leadingWidth: 64,
-        leading: Padding(
-          padding: const EdgeInsets.only(left: 14, top: 8, bottom: 8),
-          child: GestureDetector(
-            onTap: () => Navigator.of(context).maybePop(),
-            child: Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFFEAD5A8)),
-              ),
-              child: const Icon(
-                Icons.arrow_back_rounded,
-                color: Color(0xFF231408),
-                size: 20,
-              ),
-            ),
-          ),
-        ),
-        title: Text(
-          'Messages',
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            fontSize: 20,
-            fontWeight: FontWeight.w700,
-            color: _primaryColor,
-          ),
-        ),
-        actions: [
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.edit_note_rounded),
-            color: _primaryColor,
-          ),
-          const SizedBox(width: 8),
-        ],
-        backgroundColor: _backgroundColor,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        foregroundColor: const Color(0xFF231408),
-      ),
       body: SafeArea(child: mainScroll),
     );
   }

@@ -5,6 +5,7 @@ class ProductActions extends StatelessWidget {
     super.key,
     required this.quantity,
     required this.isFavorite,
+    required this.isOutOfStock,
     required this.onDecrement,
     required this.onIncrement,
     required this.onToggleFavorite,
@@ -14,6 +15,7 @@ class ProductActions extends StatelessWidget {
 
   final int quantity;
   final bool isFavorite;
+  final bool isOutOfStock;
   final VoidCallback onDecrement;
   final VoidCallback onIncrement;
   final VoidCallback onToggleFavorite;
@@ -79,10 +81,10 @@ class ProductActions extends StatelessWidget {
             Expanded(
               child: FilledButton.icon(
                 onPressed: onAddToCart,
-                icon: const Icon(Icons.shopping_bag_outlined),
-                label: const Text('Add to Cart'),
+                icon: Icon(isOutOfStock ? Icons.remove_shopping_cart_outlined : Icons.shopping_bag_outlined),
+                label: Text(isOutOfStock ? 'Out of Stock' : 'Add to Cart'),
                 style: FilledButton.styleFrom(
-                  backgroundColor: const Color(0xFFB8770D),
+                  backgroundColor: isOutOfStock ? Colors.grey.shade400 : const Color(0xFFB8770D),
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 14),
                 ),

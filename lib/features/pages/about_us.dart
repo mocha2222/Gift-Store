@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../router/app_router.dart';
 
 class AboutUsPage extends StatelessWidget {
   const AboutUsPage({super.key});
@@ -13,7 +14,13 @@ class AboutUsPage extends StatelessWidget {
         leading: Padding(
           padding: const EdgeInsets.only(left: 14, top: 8, bottom: 8),
           child: GestureDetector(
-            onTap: () => Navigator.of(context).maybePop(),
+            onTap: () {
+              if (Navigator.of(context).canPop()) {
+                Navigator.of(context).pop();
+              } else {
+                Navigator.of(context).pushReplacementNamed(AppRoutes.home);
+              }
+            },
             child: Container(
               width: 40,
               height: 40,

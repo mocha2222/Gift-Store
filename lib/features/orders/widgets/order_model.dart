@@ -24,60 +24,68 @@ class OrderModel {
     required this.createdAt,
     required this.address,
   });
+
+  factory OrderModel.fromJson(Map<String, dynamic> json) {
+    // Parse status string to enum
+    OrderStatus parseStatus(String? s) {
+      switch (s?.toLowerCase()) {
+        case 'confirmed':
+        case 'processing':
+          return OrderStatus.processing;
+        case 'shipped':
+          return OrderStatus.shipped;
+        case 'delivered':
+          return OrderStatus.delivered;
+        case 'cancelled':
+          return OrderStatus.cancelled;
+        default:
+          return OrderStatus.pending;
+      }
+    }
+
+    // Extract customer info from populated user_id
+    final user = json['user_id'];
+    final customerName = (user is Map) ? (user['name']?.toString() ?? 'Customer') : 'Customer';
+    final customerEmail = (user is Map) ? (user['email']?.toString() ?? '') : '';
+
+    // Extract product info from items
+    final items = json['items'] as List<dynamic>? ?? [];
+    String productTitle = 'Handcrafted Gift';
+    String productImage = '';
+    int totalQuantity = 0;
+    if (items.isNotEmpty) {
+      final firstItem = items[0];
+      final prod = firstItem['product_id'];
+      if (prod is Map) {
+        productTitle = prod['name']?.toString() ?? 'Handcrafted Gift';
+        productImage = prod['image']?.toString() ?? '';
+      }
+      for (final item in items) {
+        totalQuantity += (item['quantity'] as num?)?.toInt() ?? 1;
+      }
+      if (items.length > 1) {
+        productTitle += ' (+${items.length - 1} more)';
+      }
+    }
+
+    final total = (json['total_price'] as num?)?.toDouble() ?? 0.0;
+
+    return OrderModel(
+      id: json['_id']?.toString() ?? json['id']?.toString() ?? '',
+      customerName: customerName,
+      customerEmail: customerEmail,
+      productTitle: productTitle,
+      productImage: productImage,
+      price: '\$${total.toStringAsFixed(2)}',
+      quantity: totalQuantity > 0 ? totalQuantity : 1,
+      status: parseStatus(json['status']?.toString()),
+      createdAt: json['createdAt'] != null
+          ? DateTime.tryParse(json['createdAt'].toString()) ?? DateTime.now()
+          : DateTime.now(),
+      address: json['delivery_address']?.toString() ?? '',
+    );
+  }
 }
 
 
-final demoOrders = [
-  OrderModel(
-    id: 'ORD-001',
-    customerName: 'Sophea Meas',
-    customerEmail: 'sophea@email.com',
-    productTitle: 'Hand-woven Silk Krama',
-    productImage:
-        'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=400&q=80',
-    price: '\$28.00',
-    quantity: 2,
-    status: OrderStatus.pending,
-    createdAt: DateTime.now().subtract(const Duration(hours: 2)),
-    address: 'St. 271, Phnom Penh',
-  ),
-  OrderModel(
-    id: 'ORD-002',
-    customerName: 'Dara Keo',
-    customerEmail: 'dara@email.com',
-    productTitle: 'Silver Apsara Bracelet',
-    productImage:
-        'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=400&q=80',
-    price: '\$42.00',
-    quantity: 1,
-    status: OrderStatus.processing,
-    createdAt: DateTime.now().subtract(const Duration(days: 1)),
-    address: 'Siem Reap, Cambodia',
-  ),
-  OrderModel(
-    id: 'ORD-003',
-    customerName: 'Malis Chan',
-    customerEmail: 'malis@email.com',
-    productTitle: 'Kampot Pepper Gift Box',
-    productImage:
-        'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=400&q=80',
-    price: '\$35.00',
-    quantity: 3,
-    status: OrderStatus.delivered,
-    createdAt: DateTime.now().subtract(const Duration(days: 3)),
-    address: 'Battambang, Cambodia',
-  ),
-  OrderModel(
-    id: 'ORD-004',
-    customerName: 'Rith Pov',
-    customerEmail: 'rith@email.com',
-    productTitle: 'Carved Jackfruit Elephant',
-    productImage:
-        'https://images.unsplash.com/photo-1567361808960-dec9cb578182?w=400&q=80',
-    price: '\$22.00',
-    quantity: 1,
-    status: OrderStatus.shipped,
-    createdAt: DateTime.now().subtract(const Duration(days: 2)),
-    address: 'Kampot, Cambodia',
-  ),
-];
+final demoOrders = <OrderModel>[];

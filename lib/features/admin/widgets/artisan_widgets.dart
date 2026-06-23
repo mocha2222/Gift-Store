@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -50,7 +52,7 @@ class ArtisanCard extends StatelessWidget {
 
   final AdminArtisan artisan;
   final VoidCallback onView;
-  final VoidCallback onToggle;
+  final Future<void> Function()? onToggle;
 
   @override
   Widget build(BuildContext context) {
@@ -73,7 +75,14 @@ class ArtisanCard extends StatelessWidget {
               CircleAvatar(
                 radius: 24,
                 backgroundColor: color.withValues(alpha: 0.12),
-                child: Icon(Icons.storefront_rounded, color: color),
+                backgroundImage: artisan.profileImage != null && artisan.profileImage!.isNotEmpty
+                    ? (artisan.profileImage!.startsWith('data:') || artisan.profileImage!.length > 200
+                        ? MemoryImage(decodeProfileImage(artisan.profileImage!))
+                        : NetworkImage(artisan.profileImage!) as ImageProvider)
+                    : null,
+                child: artisan.profileImage == null || artisan.profileImage!.isEmpty
+                    ? Icon(Icons.storefront_rounded, color: color)
+                    : null,
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -180,4 +189,14 @@ class ArtisanMiniStat extends StatelessWidget {
       ],
     );
   }
+}
+
+Uint8List decodeProfileImage(String base64Str) {
+  if (base64Str.startsWith('data:')) {
+    final commaIndex = base64Str.indexOf(',');
+    if (commaIndex != -1) {
+      base64Str = base64Str.substring(commaIndex + 1);
+    }
+  }
+  return base64.decode(base64Str.trim());
 }

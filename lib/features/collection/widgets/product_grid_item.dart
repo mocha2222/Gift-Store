@@ -58,6 +58,26 @@ class _ProductGridItemState extends State<ProductGridItem> {
                         ),
                       ),
                     ),
+                    if (widget.item.discount > 0)
+                      Positioned(
+                        top: 8,
+                        left: 8,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFC0392B),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text(
+                            '${widget.item.discount}% OFF',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 9,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ),
+                      ),
                     Positioned(
                       top: 8,
                       right: 8,
@@ -114,14 +134,31 @@ class _ProductGridItemState extends State<ProductGridItem> {
                     const SizedBox(height: 6),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        Text(
-                          widget.item.price,
-                          style: GoogleFonts.inter(
-                            fontSize: 13,
-                            color: const Color(0xFF8C6500),
-                            fontWeight: FontWeight.w700,
-                          ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (widget.item.discount > 0)
+                              Text(
+                                widget.item.price,
+                                style: GoogleFonts.inter(
+                                  fontSize: 10,
+                                  decoration: TextDecoration.lineThrough,
+                                  color: const Color(0xFF9E7E5A),
+                                ),
+                              ),
+                            Text(
+                              widget.item.discount > 0
+                                  ? '\$${((double.tryParse(widget.item.price.replaceAll('\$', '')) ?? 0.0) * (1 - widget.item.discount / 100)).toStringAsFixed(2)}'
+                                  : widget.item.price,
+                              style: GoogleFonts.inter(
+                                fontSize: 13,
+                                color: const Color(0xFF8C6500),
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ],
                         ),
                         Row(
                           children: [

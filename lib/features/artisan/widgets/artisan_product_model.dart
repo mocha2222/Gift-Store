@@ -93,7 +93,7 @@ class ArtisanProductModel {
       materialInfo: json['materialInfo'] ?? '',
       story:       json['story'] ?? '',
       stock:       json['stock'] ?? 0,
-      discount:    json['discount'] ?? 0,
+      discount:    json['discount'] ?? json['discount_percentage'] ?? json['discountPercent'] ?? 0,
       isAvailable: json['isAvailable'] ?? true,
       createdAt:   DateTime.tryParse(json['createdAt'] ?? '') ?? DateTime.now(),
     );

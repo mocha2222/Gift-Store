@@ -109,16 +109,47 @@ class _HomeHomepageState extends State<HomeHomepage> {
         ),
         const SliverToBoxAdapter(child: SizedBox(height: 12)),
         SliverToBoxAdapter(
-          child: SizedBox(
-            height: 180,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              separatorBuilder: (_, __) => const SizedBox(width: 12),
-              itemCount: discountProducts.length,
-              itemBuilder: (context, index) =>
-                  DiscountProductCard(discount: discountProducts[index]),
-            ),
+          child: FutureBuilder<List<GiftItem>>(
+            future: ProductApi.getDiscountProducts(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const SizedBox(
+                  height: 180,
+                  child: Center(
+                    child: CircularProgressIndicator(color: Color(0xFFD8AE73)),
+                  ),
+                );
+              }
+              if (snapshot.hasError) {
+                return SizedBox(
+                  height: 180,
+                  child: Center(
+                    child: Text('Error: ${snapshot.error}'),
+                  ),
+                );
+              }
+              final items = snapshot.data ?? [];
+              if (items.isEmpty) {
+                return const SizedBox(
+                  height: 180,
+                  child: Center(
+                    child: Text('No discounted products found.'),
+                  ),
+                );
+              }
+              final discountProds = items.map((e) => DiscountProduct.fromGiftItem(e)).toList();
+              return SizedBox(
+                height: 180,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  separatorBuilder: (_, __) => const SizedBox(width: 12),
+                  itemCount: discountProds.length,
+                  itemBuilder: (context, index) =>
+                      DiscountProductCard(discount: discountProds[index]),
+                ),
+              );
+            },
           ),
         ),
         const SliverToBoxAdapter(child: SizedBox(height: 28)),
@@ -136,16 +167,46 @@ class _HomeHomepageState extends State<HomeHomepage> {
         ),
         const SliverToBoxAdapter(child: SizedBox(height: 12)),
         SliverToBoxAdapter(
-          child: SizedBox(
-            height: 150,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              separatorBuilder: (_, __) => const SizedBox(width: 12),
-              itemCount: collections.length,
-              itemBuilder: (context, index) =>
-                  CollectionCard(item: collections[index]),
-            ),
+          child: FutureBuilder<List<CollectionItem>>(
+            future: ProductApi.getCollections(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const SizedBox(
+                  height: 150,
+                  child: Center(
+                    child: CircularProgressIndicator(color: Color(0xFFD8AE73)),
+                  ),
+                );
+              }
+              if (snapshot.hasError) {
+                return SizedBox(
+                  height: 150,
+                  child: Center(
+                    child: Text('Error: ${snapshot.error}'),
+                  ),
+                );
+              }
+              final items = snapshot.data ?? [];
+              if (items.isEmpty) {
+                return const SizedBox(
+                  height: 150,
+                  child: Center(
+                    child: Text('No collections found.'),
+                  ),
+                );
+              }
+              return SizedBox(
+                height: 150,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  separatorBuilder: (_, __) => const SizedBox(width: 12),
+                  itemCount: items.length,
+                  itemBuilder: (context, index) =>
+                      CollectionCard(item: items[index]),
+                ),
+              );
+            },
           ),
         ),
         const SliverToBoxAdapter(child: SizedBox(height: 28)),

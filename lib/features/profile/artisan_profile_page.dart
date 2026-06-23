@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../data/home_mock_data.dart';
 import '../../services/product_api.dart';
+import '../../router/app_router.dart';
 import '../auth/login_page.dart';
 import 'widgets/profile_stats_row.dart';
 
@@ -45,6 +46,7 @@ class _ArtisanProfilePageState extends State<ArtisanProfilePage> {
 
   bool _isLoadingProducts = false;
   List<ArtisanProduct> _fetchedProducts = [];
+  List<GiftItem> _fetchedGiftItems = [];
 
   List<ArtisanProduct> get _displayProducts {
     if (_fetchedProducts.isNotEmpty) {
@@ -127,11 +129,15 @@ class _ArtisanProfilePageState extends State<ArtisanProfilePage> {
   Future<void> _fetchProducts() async {
     setState(() => _isLoadingProducts = true);
     try {
-      // Import needed if not present
-      final details = await ProductApi.getMakerDetails(widget.artisanId);
+      final products = await ProductApi.getProducts(artisanId: widget.artisanId);
       if (mounted) {
         setState(() {
-          _fetchedProducts = details.products;
+          _fetchedGiftItems = products;
+          _fetchedProducts = products.map((p) => ArtisanProduct(
+            title: p.title,
+            price: p.price,
+            imagePath: p.imageUrl,
+          )).toList();
           _isLoadingProducts = false;
         });
       }
@@ -279,52 +285,53 @@ class _ArtisanProfilePageState extends State<ArtisanProfilePage> {
                         border: Border.all(color: Colors.white, width: 2),
                       ),
                       child: ClipOval(
-                        child:
-                            widget.avatarUrl != null &&
-                                widget.avatarUrl!.isNotEmpty
-                            ? (widget.avatarUrl!.startsWith('http')
-                                ? Image.network(
-                                    widget.avatarUrl!,
-                                    fit: BoxFit.cover,
-                                    width: 64,
-                                    height: 64,
-                                    errorBuilder: (_, __, ___) => Center(
-                                      child: Text(
-                                        _initials,
-                                        style: GoogleFonts.cormorantGaramond(
-                                          fontSize: 24,
-                                          fontWeight: FontWeight.w700,
-                                          color: const Color(0xFF4A321B),
-                                        ),
-                                      ),
-                                    ),
-                                  )
-                                : Image.asset(
-                                    widget.avatarUrl!,
-                                    fit: BoxFit.cover,
-                                    width: 64,
-                                    height: 64,
-                                    errorBuilder: (_, __, ___) => Center(
-                                      child: Text(
-                                        _initials,
-                                        style: GoogleFonts.cormorantGaramond(
-                                          fontSize: 24,
-                                          fontWeight: FontWeight.w700,
-                                          color: const Color(0xFF4A321B),
-                                        ),
-                                      ),
-                                    ),
-                                  ))
-                            : Center(
-                                child: Text(
-                                  _initials,
-                                  style: GoogleFonts.cormorantGaramond(
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.w700,
-                                    color: const Color(0xFF4A321B),
-                                  ),
-                                ),
-                              ),
+                        child: () {
+                        final initialsWidget = Center(
+                          child: Text(
+                            _initials,
+                            style: GoogleFonts.cormorantGaramond(
+                              fontSize: 24,
+                              fontWeight: FontWeight.w700,
+                              color: const Color(0xFF4A321B),
+                            ),
+                          ),
+                        );
+                        final avatarUrl = widget.avatarUrl;
+                        if (avatarUrl == null || avatarUrl.isEmpty) {
+                          return initialsWidget;
+                        }
+                        if (avatarUrl.startsWith('data:') || avatarUrl.length > 200) {
+                          try {
+                            String base64Str = avatarUrl;
+                            if (base64Str.startsWith('data:')) {
+                              final commaIndex = base64Str.indexOf(',');
+                              if (commaIndex != -1) {
+                                base64Str = base64Str.substring(commaIndex + 1);
+                              }
+                            }
+                            final bytes = base64Decode(base64Str.trim());
+                            return Image.memory(bytes, fit: BoxFit.cover, width: 64, height: 64);
+                          } catch (_) {
+                            return initialsWidget;
+                          }
+                        }
+                        if (avatarUrl.startsWith('http')) {
+                          return Image.network(
+                            avatarUrl,
+                            fit: BoxFit.cover,
+                            width: 64,
+                            height: 64,
+                            errorBuilder: (_, __, ___) => initialsWidget,
+                          );
+                        }
+                        return Image.asset(
+                          avatarUrl,
+                          fit: BoxFit.cover,
+                          width: 64,
+                          height: 64,
+                          errorBuilder: (_, __, ___) => initialsWidget,
+                        );
+                      }(),
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -505,7 +512,10 @@ class _ArtisanProfilePageState extends State<ArtisanProfilePage> {
                       childAspectRatio: 0.78,
                     ),
                     delegate: SliverChildBuilderDelegate(
-                      (context, index) => _ItemCard(item: _displayProducts[index]),
+                      (context, index) => _ItemCard(
+                        item: _displayProducts[index],
+                        giftItem: _fetchedGiftItems.length > index ? _fetchedGiftItems[index] : null,
+                      ),
                       childCount: _displayProducts.length,
                     ),
                   ),
@@ -518,43 +528,120 @@ class _ArtisanProfilePageState extends State<ArtisanProfilePage> {
 }
 
 class _ItemCard extends StatelessWidget {
-  const _ItemCard({required this.item});
+  const _ItemCard({required this.item, this.giftItem});
 
   final ArtisanProduct item;
+  final GiftItem? giftItem;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: const Color(0xFFFFF7EC),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFFE2D3BE)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: ClipRRect(
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(14),
-              ),
-              child: Image.asset(
-                item.imagePath,
-                fit: BoxFit.cover,
-                width: double.infinity,
-                errorBuilder: (context, error, stackTrace) => Container(
-                  decoration: const BoxDecoration(color: Color(0xFFF1E7D5)),
-                  child: const Center(
-                    child: Icon(
-                      Icons.broken_image,
-                      color: Color(0xFFD8AE73),
-                      size: 36,
+    return GestureDetector(
+      onTap: () {
+        final gItem = giftItem ?? GiftItem(
+          id: '',
+          title: item.title,
+          subtitle: '',
+          price: item.price,
+          imageUrl: item.imagePath,
+          accent: const Color(0xFF6B4C9A),
+        );
+        Navigator.of(context).pushNamed(
+          AppRoutes.productDetail,
+          arguments: ProductDetailArgs(item: gItem),
+        );
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: const Color(0xFFFFF7EC),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: const Color(0xFFE2D3BE)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Stack(
+                children: [
+                  Positioned.fill(
+                    child: ClipRRect(
+                      borderRadius: const BorderRadius.vertical(
+                        top: Radius.circular(14),
+                      ),
+                      child: Builder(
+                        builder: (context) {
+                          final img = item.imagePath;
+                          final errorWidget = Container(
+                            decoration: const BoxDecoration(color: Color(0xFFF1E7D5)),
+                            child: const Center(
+                              child: Icon(
+                                Icons.broken_image,
+                                color: Color(0xFFD8AE73),
+                                size: 36,
+                              ),
+                            ),
+                          );
+
+                          if (img.isEmpty) return errorWidget;
+
+                          if (img.startsWith('http')) {
+                            return Image.network(
+                              img,
+                              fit: BoxFit.cover,
+                              width: double.infinity,
+                              errorBuilder: (_, __, ___) => errorWidget,
+                            );
+                          } else if (img.startsWith('data:') || img.length > 200) {
+                            try {
+                              String base64Str = img;
+                              if (base64Str.startsWith('data:')) {
+                                final comma = base64Str.indexOf(',');
+                                if (comma != -1) base64Str = base64Str.substring(comma + 1);
+                              }
+                              final bytes = base64Decode(base64Str.trim());
+                              return Image.memory(
+                                bytes,
+                                fit: BoxFit.cover,
+                                width: double.infinity,
+                                errorBuilder: (_, __, ___) => errorWidget,
+                              );
+                            } catch (_) {
+                              return errorWidget;
+                            }
+                          }
+
+                          return Image.asset(
+                            img,
+                            fit: BoxFit.cover,
+                            width: double.infinity,
+                            errorBuilder: (_, __, ___) => errorWidget,
+                          );
+                        },
+                      ),
                     ),
                   ),
-                ),
+                  if (giftItem != null && giftItem!.discount > 0)
+                    Positioned(
+                      top: 8,
+                      right: 8,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFC0392B),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          '${giftItem!.discount}% OFF',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
               ),
             ),
-          ),
           Padding(
             padding: const EdgeInsets.all(10),
             child: Column(
@@ -571,8 +658,19 @@ class _ItemCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 2),
+                if (giftItem != null && giftItem!.discount > 0)
+                  Text(
+                    item.price,
+                    style: GoogleFonts.inter(
+                      fontSize: 11,
+                      decoration: TextDecoration.lineThrough,
+                      color: const Color(0xFF9E7E5A),
+                    ),
+                  ),
                 Text(
-                  item.price,
+                  giftItem != null && giftItem!.discount > 0
+                      ? '\$${((double.tryParse(item.price.replaceAll('\$', '')) ?? 0.0) * (1 - giftItem!.discount / 100)).toStringAsFixed(2)}'
+                      : item.price,
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     fontWeight: FontWeight.w800,
@@ -583,6 +681,7 @@ class _ItemCard extends StatelessWidget {
             ),
           ),
         ],
+      ),
       ),
     );
   }

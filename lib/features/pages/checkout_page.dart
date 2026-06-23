@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../router/app_router.dart';
 import '../../services/cart_service.dart';
+import '../../services/product_api.dart';
 import 'package:flutter/services.dart';
 
 class CardExpirationFormatter extends TextInputFormatter {
@@ -12,27 +13,28 @@ class CardExpirationFormatter extends TextInputFormatter {
     TextEditingValue oldValue,
     TextEditingValue newValue,
   ) {
-    final text = newValue.text;
-
-    // If characters are being deleted, just let it happen
-    if (newValue.selection.baseOffset < oldValue.selection.baseOffset) {
-      return newValue;
+    final cleanText = newValue.text.replaceAll(RegExp(r'[^0-9]'), '');
+    
+    // If deleting and we just deleted a slash, handle deletion of the preceding digit
+    if (oldValue.text.length > newValue.text.length && oldValue.text.endsWith('/') && cleanText.length == 2) {
+      final text = cleanText.substring(0, 1);
+      return TextEditingValue(
+        text: text,
+        selection: TextSelection.collapsed(offset: text.length),
+      );
     }
 
-    var buffer = StringBuffer();
-    for (int i = 0; i < text.length; i++) {
-      buffer.write(text[i]);
-      var nonZeroIndex = i + 1;
-      // Automatically add a slash after the 2nd digit, if it isn't already there
-      if (nonZeroIndex == 2 && nonZeroIndex != text.length) {
-        buffer.write('/');
-      }
+    var formattedText = '';
+    if (cleanText.length >= 1) {
+      formattedText += cleanText.substring(0, cleanText.length >= 2 ? 2 : cleanText.length);
+    }
+    if (cleanText.length > 2) {
+      formattedText += '/' + cleanText.substring(2, cleanText.length >= 4 ? 4 : cleanText.length);
     }
 
-    final string = buffer.toString();
-    return newValue.copyWith(
-      text: string,
-      selection: TextSelection.collapsed(offset: string.length),
+    return TextEditingValue(
+      text: formattedText,
+      selection: TextSelection.collapsed(offset: formattedText.length),
     );
   }
 }
@@ -80,44 +82,60 @@ class _CheckoutPageState extends State<CheckoutPage> {
     super.dispose();
   }
 
-  Future<void> _saveOrder({
+  /// A valid MongoDB ObjectId is exactly 24 hex characters.
+  static final _mongoIdRegex = RegExp(r'^[a-fA-F0-9]{24}$');
+
+  Future<bool> _saveOrder({
     required String orderId,
     required String name,
     required String address,
     required String total,
+    required CartService cart,
   }) async {
-    final prefs = await SharedPreferences.getInstance();
-    final ordersJson = prefs.getString('placed_orders') ?? '[]';
     try {
-      final List<dynamic> orders = jsonDecode(ordersJson);
-      final now = DateTime.now();
-      final months = [
-        'Jan',
-        'Feb',
-        'Mar',
-        'Apr',
-        'May',
-        'Jun',
-        'Jul',
-        'Aug',
-        'Sep',
-        'Oct',
-        'Nov',
-        'Dec',
-      ];
-      final dateStr = '${months[now.month - 1]} ${now.day}, ${now.year}';
+      // Log all product IDs for debugging
+      for (final item in cart.items) {
+        debugPrint('[Checkout] Cart item: id="${item.item.id}", title="${item.item.title}", qty=${item.quantity}');
+      }
 
-      orders.insert(0, {
-        'orderId': orderId,
-        'customerName': name,
-        'deliveryAddress': address,
-        'totalPaid': total,
-        'date': dateStr,
-      });
+      // Only include items with valid MongoDB ObjectIds
+      final validItems = cart.items.where((item) => _mongoIdRegex.hasMatch(item.item.id)).toList();
+      final skippedCount = cart.items.length - validItems.length;
 
-      await prefs.setString('placed_orders', jsonEncode(orders));
+      if (skippedCount > 0) {
+        debugPrint('[Checkout] Skipped $skippedCount item(s) with invalid product IDs');
+      }
+
+      if (validItems.isEmpty) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('No valid products in cart. Please add products from the store.')),
+          );
+        }
+        return false;
+      }
+
+      final items = validItems.map((item) => {
+        'product_id': item.item.id,
+        'quantity': item.quantity,
+      }).toList();
+
+      final payload = {
+        'items': items,
+      };
+
+      debugPrint('[Checkout] Sending order payload: ${payload.toString()}');
+      
+      await ProductApi.createOrder(payload);
+      return true;
     } catch (e) {
       debugPrint('Error saving order: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to place order: $e')),
+        );
+      }
+      return false;
     }
   }
 
@@ -138,14 +156,15 @@ class _CheckoutPageState extends State<CheckoutPage> {
     final address = _addressCtrl.text;
     final total = '\$${cart.total.toStringAsFixed(2)}';
 
-    await _saveOrder(
+    final success = await _saveOrder(
       orderId: orderId,
       name: name,
       address: address,
       total: total,
+      cart: cart,
     );
 
-    if (!mounted) return;
+    if (!success || !mounted) return;
 
     cart.clear();
 
@@ -156,6 +175,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
         customerName: name,
         deliveryAddress: address,
         totalPaid: total,
+        products: cart.items.map((i) => '${i.quantity} x ${i.item.title}').toList(),
       ),
     );
   }
@@ -282,8 +302,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
                               FilteringTextInputFormatter
                                   .digitsOnly, // Only allow numbers
                               LengthLimitingTextInputFormatter(
-                                4,
-                              ), // Max 4 numbers (MMYY)
+                                5,
+                              ), // Max 5 characters (MM/YY)
                               CardExpirationFormatter(), // Adds the '/' automatically
                             ],
                           ),
@@ -387,10 +407,23 @@ class _CheckoutPageState extends State<CheckoutPage> {
       return 'Use MM/YY format';
     }
 
-    // Split month and year
-    final parts = value.split('/');
-    final month = int.parse(parts[0]);
-    final year = int.parse('20${parts[1]}'); // Assumes 21st century (20YY)
+    // Split month and year safely
+    int month = 0;
+    int year = 0;
+    if (value.contains('/')) {
+      final parts = value.split('/');
+      if (parts.length >= 2) {
+        month = int.tryParse(parts[0]) ?? 0;
+        year = int.tryParse('20${parts[1]}') ?? 0;
+      }
+    } else if (value.length == 4) {
+      month = int.tryParse(value.substring(0, 2)) ?? 0;
+      year = int.tryParse('20${value.substring(2, 4)}') ?? 0;
+    }
+
+    if (month < 1 || month > 12 || year == 0) {
+      return 'Use MM/YY format';
+    }
 
     // Check against current date
     final now = DateTime.now();

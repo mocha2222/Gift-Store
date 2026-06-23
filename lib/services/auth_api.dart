@@ -15,7 +15,7 @@ class AuthApi {
     final body = jsonDecode(res.body) as Map<String, dynamic>;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('access_token', body['access_token'] as String);
-    await prefs.setString('user_id', (body['user']?['_id'] ?? '') as String);
+    await prefs.setString('user_id', (body['user']?['_id'] ?? body['user']?['id'] ?? '') as String);
     await prefs.setString('user_email', (body['user']?['email'] ?? email) as String);
     await prefs.setString('user_role', (body['user']?['role'] ?? 'customer') as String);
     await prefs.setString('user_name', (body['user']?['name'] ?? '') as String);
@@ -41,7 +41,7 @@ class AuthApi {
     final body = jsonDecode(res.body) as Map<String, dynamic>;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('access_token', body['access_token'] as String);
-    await prefs.setString('user_id', (body['user']?['_id'] ?? '') as String);
+    await prefs.setString('user_id', (body['user']?['_id'] ?? body['user']?['id'] ?? '') as String);
     await prefs.setString('user_email', (body['user']?['email'] ?? email) as String);
     await prefs.setString('user_role', (body['user']?['role'] ?? role) as String);
     await prefs.setString('user_name', (body['user']?['name'] ?? name) as String);

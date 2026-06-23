@@ -6,6 +6,7 @@ class CheckoutDetailsPage extends StatelessWidget {
   final String deliveryAddress;
   final String totalPaid;
   final String? date;
+  final List<String>? products;
 
   const CheckoutDetailsPage({
     super.key,
@@ -15,6 +16,7 @@ class CheckoutDetailsPage extends StatelessWidget {
     this.deliveryAddress = '123 Flutter Way, App City, 10001',
     this.totalPaid = '\$0.00',
     this.date,
+    this.products,
   });
 
   @override
@@ -33,7 +35,16 @@ class CheckoutDetailsPage extends StatelessWidget {
           ),
         ),
         iconTheme: const IconThemeData(color: Color(0xFF8C6500)),
-        automaticallyImplyLeading: false, // Prevents going back to checkout
+        leading: IconButton(
+                icon: const Icon(Icons.arrow_back_rounded, color: Color(0xFF231408)),
+                onPressed: () {
+                  if (Navigator.of(context).canPop()) {
+                    Navigator.of(context).pop();
+                  } else {
+                    Navigator.of(context).pushReplacementNamed('/home');
+                  }
+                },
+              ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -102,6 +113,50 @@ class CheckoutDetailsPage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
+
+            if (products != null && products!.isNotEmpty) ...[
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: const Color(0xFFEDE1CB)),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Items Purchased',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF4F453A),
+                      ),
+                    ),
+                    const Divider(height: 24, thickness: 1.2),
+                    ...products!.map((p) => Padding(
+                      padding: const EdgeInsets.only(bottom: 8.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              p,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFF5E4C3D),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    )),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+            ],
 
             // Shipping Information Card
             Container(

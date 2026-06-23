@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../data/home_mock_data.dart';
+import '../../services/product_api.dart';
 import '../../widgets/app_drawer.dart';
 import '../../widgets/app_header.dart';
 import 'widgets/collection_grid_item.dart';
@@ -14,12 +15,32 @@ class CollectionsPage extends StatefulWidget {
 
 class _CollectionsPageState extends State<CollectionsPage> {
   final TextEditingController _searchController = TextEditingController();
-  List<CollectionItem> _filteredCollections = collections;
+  List<CollectionItem> _allCollections = [];
+  List<CollectionItem> _filteredCollections = [];
+  bool _isLoading = true;
+  String _errorMessage = '';
 
   @override
   void initState() {
     super.initState();
     _searchController.addListener(_onSearchChanged);
+    _fetchCollections();
+  }
+
+  Future<void> _fetchCollections() async {
+    try {
+      final list = await ProductApi.getCollections();
+      setState(() {
+        _allCollections = list;
+        _filteredCollections = list;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _errorMessage = e.toString();
+        _isLoading = false;
+      });
+    }
   }
 
   @override
@@ -33,9 +54,9 @@ class _CollectionsPageState extends State<CollectionsPage> {
     final query = _searchController.text.toLowerCase().trim();
     setState(() {
       if (query.isEmpty) {
-        _filteredCollections = collections;
+        _filteredCollections = _allCollections;
       } else {
-        _filteredCollections = collections.where((c) {
+        _filteredCollections = _allCollections.where((c) {
           return c.name.toLowerCase().contains(query) ||
               c.occasion.toLowerCase().contains(query);
         }).toList();
@@ -112,41 +133,53 @@ class _CollectionsPageState extends State<CollectionsPage> {
                   const SizedBox(height: 24),
                   // Grid list of Collections
                   Expanded(
-                    child: _filteredCollections.isEmpty
-                        ? Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(
-                                  Icons.collections_outlined,
-                                  size: 64,
-                                  color: Color(0xFFC4B29A),
-                                ),
-                                const SizedBox(height: 14),
-                                Text(
-                                  'No collections matched your search.',
-                                  style: GoogleFonts.inter(
-                                    color: const Color(0xFF7A6655),
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ],
-                            ),
+                    child: _isLoading
+                        ? const Center(
+                            child: CircularProgressIndicator(color: Color(0xFFD8AE73)),
                           )
-                        : GridView.builder(
-                            physics: const BouncingScrollPhysics(),
-                            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2,
-                              crossAxisSpacing: 14,
-                              mainAxisSpacing: 14,
-                              childAspectRatio: 0.82,
-                            ),
-                            itemCount: _filteredCollections.length,
-                            itemBuilder: (context, index) {
-                              return CollectionGridItem(item: _filteredCollections[index]);
-                            },
-                          ),
+                        : _errorMessage.isNotEmpty
+                            ? Center(
+                                child: Text(
+                                  'Error loading collections: $_errorMessage',
+                                  style: const TextStyle(color: Color(0xFFC0392B)),
+                                  textAlign: TextAlign.center,
+                                ),
+                              )
+                            : _filteredCollections.isEmpty
+                                ? Center(
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        const Icon(
+                                          Icons.collections_outlined,
+                                          size: 64,
+                                          color: Color(0xFFC4B29A),
+                                        ),
+                                        const SizedBox(height: 14),
+                                        Text(
+                                          'No collections matched your search.',
+                                          style: GoogleFonts.inter(
+                                            color: const Color(0xFF7A6655),
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  )
+                                : GridView.builder(
+                                    physics: const BouncingScrollPhysics(),
+                                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: 2,
+                                      crossAxisSpacing: 14,
+                                      mainAxisSpacing: 14,
+                                      childAspectRatio: 0.82,
+                                    ),
+                                    itemCount: _filteredCollections.length,
+                                    itemBuilder: (context, index) {
+                                      return CollectionGridItem(item: _filteredCollections[index]);
+                                    },
+                                  ),
                   ),
                 ],
               ),

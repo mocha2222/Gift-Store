@@ -1,17 +1,71 @@
+import 'dart:convert';
+import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class ArtisanHeroPanel extends StatelessWidget {
+class ArtisanHeroPanel extends StatefulWidget {
   const ArtisanHeroPanel({
     super.key,
     required this.onOpenMessages,
     required this.onOpenNotifications,
     required this.onManageProduct,
+    required this.pendingCount,
   });
 
   final VoidCallback onOpenMessages;
   final VoidCallback onOpenNotifications;
   final VoidCallback onManageProduct;
+  final int pendingCount;
+
+  @override
+  State<ArtisanHeroPanel> createState() => _ArtisanHeroPanelState();
+}
+
+class _ArtisanHeroPanelState extends State<ArtisanHeroPanel> {
+  String _name = 'Mekong Artisan Studio';
+  String _initials = 'M';
+  File? _localImage;
+  Uint8List? _imageBytes;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProfile();
+  }
+
+  Future<void> _loadProfile() async {
+    final prefs = await SharedPreferences.getInstance();
+    final name = prefs.getString('user_name') ?? 'Mekong Artisan Studio';
+    
+    Uint8List? imageBytes;
+    File? localFile;
+
+    if (kIsWeb) {
+      final base64Str = prefs.getString('user_avatar_bytes');
+      if (base64Str != null && base64Str.isNotEmpty) {
+        imageBytes = base64Decode(base64Str);
+      }
+    } else {
+      final avatarPath = prefs.getString('user_avatar_path');
+      if (avatarPath != null && avatarPath.isNotEmpty) {
+        final file = File(avatarPath);
+        if (file.existsSync()) {
+          localFile = file;
+        }
+      }
+    }
+
+    if (mounted) {
+      setState(() {
+        _name = name;
+        _initials = name.isNotEmpty ? name[0].toUpperCase() : 'M';
+        _localImage = localFile;
+        _imageBytes = imageBytes;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,17 +95,25 @@ class ArtisanHeroPanel extends StatelessWidget {
                 width: 52,
                 height: 52,
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
                   shape: BoxShape.circle,
+                  color: Colors.white.withOpacity(0.2),
                   border: Border.all(color: Colors.white.withOpacity(0.4), width: 1.5),
                 ),
-                child: const Center(
-                  child: Icon(
-                    Icons.storefront_rounded,
-                    color: Colors.white,
-                    size: 24,
-                  ),
-                ),
+                clipBehavior: Clip.antiAlias,
+                child: _imageBytes != null
+                    ? Image.memory(_imageBytes!, fit: BoxFit.cover)
+                    : (_localImage != null
+                        ? Image.file(_localImage!, fit: BoxFit.cover)
+                        : Center(
+                            child: Text(
+                              _initials,
+                              style: const TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                          )),
               ),
               const SizedBox(width: 14),
               Expanded(
@@ -68,7 +130,7 @@ class ArtisanHeroPanel extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      'Mekong Artisan Studio',
+                      _name,
                       style: GoogleFonts.cormorantGaramond(
                         fontSize: 22,
                         fontWeight: FontWeight.w700,
@@ -85,9 +147,9 @@ class ArtisanHeroPanel extends StatelessWidget {
           Wrap(
             spacing: 8,
             runSpacing: 8,
-            children: const [
+            children: [
               HeroChip(
-                label: '18 new orders',
+                label: '${widget.pendingCount} new orders',
                 icon: Icons.shopping_bag_outlined,
               ),
               HeroChip(
@@ -105,7 +167,7 @@ class ArtisanHeroPanel extends StatelessWidget {
             children: [
               Expanded(
                 child: FilledButton.icon(
-                  onPressed: onOpenMessages,
+                  onPressed: widget.onOpenMessages,
                   style: FilledButton.styleFrom(
                     backgroundColor: Colors.white,
                     foregroundColor: const Color(0xFF8C6500),
@@ -125,7 +187,7 @@ class ArtisanHeroPanel extends StatelessWidget {
               const SizedBox(width: 10),
               Expanded(
                 child: OutlinedButton.icon(
-                  onPressed: onManageProduct,
+                  onPressed: widget.onManageProduct,
                   style: OutlinedButton.styleFrom(
                     foregroundColor: Colors.white,
                     side: BorderSide(color: Colors.white.withOpacity(0.7), width: 1.5),

@@ -32,20 +32,21 @@ class AdminDashboardPage extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 18),
-          Wrap(
-            spacing: 14,
-            runSpacing: 14,
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: const [
               DashboardActionTile(
                 title: 'Artisan pipeline',
                 subtitle: 'Track pending setup and suspended accounts.',
                 icon: Icons.manage_accounts_outlined,
               ),
+              SizedBox(height: 14),
               DashboardActionTile(
                 title: 'Product moderation',
                 subtitle: 'Review new products and remove low quality items.',
                 icon: Icons.inventory_2_outlined,
               ),
+              SizedBox(height: 14),
               DashboardActionTile(
                 title: 'Order operations',
                 subtitle: 'Move orders through confirmed, shipped, and delivered.',

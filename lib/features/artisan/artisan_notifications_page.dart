@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../router/app_router.dart';
 
 class ArtisanNotificationsPage extends StatefulWidget {
   const ArtisanNotificationsPage({super.key});
@@ -65,7 +66,13 @@ class _ArtisanNotificationsPageState extends State<ArtisanNotificationsPage> {
         leading: Padding(
           padding: const EdgeInsets.only(left: 14, top: 8, bottom: 8),
           child: GestureDetector(
-            onTap: () => Navigator.of(context).maybePop(),
+            onTap: () {
+              if (Navigator.of(context).canPop()) {
+                Navigator.of(context).pop();
+              } else {
+                Navigator.of(context).pushReplacementNamed(AppRoutes.artisan);
+              }
+            },
             child: Container(
               width: 40,
               height: 40,

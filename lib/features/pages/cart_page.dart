@@ -149,7 +149,7 @@ class _CartItemCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    item.item.price,
+                    '\$${item.unitPrice.toStringAsFixed(2)}',
                     style: const TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
@@ -162,10 +162,24 @@ class _CartItemCard extends StatelessWidget {
                       _QuantityButton(
                         icon: Icons.remove,
                         onTap: item.quantity > 1
-                            ? () => cart.updateQuantity(
-                                item.id,
-                                item.quantity - 1,
-                              )
+                            ? () {
+                                final error = cart.updateQuantity(item.id, item.quantity - 1);
+                                if (error != null) {
+                                  showDialog(
+                                    context: context,
+                                    builder: (ctx) => AlertDialog(
+                                      title: const Text('Stock Limit Reached'),
+                                      content: Text(error),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () => Navigator.of(ctx).pop(),
+                                          child: const Text('OK'),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                }
+                              }
                             : () => cart.removeItem(item.id),
                       ),
                       Padding(
@@ -180,8 +194,24 @@ class _CartItemCard extends StatelessWidget {
                       ),
                       _QuantityButton(
                         icon: Icons.add,
-                        onTap: () =>
-                            cart.updateQuantity(item.id, item.quantity + 1),
+                        onTap: () {
+                          final error = cart.updateQuantity(item.id, item.quantity + 1);
+                          if (error != null) {
+                            showDialog(
+                              context: context,
+                              builder: (ctx) => AlertDialog(
+                                title: const Text('Stock Limit Reached'),
+                                content: Text(error),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.of(ctx).pop(),
+                                    child: const Text('OK'),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }
+                        },
                       ),
                       const Spacer(),
                       IconButton(

@@ -28,7 +28,13 @@ class _ArtisanSettingsPageState extends State<ArtisanSettingsPage> {
         leading: Padding(
           padding: const EdgeInsets.only(left: 14, top: 8, bottom: 8),
           child: GestureDetector(
-            onTap: () => Navigator.of(context).maybePop(),
+            onTap: () {
+              if (Navigator.of(context).canPop()) {
+                Navigator.of(context).pop();
+              } else {
+                Navigator.of(context).pushReplacementNamed(AppRoutes.artisan);
+              }
+            },
             child: Container(
               width: 40,
               height: 40,
@@ -168,6 +174,9 @@ class _ArtisanSettingsPageState extends State<ArtisanSettingsPage> {
                     icon: Icons.person_outline,
                     title: 'Edit artisan profile',
                     subtitle: 'Change your display name, photo, and shop bio.',
+                    onTap: () {
+                      Navigator.of(context).pushNamed(AppRoutes.profile, arguments: true);
+                    },
                   ),
                   SizedBox(height: 10),
                   _ActionTile(

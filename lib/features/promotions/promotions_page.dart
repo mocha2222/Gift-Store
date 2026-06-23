@@ -7,8 +7,24 @@ import '../../widgets/app_footer_nav.dart';
 import '../../widgets/app_header.dart';
 import 'widget/discount_product_model.dart';
 
-class PromotionsPage extends StatelessWidget {
+import '../../services/product_api.dart';
+import '../../data/home_mock_data.dart';
+
+class PromotionsPage extends StatefulWidget {
   const PromotionsPage({super.key});
+
+  @override
+  State<PromotionsPage> createState() => _PromotionsPageState();
+}
+
+class _PromotionsPageState extends State<PromotionsPage> {
+  late Future<List<GiftItem>> _discountProductsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _discountProductsFuture = ProductApi.getDiscountProducts();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -19,52 +35,78 @@ class PromotionsPage extends StatelessWidget {
         children: [
           const AppHeader(),
           Expanded(
-            child: CustomScrollView(
-              physics: const BouncingScrollPhysics(),
-              slivers: [
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 18),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(height: 14),
-                        Text(
-                          'Discount Products',
-                          style: GoogleFonts.cormorantGaramond(
-                            color: const Color(0xFF2C261E),
-                            fontSize: 28,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Browse products currently on discount — tap any item to view details and use the promo code at checkout.',
-                          style: GoogleFonts.inter(
-                            color: const Color(0xFF61584E),
-                            fontSize: 13,
-                            height: 1.5,
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                      ],
+            child: FutureBuilder<List<GiftItem>>(
+              future: _discountProductsFuture,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(
+                    child: CircularProgressIndicator(color: Color(0xFFD8AE73)),
+                  );
+                }
+                if (snapshot.hasError) {
+                  return Center(
+                    child: Text(
+                      'Error: ${snapshot.error}',
+                      style: const TextStyle(color: Color(0xFFC0392B)),
                     ),
-                  ),
-                ),
+                  );
+                }
+                final products = snapshot.data ?? [];
+                if (products.isEmpty) {
+                  return const Center(
+                    child: Text('No discounted products found.'),
+                  );
+                }
+                final discountProds = products.map((e) => DiscountProduct.fromGiftItem(e)).toList();
 
-                SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(18, 0, 18, 32),
-                  sliver: SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) {
-                        final discount = discountProducts[index];
-                        return _DiscountProductTile(discount: discount);
-                      },
-                      childCount: discountProducts.length,
+                return CustomScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  slivers: [
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 18),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SizedBox(height: 14),
+                            Text(
+                              'Discount Products',
+                              style: GoogleFonts.cormorantGaramond(
+                                color: const Color(0xFF2C261E),
+                                fontSize: 28,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Browse products currently on discount — tap any item to view details and use the promo code at checkout.',
+                              style: GoogleFonts.inter(
+                                color: const Color(0xFF61584E),
+                                fontSize: 13,
+                                height: 1.5,
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+                          ],
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-              ],
+
+                    SliverPadding(
+                      padding: const EdgeInsets.fromLTRB(18, 0, 18, 32),
+                      sliver: SliverList(
+                        delegate: SliverChildBuilderDelegate(
+                          (context, index) {
+                            final discount = discountProds[index];
+                            return _DiscountProductTile(discount: discount);
+                          },
+                          childCount: discountProds.length,
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              }
             ),
           ),
           const SafeArea(top: false, child: AppFooterNav()),

@@ -25,39 +25,25 @@ class DiscountProduct {
     final discounted = original * (1 - discountPercent / 100);
     return '\$${discounted.toStringAsFixed(2)}';
   }
-}
 
-final discountProducts = [
-  DiscountProduct(
-    item: trendingGifts[0],
-    discountPercent: 20,
-    originalPrice: trendingGifts[0].price,
-    code: 'BONN20',
-    badgeColor: const Color(0xFFC0392B),
-    expiresAt: DateTime.now().add(const Duration(days: 5)),
-  ),
-  DiscountProduct(
-    item: trendingGifts[3], 
-    discountPercent: 25,
-    originalPrice: trendingGifts[3].price,
-    code: 'FIRSTGIFT25',
-    badgeColor: const Color(0xFF4A7C59),
-    expiresAt: DateTime.now().add(const Duration(days: 14)),
-  ),
-  DiscountProduct(
-    item: trendingGifts[1], 
-    discountPercent: 10,
-    originalPrice: trendingGifts[1].price,
-    code: 'WEDDING10',
-    badgeColor: const Color(0xFF8C6500),
-    expiresAt: DateTime.now().add(const Duration(days: 30)),
-  ),
-  DiscountProduct(
-    item: trendingGifts[2], 
-    discountPercent: 15,
-    originalPrice: trendingGifts[2].price,
-    code: 'PEPPER15',
-    badgeColor: const Color(0xFF2980B9),
-    expiresAt: DateTime.now().add(const Duration(days: 7)),
-  ),
-];
+  /// Build a DiscountProduct from a GiftItem that has discount > 0.
+  factory DiscountProduct.fromGiftItem(GiftItem item) {
+    const colors = [
+      Color(0xFFC0392B),
+      Color(0xFF4A7C59),
+      Color(0xFF8C6500),
+      Color(0xFF2980B9),
+      Color(0xFF6B4C9A),
+    ];
+    final colorIndex = item.id.hashCode.abs() % colors.length;
+
+    return DiscountProduct(
+      item: item,
+      discountPercent: item.discount,
+      originalPrice: item.price,
+      code: 'SAVE${item.discount}',
+      badgeColor: colors[colorIndex],
+      expiresAt: DateTime.now().add(const Duration(days: 30)),
+    );
+  }
+}

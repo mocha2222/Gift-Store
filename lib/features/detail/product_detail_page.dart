@@ -5,6 +5,7 @@ import '../../data/home_mock_data.dart';
 import '../../widgets/app_drawer.dart';
 import '../../widgets/app_footer_nav.dart';
 import '../../widgets/app_header.dart';
+import '../../services/product_api.dart';
 import '../../services/cart_service.dart';
 import '../favorites/widgets/favorite_notifier.dart';
 import 'widgets/product_actions.dart';
@@ -245,6 +246,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                         ProductActions(
                           quantity: _quantity,
                           isFavorite: isFavorite,
+                          isOutOfStock: widget.item.stock <= 0,
                           onDecrement: _quantity > 1
                               ? () => setState(() => _quantity--)
                               : () {},
@@ -259,17 +261,49 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                             );
                           },
                           onAddToCart: () {
-                            context.read<CartService>().addItem(
+                            if (widget.item.stock <= 0) {
+                              showDialog(
+                                context: context,
+                                builder: (ctx) => AlertDialog(
+                                  title: const Text('Out of Stock'),
+                                  content: const Text('This product is currently out of stock and cannot be added to the cart.'),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () => Navigator.of(ctx).pop(),
+                                      child: const Text('OK'),
+                                    ),
+                                  ],
+                                ),
+                              );
+                              return;
+                            }
+                            final error = context.read<CartService>().addItem(
                               widget.item,
                               _quantity,
                             );
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  'Added $_quantity item(s) to cart',
+                            if (error != null) {
+                              showDialog(
+                                context: context,
+                                builder: (ctx) => AlertDialog(
+                                  title: const Text('Stock Limit Reached'),
+                                  content: Text(error),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () => Navigator.of(ctx).pop(),
+                                      child: const Text('OK'),
+                                    ),
+                                  ],
                                 ),
-                              ),
-                            );
+                              );
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    'Added $_quantity item(s) to cart',
+                                  ),
+                                ),
+                              );
+                            }
                           },
                         ),
                         const SizedBox(height: 18),

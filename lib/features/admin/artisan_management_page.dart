@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../services/auth_api.dart';
+import '../../services/admin_api.dart';
 import 'admin_models.dart';
 import 'widgets/artisan_widgets.dart';
 
@@ -47,12 +48,21 @@ class _ArtisanManagementPageState extends State<ArtisanManagementPage> {
                       return ArtisanCard(
                         artisan: artisan,
                         onView: () => _showProfileDialog(artisan),
-                        onToggle: () => setState(() {
+                        onToggle: artisan.id.isEmpty ? null : () async {
                           final nextStatus = artisan.status == AdminArtisanStatus.suspended
                               ? AdminArtisanStatus.active
                               : AdminArtisanStatus.suspended;
-                          adminArtisans[index] = artisan.copyWith(status: nextStatus);
-                        }),
+                          try {
+                            await AdminApi.suspendArtisan(artisan.id, artisan.userId, nextStatus);
+                            setState(() {
+                              adminArtisans[index] = artisan.copyWith(status: nextStatus);
+                            });
+                          } catch (e) {
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed: $e')));
+                            }
+                          }
+                        },
                       );
                     },
                   );
@@ -69,7 +79,9 @@ class _ArtisanManagementPageState extends State<ArtisanManagementPage> {
     final nameController = TextEditingController();
     final emailController = TextEditingController();
     final passwordController = TextEditingController();
-    final locationController = TextEditingController();
+    final streetController = TextEditingController();
+    final houseNumberController = TextEditingController();
+    final districtController = TextEditingController();
     bool isCreating = false;
 
     showDialog<void>(
@@ -85,7 +97,14 @@ class _ArtisanManagementPageState extends State<ArtisanManagementPage> {
                   TextField(controller: nameController, decoration: const InputDecoration(labelText: 'Artisan name')),
                   TextField(controller: emailController, decoration: const InputDecoration(labelText: 'Email')),
                   TextField(controller: passwordController, obscureText: true, decoration: const InputDecoration(labelText: 'Password')),
-                  TextField(controller: locationController, decoration: const InputDecoration(labelText: 'Location')),
+                  Row(
+                    children: [
+                      Expanded(child: TextField(controller: houseNumberController, decoration: const InputDecoration(labelText: 'House #'))),
+                      const SizedBox(width: 8),
+                      Expanded(flex: 2, child: TextField(controller: streetController, decoration: const InputDecoration(labelText: 'Street'))),
+                    ],
+                  ),
+                  TextField(controller: districtController, decoration: const InputDecoration(labelText: 'District')),
                 ],
               ),
             ),
@@ -104,19 +123,14 @@ class _ArtisanManagementPageState extends State<ArtisanManagementPage> {
                       role: 'artisan',
                     );
                     
-                    setState(() {
-                      adminArtisans.insert(
-                        0,
-                        AdminArtisan(
-                          name: nameController.text.trim(),
-                          role: 'Artisan',
-                          location: locationController.text.trim().isEmpty ? 'Unknown' : locationController.text.trim(),
-                          status: AdminArtisanStatus.pendingSetup,
-                          products: 0,
-                          followers: 0,
-                        ),
-                      );
-                    });
+                    final location = [houseNumberController.text.trim(), streetController.text.trim(), districtController.text.trim()]
+                        .where((e) => e.isNotEmpty)
+                        .join(', ');
+                        
+                    // Reload data from backend to get the newly created artisan's real ID
+                    await AdminApi.loadAdminData();
+                    setState(() {});
+                    
                     if (context.mounted) Navigator.of(context).pop();
                   } catch (e) {
                     setStateBuilder(() => isCreating = false);
@@ -137,22 +151,68 @@ class _ArtisanManagementPageState extends State<ArtisanManagementPage> {
   void _showProfileDialog(AdminArtisan artisan) {
     showDialog<void>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(artisan.name),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Role: ${artisan.role}'),
-            Text('Location: ${artisan.location}'),
-            Text('Products: ${artisan.products}'),
-            Text('Followers: ${artisan.followers}'),
-            const SizedBox(height: 8),
-            Text('Status: ${artisanStatusLabel(artisan.status)}'),
-          ],
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CircleAvatar(
+                radius: 40,
+                backgroundColor: const Color(0xFFF1C766),
+                backgroundImage: artisan.profileImage != null && artisan.profileImage!.isNotEmpty
+                    ? (artisan.profileImage!.startsWith('data:') || artisan.profileImage!.length > 200
+                        ? MemoryImage(decodeProfileImage(artisan.profileImage!))
+                        : NetworkImage(artisan.profileImage!) as ImageProvider)
+                    : null,
+                child: artisan.profileImage == null || artisan.profileImage!.isEmpty
+                    ? Text(
+                        artisan.name.substring(0, 1).toUpperCase(),
+                        style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Color(0xFF7B5200)),
+                      )
+                    : null,
+              ),
+              const SizedBox(height: 16),
+              Text(artisan.name, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 4),
+              Text('${artisan.role} • ${artisan.location}', style: const TextStyle(color: Colors.grey)),
+              const SizedBox(height: 24),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _ProfileStat(label: 'Products', value: artisan.products.toString()),
+                  _ProfileStat(label: 'Followers', value: artisan.followers.toString()),
+                  _ProfileStat(label: 'Status', value: artisanStatusLabel(artisan.status)),
+                ],
+              ),
+              const SizedBox(height: 24),
+              FilledButton(
+                style: FilledButton.styleFrom(minimumSize: const Size(double.infinity, 48)),
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('Close Profile'),
+              ),
+            ],
+          ),
         ),
-        actions: [TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Close'))],
       ),
+    );
+  }
+}
+
+class _ProfileStat extends StatelessWidget {
+  final String label;
+  final String value;
+  const _ProfileStat({required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Text(value, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 4),
+        Text(label, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+      ],
     );
   }
 }

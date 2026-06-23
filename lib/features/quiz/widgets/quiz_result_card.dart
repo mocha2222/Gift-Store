@@ -140,14 +140,46 @@ class _QuizResultCardState extends State<QuizResultCard> {
                     width: double.infinity,
                     child: FilledButton(
                       onPressed: () {
-                        context.read<CartService>().addItem(widget.item);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Added item to cart')),
-                        );
+                        if (widget.item.stock <= 0) {
+                          showDialog(
+                            context: context,
+                            builder: (ctx) => AlertDialog(
+                              title: const Text('Out of Stock'),
+                              content: const Text('This product is currently out of stock and cannot be added to the cart.'),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.of(ctx).pop(),
+                                  child: const Text('OK'),
+                                ),
+                              ],
+                            ),
+                          );
+                          return;
+                        }
+                        final error = context.read<CartService>().addItem(widget.item);
+                        if (error != null) {
+                          showDialog(
+                            context: context,
+                            builder: (ctx) => AlertDialog(
+                              title: const Text('Stock Limit Reached'),
+                              content: Text(error),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.of(ctx).pop(),
+                                  child: const Text('OK'),
+                                ),
+                              ],
+                            ),
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Added item to cart')),
+                          );
+                        }
                       },
                       style: FilledButton.styleFrom(
-                        backgroundColor: const Color(0xFFD8AE73),
-                        foregroundColor: const Color(0xFF4A321B),
+                        backgroundColor: widget.item.stock <= 0 ? Colors.grey.shade400 : const Color(0xFFD8AE73),
+                        foregroundColor: widget.item.stock <= 0 ? Colors.white : const Color(0xFF4A321B),
                         padding: const EdgeInsets.symmetric(vertical: 7),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
@@ -157,7 +189,7 @@ class _QuizResultCardState extends State<QuizResultCard> {
                           fontWeight: FontWeight.w700,
                         ),
                       ),
-                      child: const Text('Add to Cart'),
+                      child: Text(widget.item.stock <= 0 ? 'Out of Stock' : 'Add to Cart'),
                     ),
                   ),
                 ],

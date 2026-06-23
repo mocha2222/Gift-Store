@@ -1,259 +1,365 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../router/app_router.dart';
-// import '../../widgets/app_header.dart';
+import '../../services/product_api.dart';
 import 'widgets/add_edit_product_sheet.dart';
 import 'widgets/artisan_dashboard_section.dart';
 import 'widgets/artisan_hero_panel.dart';
 import 'widgets/artisan_order_row.dart';
 import 'widgets/artisan_stat_card.dart';
+import 'widgets/artisan_product_model.dart';
 
-class ArtisanDashboardPage extends StatelessWidget {
-  const ArtisanDashboardPage({super.key});
+class ArtisanDashboardPage extends StatefulWidget {
+  final VoidCallback? onNavigateToProducts;
+  final VoidCallback? onNavigateToOrders;
 
+  const ArtisanDashboardPage({
+    super.key,
+    this.onNavigateToProducts,
+    this.onNavigateToOrders,
+  });
+
+  @override
+  State<ArtisanDashboardPage> createState() => _ArtisanDashboardPageState();
+}
+
+class _ArtisanDashboardPageState extends State<ArtisanDashboardPage> {
   static const Color backgroundColor = Color(0xFFF7F0E4);
   static const Color surfaceColor = Color(0xFFFBF5EA);
   static const Color primaryColor = Color(0xFF8C6500);
   static const Color textDarkColor = Color(0xFF2C261E);
   static const Color textMutedColor = Color(0xFF5F564C);
 
+  bool _isLoading = true;
+  String _artisanId = '';
+  List<ArtisanProductModel> _products = [];
+  List<Map<String, dynamic>> _orders = [];
+  String _revenueStr = '\$0.00';
+  int _pendingCount = 0;
+  int _lowStockCount = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    final prefs = await SharedPreferences.getInstance();
+    var artisanId = prefs.getString('artisan_id') ?? '';
+
+    if (artisanId.isEmpty) {
+      try {
+        final token = prefs.getString('access_token');
+        final userId = prefs.getString('user_id');
+        if (token != null && userId != null) {
+          final uri = Uri.parse('${ProductApi.baseUrl}/artisans/by-user/$userId');
+          var res = await http.get(
+            uri,
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer $token',
+            },
+          );
+          
+          if (res.statusCode == 404) {
+            // Fallback: fetch all makers and find the matching user_id
+            final makersRes = await http.get(
+              Uri.parse('${ProductApi.baseUrl}/artisans'),
+              headers: {'Content-Type': 'application/json'},
+            );
+            if (makersRes.statusCode == 200) {
+              final List<dynamic> makersList = jsonDecode(makersRes.body);
+              for (final makerJson in makersList) {
+                final mUserId = makerJson['user_id'];
+                final mUserIdStr = mUserId is Map ? mUserId['_id']?.toString() ?? mUserId['id']?.toString() : mUserId?.toString();
+                if (mUserIdStr == userId) {
+                  res = http.Response(jsonEncode(makerJson), 200);
+                  break;
+                }
+              }
+            }
+          }
+          
+          if (res.statusCode == 200) {
+            final body = jsonDecode(res.body);
+            artisanId = body['_id']?.toString() ?? body['id']?.toString() ?? '';
+            if (artisanId.isNotEmpty) {
+              await prefs.setString('artisan_id', artisanId);
+            }
+          }
+        }
+      } catch (e) {
+        debugPrint('[ArtisanDashboard] Error fetching artisan_id: $e');
+      }
+    }
+
+    if (artisanId.isEmpty) {
+      if (mounted) setState(() => _isLoading = false);
+      return;
+    }
+
+    try {
+      final products = await ProductApi.getArtisanProducts(artisanId);
+      final orders = await ProductApi.getArtisanOrders(artisanId);
+
+      double totalRevenue = 0.0;
+      int pending = 0;
+      for (final order in orders) {
+        final status = order['status']?.toString().toLowerCase() ?? '';
+        if (status == 'pending') {
+          pending++;
+        }
+        if (status != 'cancelled') {
+          totalRevenue += (order['total_price'] as num?)?.toDouble() ?? 0.0;
+        }
+      }
+
+      final lowStock = products.where((p) => p.stock < 5).length;
+
+      if (mounted) {
+        setState(() {
+          _artisanId = artisanId;
+          _products = products;
+          _orders = orders;
+          _revenueStr = '\$${totalRevenue.toStringAsFixed(2)}';
+          _pendingCount = pending;
+          _lowStockCount = lowStock;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      debugPrint('[ArtisanDashboard] Error loading dashboard data: $e');
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  String _formatStatus(String status) {
+    if (status.isEmpty) return 'Pending';
+    return status[0].toUpperCase() + status.substring(1).toLowerCase();
+  }
+
+  String _getOrderProductNames(Map<String, dynamic> order) {
+    final itemsList = order['items'] as List<dynamic>? ?? [];
+    if (itemsList.isEmpty) return 'Handcrafted Gift';
+    final names = itemsList.map((item) {
+      final prod = item['product_id'];
+      if (prod is Map) {
+        return prod['name']?.toString() ?? 'Handcrafted Gift';
+      }
+      return 'Handcrafted Gift';
+    }).toList();
+    return names.join(', ');
+  }
+
   @override
   Widget build(BuildContext context) {
     const bool hasUnreadMessages = true;
 
-    return Container(
-      color: backgroundColor,
-      child: Column(
-        children: [
-          Expanded(
-            child: CustomScrollView(
-              slivers: [
-                SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-                  sliver: SliverToBoxAdapter(
-                    child: ArtisanHeroPanel(
-                      onOpenMessages: () => _openChat(context),
-                      onOpenNotifications: () => _openNotifications(context),
-                      onManageProduct: () => _openArtisanPage(context),
-                    ),
-                  ),
-                ),
-                SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-                  sliver: SliverToBoxAdapter(
-                    child: GridView.count(
-                      crossAxisCount: 2,
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      mainAxisSpacing: 14,
-                      crossAxisSpacing: 14,
-                      childAspectRatio: 1.05,
-                      children: const [
-                        ArtisanStatCard(
-                          label: 'Total Orders',
-                          value: '128',
-                          icon: Icons.shopping_bag_outlined,
-                          accentColor: Color(0xFF5B7FA6),
-                          subtitle: '18 pending today',
-                        ),
-                        ArtisanStatCard(
-                          label: 'Revenue',
-                          value: '\$4,320',
-                          icon: Icons.attach_money_rounded,
-                          accentColor: Color(0xFF6B4C9A),
-                          subtitle: 'This week +12%',
-                        ),
-                        ArtisanStatCard(
-                          label: 'Total Products',
-                          value: '34',
-                          icon: Icons.inventory_2_outlined,
-                          accentColor: Color(0xFF4A7C59),
-                          subtitle: '4 low stock items',
-                        ),
-                        ArtisanStatCard(
-                          label: 'Avg Rating',
-                          value: '4.8',
-                          icon: Icons.star_outline_rounded,
-                          accentColor: Color(0xFFB8770D),
-                          subtitle: '96% positive feedback',
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-                  sliver: SliverToBoxAdapter(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        ArtisanSectionHeader(
-                          title: 'Recent Orders',
-                          actionLabel: 'See all',
-                          onActionTap: () {
-                            _openNotifications(context);
-                          },
-                        ),
-                        const SizedBox(height: 8),
-                        ArtisanDashboardSection(
-                          child: ListView.separated(
-                            shrinkWrap: true,
-                            padding: EdgeInsets.zero,
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemCount: 4,
-                            separatorBuilder: (_, __) => const Divider(
-                              height: 16,
-                              color: Color(0xFFE2D3BE),
-                            ),
-                            itemBuilder: (context, index) {
-                              const orders = [
-                                ArtisanOrderRow(
-                                  customerName: 'Sothea Meas',
-                                  productName: 'Hand-woven basket',
-                                  amount: '\$28.00',
-                                  status: 'Pending',
-                                ),
-                                ArtisanOrderRow(
-                                  customerName: 'Lin Wei',
-                                  productName: 'Ceramic tea set',
-                                  amount: '\$65.00',
-                                  status: 'Completed',
-                                ),
-                                ArtisanOrderRow(
-                                  customerName: 'Dara Pich',
-                                  productName: 'Silk scarf — indigo',
-                                  amount: '\$42.00',
-                                  status: 'Shipped',
-                                ),
-                                ArtisanOrderRow(
-                                  customerName: 'Amara Sok',
-                                  productName: 'Rattan wall decor',
-                                  amount: '\$55.00',
-                                  status: 'Processing',
-                                ),
-                              ];
+    if (_isLoading) {
+      return const Scaffold(
+        backgroundColor: backgroundColor,
+        body: Center(
+          child: CircularProgressIndicator(color: primaryColor),
+        ),
+      );
+    }
 
-                              return orders[index];
+    return RefreshIndicator(
+      onRefresh: _loadData,
+      color: primaryColor,
+      child: Container(
+        color: backgroundColor,
+        child: Column(
+          children: [
+            Expanded(
+              child: CustomScrollView(
+                slivers: [
+                  SliverPadding(
+                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+                    sliver: SliverToBoxAdapter(
+                      child: ArtisanHeroPanel(
+                        onOpenMessages: () => _openChat(context),
+                        onOpenNotifications: () => _openNotifications(context),
+                        onManageProduct: () => _openArtisanPage(context),
+                        pendingCount: _pendingCount,
+                      ),
+                    ),
+                  ),
+                  SliverPadding(
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                    sliver: SliverToBoxAdapter(
+                      child: GridView.count(
+                        crossAxisCount: 2,
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        mainAxisSpacing: 14,
+                        crossAxisSpacing: 14,
+                        childAspectRatio: 1.05,
+                        children: [
+                          ArtisanStatCard(
+                            label: 'Total Orders',
+                            value: _orders.length.toString(),
+                            icon: Icons.shopping_bag_outlined,
+                            accentColor: const Color(0xFF5B7FA6),
+                            subtitle: '$_pendingCount pending today',
+                          ),
+                          ArtisanStatCard(
+                            label: 'Revenue',
+                            value: _revenueStr,
+                            icon: Icons.attach_money_rounded,
+                            accentColor: const Color(0xFF6B4C9A),
+                            subtitle: 'Lifetime sales',
+                          ),
+                          ArtisanStatCard(
+                            label: 'Total Products',
+                            value: _products.length.toString(),
+                            icon: Icons.inventory_2_outlined,
+                            accentColor: const Color(0xFF4A7C59),
+                            subtitle: '$_lowStockCount low stock items',
+                          ),
+                          const ArtisanStatCard(
+                            label: 'Avg Rating',
+                            value: '4.8',
+                            icon: Icons.star_outline_rounded,
+                            accentColor: Color(0xFFB8770D),
+                            subtitle: '96% positive feedback',
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  SliverPadding(
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                    sliver: SliverToBoxAdapter(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          ArtisanSectionHeader(
+                            title: 'Recent Orders',
+                            actionLabel: 'See all',
+                            onActionTap: () {
+                              if (widget.onNavigateToOrders != null) {
+                                widget.onNavigateToOrders!();
+                              } else {
+                                Navigator.of(context).pushNamed(AppRoutes.artisanOrders);
+                              }
                             },
                           ),
-                        ),
-                      ],
+                          const SizedBox(height: 8),
+                          ArtisanDashboardSection(
+                            child: _orders.isEmpty
+                                ? Padding(
+                                    padding: const EdgeInsets.all(24.0),
+                                    child: Center(
+                                      child: Text(
+                                        'No orders received yet.',
+                                        style: GoogleFonts.inter(
+                                          fontSize: 14,
+                                          color: textMutedColor,
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                                : ListView.separated(
+                                    shrinkWrap: true,
+                                    padding: EdgeInsets.zero,
+                                    physics: const NeverScrollableScrollPhysics(),
+                                    itemCount: _orders.length > 5 ? 5 : _orders.length,
+                                    separatorBuilder: (_, __) => const Divider(
+                                      height: 16,
+                                      color: Color(0xFFE2D3BE),
+                                    ),
+                                    itemBuilder: (context, index) {
+                                      final order = _orders[index];
+                                      final user = order['user_id'];
+                                      final customerName = user is Map
+                                          ? user['name']?.toString() ?? 'Customer'
+                                          : 'Customer';
+                                      final pNames = _getOrderProductNames(order);
+                                      final total = '\$${(order['total_price'] as num?)?.toStringAsFixed(2) ?? '0.00'}';
+                                      final status = _formatStatus(order['status']?.toString() ?? 'pending');
+
+                                      return ArtisanOrderRow(
+                                        customerName: customerName,
+                                        productName: pNames,
+                                        amount: total,
+                                        status: status,
+                                      );
+                                    },
+                                  ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-                SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(16, 18, 16, 0),
-                  sliver: SliverToBoxAdapter(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const ArtisanSectionHeader(title: 'Quick Actions'),
-                        const SizedBox(height: 8),
-                        ArtisanDashboardSection(
-                          child: Column(
+                  if (hasUnreadMessages)
+                    SliverPadding(
+                      padding: const EdgeInsets.fromLTRB(16, 18, 16, 28),
+                      sliver: SliverToBoxAdapter(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFFF7EC),
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(color: const Color(0xFFE2D3BE)),
+                          ),
+                          child: Row(
                             children: [
-                              _QuickActionRow(
-                                icon: Icons.add_box_outlined,
-                                label: 'Add Product',
-                                onTap: () => _addProduct(context),
+                              Container(
+                                width: 36,
+                                height: 36,
+                                decoration: BoxDecoration(
+                                  color: primaryColor.withOpacity(0.1),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.chat_bubble_outline_rounded,
+                                  color: primaryColor,
+                                  size: 18,
+                                ),
                               ),
-                              const Divider(
-                                color: Color(0xFFE2D3BE),
-                                height: 16,
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  'Keep your chats updated with customers',
+                                  style: GoogleFonts.inter(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                    color: textDarkColor,
+                                  ),
+                                ),
                               ),
-                              _QuickActionRow(
-                                icon: Icons.bar_chart_outlined,
-                                label: 'View Revenue',
-                                onTap: () {},
-                              ),
-                              const Divider(
-                                color: Color(0xFFE2D3BE),
-                                height: 16,
-                              ),
-                              _QuickActionRow(
-                                icon: Icons.local_offer_outlined,
-                                label: 'Promotions',
-                                onTap: () {},
-                              ),
-                              const Divider(
-                                color: Color(0xFFE2D3BE),
-                                height: 16,
-                              ),
-                              _QuickActionRow(
-                                icon: Icons.chat_bubble_outlined,
-                                label: 'Messages',
-                                onTap: () => _openChat(context),
+                              TextButton(
+                                onPressed: () => _openChat(context),
+                                style: TextButton.styleFrom(
+                                  foregroundColor: primaryColor,
+                                ),
+                                child: Text(
+                                  'Go to Chat',
+                                  style: GoogleFonts.inter(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
                               ),
                             ],
                           ),
                         ),
-                      ],
-                    ),
-                  ),
-                ),
-                if (hasUnreadMessages)
-                  SliverPadding(
-                    padding: const EdgeInsets.fromLTRB(16, 18, 16, 28),
-                    sliver: SliverToBoxAdapter(
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 12,
-                        ),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFFFF7EC),
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: const Color(0xFFE2D3BE)),
-                        ),
-                        child: Row(
-                          children: [
-                            Container(
-                              width: 36,
-                              height: 36,
-                              decoration: BoxDecoration(
-                                color: primaryColor.withOpacity(0.1),
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(
-                                Icons.chat_bubble_outline_rounded,
-                                color: primaryColor,
-                                size: 18,
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Text(
-                                'Keep your chats updated with customers',
-                                style: GoogleFonts.inter(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w600,
-                                  color: textDarkColor,
-                                ),
-                              ),
-                            ),
-                            TextButton(
-                              onPressed: () => _openChat(context),
-                              style: TextButton.styleFrom(
-                                foregroundColor: primaryColor,
-                              ),
-                              child: Text(
-                                'Go to Chat',
-                                style: GoogleFonts.inter(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
                       ),
                     ),
-                  ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -262,20 +368,20 @@ class ArtisanDashboardPage extends StatelessWidget {
     Navigator.of(context).pushNamed(AppRoutes.artisanNotifications);
   }
 
-  // void _openSettings(BuildContext context) {
-  //   Navigator.of(context).pushNamed(AppRoutes.artisanSettings);
-  // }
-
   void _openChat(BuildContext context) {
     Navigator.of(context).pushNamed(AppRoutes.artisanChat);
   }
 
   void _openArtisanPage(BuildContext context) {
-    Navigator.of(context).pushNamed(AppRoutes.artisan);
+    if (widget.onNavigateToProducts != null) {
+      widget.onNavigateToProducts!();
+    } else {
+      Navigator.of(context).pushNamed(AppRoutes.artisan);
+    }
   }
 
   void _addProduct(BuildContext context) {
-    AddEditProductSheet.show(context);
+    AddEditProductSheet.show(context).then((_) => _loadData());
   }
 }
 

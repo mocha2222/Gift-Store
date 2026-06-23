@@ -28,9 +28,36 @@ class UserApi {
       throw Exception('Failed to update profile image: ${res.body}');
     }
 
-    // Also update local cache
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('user_avatar_bytes', base64Image);
+  }
+
+  /// Update the authenticated user's profile details.
+  static Future<void> updateProfile({required String name, required String email, String? base64Image}) async {
+    final uri = Uri.parse('$_base/users/me');
+    final headers = await _authHeaders();
+    final Map<String, dynamic> body = {
+      'name': name,
+      'email': email,
+    };
+    if (base64Image != null) {
+      body['profile_image'] = base64Image;
+    }
+    
+    final res = await http.patch(
+      uri,
+      body: jsonEncode(body),
+      headers: headers,
+    );
+    
+    if (res.statusCode != 200) {
+      throw Exception('Failed to update profile: ${res.body}');
+    }
+
+    if (base64Image != null) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('user_avatar_bytes', base64Image);
+    }
   }
 
   /// Fetch the current user's profile from the backend and sync locally.

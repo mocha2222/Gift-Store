@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import '../../../data/home_mock_data.dart';
 
@@ -9,6 +11,53 @@ class MakerCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Helper to build avatar image
+    Widget buildAvatarImage() {
+      final avatarUrl = item.avatarUrl;
+      final fallbackWidget = Container(
+        color: const Color(0xFFD8AE73),
+        child: const Icon(
+          Icons.person_rounded,
+          size: 36,
+          color: Colors.white,
+        ),
+      );
+
+      if (avatarUrl.isEmpty) {
+        return fallbackWidget;
+      }
+
+      if (avatarUrl.startsWith('data:') || avatarUrl.length > 200) {
+        try {
+          String base64Str = avatarUrl;
+          if (base64Str.startsWith('data:')) {
+            final commaIndex = base64Str.indexOf(',');
+            if (commaIndex != -1) {
+              base64Str = base64Str.substring(commaIndex + 1);
+            }
+          }
+          final bytes = base64Decode(base64Str.trim());
+          return Image.memory(bytes, fit: BoxFit.cover);
+        } catch (_) {
+          return fallbackWidget;
+        }
+      }
+
+      if (avatarUrl.startsWith('http')) {
+        return Image.network(
+          avatarUrl,
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) => fallbackWidget,
+        );
+      }
+
+      return Image.asset(
+        avatarUrl,
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) => fallbackWidget,
+      );
+    }
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -31,31 +80,7 @@ class MakerCard extends StatelessWidget {
                     color: const Color(0xFFF3E7D4), width: 3),
               ),
               child: ClipOval(
-                child: item.avatarUrl.startsWith('http')
-                  ? Image.network(
-                      item.avatarUrl,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Container(
-                        color: const Color(0xFFD8AE73),
-                        child: const Icon(
-                          Icons.person_rounded,
-                          size: 36,
-                          color: Colors.white,
-                        ),
-                      ),
-                    )
-                  : Image.asset(
-                      item.avatarUrl,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Container(
-                        color: const Color(0xFFD8AE73),
-                        child: const Icon(
-                          Icons.person_rounded,
-                          size: 36,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
+                child: buildAvatarImage(),
               ),
             ),
             const SizedBox(height: 12),

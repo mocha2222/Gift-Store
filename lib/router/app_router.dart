@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../features/favorites/favorites_page.dart';
 import '../data/home_mock_data.dart';
 import '../features/auth/login_page.dart';
@@ -29,6 +30,7 @@ import '../features/pages/about_us.dart';
 import '../features/category/category_page.dart';
 
 class AppRoutes {
+  static const root = '/';
   static const login = '/login';
   static const signup = '/signup';
   static const home = '/home';
@@ -78,6 +80,7 @@ class CheckoutDetailsArgs {
   final String deliveryAddress;
   final String totalPaid;
   final String? date;
+  final List<String>? products;
 
   const CheckoutDetailsArgs({
     required this.orderId,
@@ -85,12 +88,18 @@ class CheckoutDetailsArgs {
     required this.deliveryAddress,
     required this.totalPaid,
     this.date,
+    this.products,
   });
 }
 
 class AppRouter {
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
     switch (settings.name) {
+      case AppRoutes.root:
+        return MaterialPageRoute(
+          builder: (_) => const RootRedirector(),
+          settings: settings,
+        );
       case AppRoutes.login:
         return MaterialPageRoute(
           builder: (_) => const LoginPage(),
@@ -161,6 +170,7 @@ class AppRouter {
               deliveryAddress: args.deliveryAddress,
               totalPaid: args.totalPaid,
               date: args.date,
+              products: args.products,
             ),
             settings: settings,
           );
@@ -276,6 +286,48 @@ class AppRouter {
           ),
         ),
       ),
+    );
+  }
+}
+
+class RootRedirector extends StatefulWidget {
+  const RootRedirector({super.key});
+
+  @override
+  State<RootRedirector> createState() => _RootRedirectorState();
+}
+
+class _RootRedirectorState extends State<RootRedirector> {
+  @override
+  void initState() {
+    super.initState();
+    _redirect();
+  }
+
+  Future<void> _redirect() async {
+    final prefs = await SharedPreferences.getInstance();
+    final isLoggedIn = prefs.getString('user_email') != null;
+    final role = prefs.getString('user_role') ?? 'customer';
+
+    String startRoute = AppRoutes.login;
+    if (isLoggedIn) {
+      if (role == 'admin') {
+        startRoute = AppRoutes.admin;
+      } else if (role == 'artisan') {
+        startRoute = AppRoutes.artisan;
+      } else {
+        startRoute = AppRoutes.home;
+      }
+    }
+    if (mounted) {
+      Navigator.of(context).pushReplacementNamed(startRoute);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      body: Center(child: CircularProgressIndicator(color: Color(0xFF8C6500))),
     );
   }
 }

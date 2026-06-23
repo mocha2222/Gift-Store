@@ -48,21 +48,41 @@ class _ArtisanProductsPageState extends State<ArtisanProductsPage> {
         final userId = prefs.getString('user_id');
         if (token != null && userId != null) {
           final uri = Uri.parse(
-            'http://localhost:3000/api/artisans/by-user/$userId',
+            '${ProductApi.baseUrl}/artisans/by-user/$userId',
           );
-          final res = await http.get(
+          var res = await http.get(
             uri,
             headers: {
               'Content-Type': 'application/json',
               'Authorization': 'Bearer $token',
             },
           );
+          
+          if (res.statusCode == 404) {
+            // Fallback: fetch all makers and find the matching user_id
+            final makersRes = await http.get(
+              Uri.parse('${ProductApi.baseUrl}/artisans'),
+              headers: {'Content-Type': 'application/json'},
+            );
+            if (makersRes.statusCode == 200) {
+              final List<dynamic> makersList = jsonDecode(makersRes.body);
+              for (final makerJson in makersList) {
+                final mUserId = makerJson['user_id'];
+                final mUserIdStr = mUserId is Map ? mUserId['_id']?.toString() ?? mUserId['id']?.toString() : mUserId?.toString();
+                if (mUserIdStr == userId) {
+                  res = http.Response(jsonEncode(makerJson), 200);
+                  break;
+                }
+              }
+            }
+          }
+          
           debugPrint(
             '[ArtisanShellPage] artisan lookup response: ${res.statusCode} ${res.body}',
           );
           if (res.statusCode == 200) {
             final body = jsonDecode(res.body);
-            artisanId = body['_id']?.toString();
+            artisanId = body['_id']?.toString() ?? body['id']?.toString();
             if (artisanId != null && artisanId.isNotEmpty) {
               await prefs.setString('artisan_id', artisanId);
             }

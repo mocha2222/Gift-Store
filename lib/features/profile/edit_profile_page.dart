@@ -7,6 +7,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'widgets/profile_avatar.dart';
+import '../../services/user_api.dart';
 
 class EditProfilePage extends StatefulWidget {
   const EditProfilePage({
@@ -147,25 +148,42 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
     setState(() => _isSaving = true);
 
-    final name = _nameCtrl.text.trim();
-    final email = _emailCtrl.text.trim().toLowerCase();
-    final initials = _buildInitials(name);
+    try {
+      final name = _nameCtrl.text.trim();
+      final email = _emailCtrl.text.trim().toLowerCase();
+      final initials = _buildInitials(name);
 
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('user_name', name);
-    await prefs.setString('user_email', email);
-    await prefs.setString('user_initials', initials);
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('user_name', name);
+      await prefs.setString('user_email', email);
+      await prefs.setString('user_initials', initials);
 
-    if (kIsWeb) {
-      if (_imageBytes != null) {
-        await prefs.setString('user_avatar_bytes', base64Encode(_imageBytes!));
+      String? base64Img;
+      if (kIsWeb) {
+        if (_imageBytes != null) {
+          base64Img = base64Encode(_imageBytes!);
+          await prefs.setString('user_avatar_bytes', base64Img);
+        }
+      } else if (_localImage != null) {
+        await prefs.setString('user_avatar_path', _localImage!.path);
+        final bytes = await _localImage!.readAsBytes();
+        base64Img = base64Encode(bytes);
+        await prefs.setString('user_avatar_bytes', base64Img);
       }
-    } else if (_localImage != null) {
-      await prefs.setString('user_avatar_path', _localImage!.path);
-    }
 
-    if (!mounted) return;
-    Navigator.of(context).pop(true);
+      await UserApi.updateProfile(
+        name: name,
+        email: email,
+        base64Image: base64Img,
+      );
+
+      if (!mounted) return;
+      Navigator.of(context).pop(true);
+    } catch (e) {
+      _showMessage('Failed to save profile changes: $e', isError: true);
+    } finally {
+      if (mounted) setState(() => _isSaving = false);
+    }
   }
 
   @override

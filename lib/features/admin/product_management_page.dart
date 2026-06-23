@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../services/admin_api.dart';
 import 'admin_models.dart';
 import 'widgets/product_widgets.dart';
 
@@ -12,6 +13,31 @@ class ProductManagementPage extends StatefulWidget {
 
 class _ProductManagementPageState extends State<ProductManagementPage> {
   String? _artisanFilter;
+
+  Future<void> _deleteProduct(AdminProduct product) async {
+    if (product.id.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Cannot delete: product has no ID')),
+      );
+      return;
+    }
+    try {
+      await AdminApi.deleteProduct(product.id);
+      await AdminApi.loadAdminData();
+      if (mounted) setState(() {});
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Product deleted successfully')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to delete: $e')),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -66,7 +92,7 @@ class _ProductManagementPageState extends State<ProductManagementPage> {
                   final product = filtered[index];
                   return ProductCard(
                     product: product,
-                    onDelete: () => setState(() => adminProducts.remove(product)),
+                    onDelete: () => _deleteProduct(product),
                   );
                 },
               );

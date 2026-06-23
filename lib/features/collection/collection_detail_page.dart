@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../data/home_mock_data.dart';
+import '../../services/product_api.dart';
 import '../../widgets/app_drawer.dart';
 import '../../widgets/app_footer_nav.dart';
 import '../../widgets/app_header.dart';
@@ -18,15 +19,32 @@ class CollectionDetailPage extends StatefulWidget {
 class _CollectionDetailPageState extends State<CollectionDetailPage> {
   final TextEditingController _searchController = TextEditingController();
   String _selectedSort = 'Default';
-  late List<GiftItem> _allProducts;
+  List<GiftItem> _allProducts = [];
   List<GiftItem> _displayProducts = [];
+  bool _isLoading = true;
+  String _errorMessage = '';
 
   @override
   void initState() {
     super.initState();
-    _allProducts = getGiftsForCollection(widget.collection.name);
-    _displayProducts = List.from(_allProducts);
     _searchController.addListener(_onSearchOrSortChanged);
+    _fetchProducts();
+  }
+
+  Future<void> _fetchProducts() async {
+    try {
+      final list = await ProductApi.getCollectionProducts(widget.collection.id);
+      setState(() {
+        _allProducts = list;
+        _displayProducts = List.from(list);
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _errorMessage = e.toString();
+        _isLoading = false;
+      });
+    }
   }
 
   @override
@@ -290,47 +308,65 @@ class _CollectionDetailPageState extends State<CollectionDetailPage> {
                 ),
 
                 // Grid display of Products
-                _displayProducts.isEmpty
+                _isLoading
                     ? const SliverFillRemaining(
                         hasScrollBody: false,
                         child: Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.search_off_rounded,
-                                size: 48,
-                                color: Color(0xFFC4B29A),
-                              ),
-                              SizedBox(height: 10),
-                              Text(
-                                'No products found matching your search.',
-                                style: TextStyle(
-                                  color: Color(0xFF7A6655),
-                                  fontSize: 13,
-                                ),
-                              ),
-                            ],
-                          ),
+                          child: CircularProgressIndicator(color: Color(0xFFD8AE73)),
                         ),
                       )
-                    : SliverPadding(
-                        padding: const EdgeInsets.fromLTRB(18, 0, 18, 32),
-                        sliver: SliverGrid(
-                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            crossAxisSpacing: 14,
-                            mainAxisSpacing: 14,
-                            childAspectRatio: 0.68,
-                          ),
-                          delegate: SliverChildBuilderDelegate(
-                            (context, index) {
-                              return ProductGridItem(item: _displayProducts[index]);
-                            },
-                            childCount: _displayProducts.length,
-                          ),
-                        ),
-                      ),
+                    : _errorMessage.isNotEmpty
+                        ? SliverFillRemaining(
+                            hasScrollBody: false,
+                            child: Center(
+                              child: Text(
+                                'Error loading products: $_errorMessage',
+                                style: const TextStyle(color: Color(0xFFC0392B)),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          )
+                        : _displayProducts.isEmpty
+                            ? const SliverFillRemaining(
+                                hasScrollBody: false,
+                                child: Center(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.search_off_rounded,
+                                        size: 48,
+                                        color: Color(0xFFC4B29A),
+                                      ),
+                                      SizedBox(height: 10),
+                                      Text(
+                                        'No products found matching your search.',
+                                        style: TextStyle(
+                                          color: Color(0xFF7A6655),
+                                          fontSize: 13,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              )
+                            : SliverPadding(
+                                padding: const EdgeInsets.fromLTRB(18, 0, 18, 32),
+                                sliver: SliverGrid(
+                                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 2,
+                                    crossAxisSpacing: 14,
+                                    mainAxisSpacing: 14,
+                                    childAspectRatio: 0.68,
+                                  ),
+                                  delegate: SliverChildBuilderDelegate(
+                                    (context, index) {
+                                      return ProductGridItem(item: _displayProducts[index]);
+                                    },
+                                    childCount: _displayProducts.length,
+                                  ),
+                                ),
+                              ),
               ],
             ),
           ),

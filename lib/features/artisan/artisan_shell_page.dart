@@ -44,11 +44,18 @@ class _ArtisanShellPageState extends State<ArtisanShellPage> {
     }
   }
 
-  final List<Widget> _pages = const [
-    ArtisanDashboardPage(),
-    ArtisanProductsPage(),
-    ArtisanOrdersPage(),
-    ArtisanChatPage(),
+  late final List<Widget> _pages = [
+    ArtisanDashboardPage(
+      onNavigateToProducts: () {
+        setState(() => _index = 1);
+      },
+      onNavigateToOrders: () {
+        setState(() => _index = 2);
+      },
+    ),
+    const ArtisanProductsPage(),
+    const ArtisanOrdersPage(),
+    const ArtisanChatPage(),
   ];
 
   @override

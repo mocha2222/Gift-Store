@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../services/product_api.dart';
 import '../../data/home_mock_data.dart';
 import 'artisan_profile_page.dart';
 
@@ -29,31 +30,48 @@ class _FollowingPageState extends State<FollowingPage> {
     return stored.map(_FollowedArtisan.fromStorage).toList();
   }
 
-  MakerItem? _resolveCurrentMaker(String name) {
-    for (final maker in makers) {
-      if (maker.name == name) {
-        return maker;
-      }
-    }
-    return null;
-  }
-
-  void _openArtisan(_FollowedArtisan artisan) {
-    final currentMaker = _resolveCurrentMaker(artisan.name);
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => ArtisanProfilePage(
-          artisanId: currentMaker?.id ?? artisan.id,
-          name: currentMaker?.name ?? artisan.name,
-          region: artisan.region,
-          craft: artisan.craft,
-          story: artisan.story,
-          avatarUrl: currentMaker?.avatarUrl ?? artisan.avatarUrl,
-          followerCount: currentMaker?.followerCount ?? artisan.followerCount,
-          products: currentMaker?.products ?? artisan.products,
-        ),
+  void _openArtisan(_FollowedArtisan artisan) async {
+    // Show a small loading overlay since we fetch from API now
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(
+        child: CircularProgressIndicator(color: Color(0xFFD8AE73)),
       ),
     );
+
+    try {
+      final makerId = artisan.id.isNotEmpty ? artisan.id : 'unknown';
+      final currentMaker = await ProductApi.getMakerDetails(makerId);
+      
+      if (!mounted) return;
+      Navigator.of(context).pop(); // Dismiss loading
+
+      final parts = currentMaker.role.split(' · ');
+      final craft = parts.isNotEmpty ? parts.first : currentMaker.role;
+      final region = parts.length > 1 ? parts.last : 'Cambodia';
+
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => ArtisanProfilePage(
+            artisanId: currentMaker.id,
+            name: currentMaker.name,
+            region: region,
+            craft: craft,
+            story: currentMaker.quote,
+            avatarUrl: currentMaker.avatarUrl,
+            followerCount: currentMaker.followerCount,
+            products: currentMaker.products,
+          ),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      Navigator.of(context).pop(); // Dismiss loading
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to load artisan details: $e')),
+      );
+    }
   }
 
   @override
@@ -159,8 +177,7 @@ class _FollowingPageState extends State<FollowingPage> {
             separatorBuilder: (_, __) => const SizedBox(height: 12),
             itemBuilder: (context, index) {
               final artisan = artisans[index];
-              final currentMaker = _resolveCurrentMaker(artisan.name);
-              final avatarUrl = currentMaker?.avatarUrl ?? artisan.avatarUrl;
+              final avatarUrl = artisan.avatarUrl;
               return InkWell(
                 borderRadius: BorderRadius.circular(18),
                 onTap: () => _openArtisan(artisan),
@@ -182,46 +199,48 @@ class _FollowingPageState extends State<FollowingPage> {
                           border: Border.all(color: Colors.white, width: 2),
                         ),
                         clipBehavior: Clip.antiAlias,
-                        child: avatarUrl != null && avatarUrl.isNotEmpty
-                            ? (avatarUrl.startsWith('http')
-                                ? Image.network(
-                                    avatarUrl,
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (_, __, ___) => Center(
-                                      child: Text(
-                                        artisan.initials,
-                                        style: GoogleFonts.cormorantGaramond(
-                                          fontSize: 22,
-                                          fontWeight: FontWeight.w700,
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                    ),
-                                  )
-                                : Image.asset(
-                                    avatarUrl,
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (_, __, ___) => Center(
-                                      child: Text(
-                                        artisan.initials,
-                                        style: GoogleFonts.cormorantGaramond(
-                                          fontSize: 22,
-                                          fontWeight: FontWeight.w700,
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                    ),
-                                  ))
-                            : Center(
-                                child: Text(
-                                  artisan.initials,
-                                  style: GoogleFonts.cormorantGaramond(
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.w700,
-                                    color: Colors.white,
-                                  ),
-                                ),
+                        child: () {
+                          final initialsWidget = Center(
+                            child: Text(
+                              artisan.initials,
+                              style: GoogleFonts.cormorantGaramond(
+                                fontSize: 22,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white,
                               ),
+                            ),
+                          );
+                          if (avatarUrl == null || avatarUrl.isEmpty) {
+                            return initialsWidget;
+                          }
+                          if (avatarUrl.startsWith('data:') || avatarUrl.length > 200) {
+                            try {
+                              String base64Str = avatarUrl;
+                              if (base64Str.startsWith('data:')) {
+                                final commaIndex = base64Str.indexOf(',');
+                                if (commaIndex != -1) {
+                                  base64Str = base64Str.substring(commaIndex + 1);
+                                }
+                              }
+                              final bytes = base64Decode(base64Str.trim());
+                              return Image.memory(bytes, fit: BoxFit.cover);
+                            } catch (_) {
+                              return initialsWidget;
+                            }
+                          }
+                          if (avatarUrl.startsWith('http')) {
+                            return Image.network(
+                              avatarUrl,
+                              fit: BoxFit.cover,
+                              errorBuilder: (_, __, ___) => initialsWidget,
+                            );
+                          }
+                          return Image.asset(
+                            avatarUrl,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) => initialsWidget,
+                          );
+                        }(),
                       ),
                       const SizedBox(width: 12),
                       Expanded(

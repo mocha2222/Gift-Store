@@ -6,29 +6,38 @@ enum AdminOrderStatus { pending, confirmed, shipped, delivered, cancelled }
 
 class AdminArtisan {
   const AdminArtisan({
+    required this.id,
+    required this.userId,
     required this.name,
     required this.role,
     required this.location,
     required this.status,
     required this.products,
     required this.followers,
+    this.profileImage,
   });
 
+  final String id;
+  final String userId;
   final String name;
   final String role;
   final String location;
   final AdminArtisanStatus status;
   final int products;
   final int followers;
+  final String? profileImage;
 
   AdminArtisan copyWith({AdminArtisanStatus? status}) {
     return AdminArtisan(
+      id: id,
+      userId: userId,
       name: name,
       role: role,
       location: location,
       status: status ?? this.status,
       products: products,
       followers: followers,
+      profileImage: profileImage,
     );
   }
 
@@ -38,19 +47,41 @@ class AdminArtisan {
       if (s == 'suspended') return AdminArtisanStatus.suspended;
       return AdminArtisanStatus.pendingSetup;
     }
+    // Extract profile image from populated user_id or artisan cover_image
+    final userMapOrStr = json['user_id'];
+    String? profileImg;
+    String userIdStr = '';
+    
+    if (userMapOrStr is Map) {
+      userIdStr = userMapOrStr['_id']?.toString() ?? userMapOrStr['id']?.toString() ?? '';
+      if (userMapOrStr['profile_image'] != null && userMapOrStr['profile_image'].toString().isNotEmpty) {
+        profileImg = userMapOrStr['profile_image'].toString();
+      }
+    } else if (userMapOrStr != null) {
+      userIdStr = userMapOrStr.toString();
+    }
+    
+    if (profileImg == null && json['cover_image'] != null && json['cover_image'].toString().isNotEmpty) {
+      profileImg = json['cover_image'].toString();
+    }
+    
     return AdminArtisan(
-      name: json['shop_name'] ?? 'Unknown',
+      id: json['_id']?.toString() ?? json['id']?.toString() ?? '',
+      userId: userIdStr,
+      name: json['shop_name'] ?? (userMapOrStr is Map ? userMapOrStr['name'] ?? 'Unknown' : 'Unknown'),
       role: json['craft_type'] ?? 'Artisan',
       location: json['region'] ?? 'Unknown',
       status: parseStatus(json['status']),
       products: json['products_count'] ?? 0,
       followers: 0,
+      profileImage: profileImg,
     );
   }
 }
 
 class AdminProduct {
   const AdminProduct({
+    required this.id,
     required this.name,
     required this.artisan,
     required this.category,
@@ -59,6 +90,7 @@ class AdminProduct {
     required this.isFeatured,
   });
 
+  final String id;
   final String name;
   final String artisan;
   final String category;
@@ -72,11 +104,16 @@ class AdminProduct {
     final category = json['category_id'];
     final categoryName = (category is Map && category.containsKey('category_name')) ? category['category_name'] : 'Other';
 
+    double basePrice = (json['price'] ?? 0).toDouble();
+    int discount = json['discount'] is int ? json['discount'] : int.tryParse(json['discount']?.toString() ?? '0') ?? 0;
+    double finalPrice = discount > 0 ? basePrice * (1 - discount / 100) : basePrice;
+
     return AdminProduct(
+      id: json['_id']?.toString() ?? json['id']?.toString() ?? '',
       name: json['name'] ?? 'Unknown',
       artisan: artisanName,
       category: categoryName,
-      price: (json['price'] ?? 0).toDouble(),
+      price: finalPrice,
       stock: json['stock'] ?? 0,
       isFeatured: json['is_featured'] ?? false,
     );
@@ -127,7 +164,7 @@ class AdminOrder {
     final itemsList = json['items'] as List<dynamic>? ?? [];
 
     return AdminOrder(
-      id: json['_id']?.toString().substring(0, 8) ?? 'ORD-???',
+      id: (json['_id'] ?? json['id'])?.toString().substring(0, 8) ?? 'ORD-???',
       customer: userName,
       total: (json['total_price'] ?? 0).toDouble(),
       status: parseStatus(json['status']),

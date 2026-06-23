@@ -10,6 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../router/app_router.dart';
 import '../../services/user_api.dart';
+import '../../services/product_api.dart';
 import '../auth/login_page.dart';
 import 'edit_profile_page.dart';
 import 'following_page.dart';
@@ -96,11 +97,13 @@ class _CustomerProfilePageState extends State<CustomerProfilePage> {
       }
     }
 
-    final ordersJson = prefs.getString('placed_orders') ?? '[]';
     int orderCount = 0;
     try {
-      final List<dynamic> orders = jsonDecode(ordersJson);
-      orderCount = orders.length;
+      final userId = prefs.getString('user_id');
+      if (userId != null && userId.isNotEmpty) {
+        final orders = await ProductApi.getCustomerOrders(userId);
+        orderCount = orders.length;
+      }
     } catch (_) {}
 
     if (!mounted) return;
@@ -660,16 +663,24 @@ class _OrdersHistoryPageState extends State<_OrdersHistoryPage> {
 
   Future<void> _loadOrders() async {
     final prefs = await SharedPreferences.getInstance();
-    final ordersJson = prefs.getString('placed_orders') ?? '[]';
+    final userId = prefs.getString('user_id');
+    if (userId == null || userId.isEmpty) {
+      if (mounted) setState(() => _isLoading = false);
+      return;
+    }
+
     try {
-      setState(() {
-        _orders = jsonDecode(ordersJson);
-        _isLoading = false;
-      });
+      final orders = await ProductApi.getCustomerOrders(userId);
+      if (mounted) {
+        setState(() {
+          _orders = orders;
+          _isLoading = false;
+        });
+      }
     } catch (_) {
-      setState(() {
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 
@@ -732,11 +743,26 @@ class _OrdersHistoryPageState extends State<_OrdersHistoryPage> {
         itemCount: _orders.length,
         itemBuilder: (context, index) {
           final order = _orders[index] as Map<String, dynamic>;
-          final orderId = order['orderId'] as String? ?? 'ORD-0000000';
-          final date = order['date'] as String? ?? '';
-          final total = order['totalPaid'] as String? ?? '\$0.00';
-          final name = order['customerName'] as String? ?? '';
-          final address = order['deliveryAddress'] as String? ?? '';
+          final orderId = order['_id']?.toString() ?? order['id']?.toString() ?? 'ORD-0000000';
+          
+          String date = '';
+          if (order['createdAt'] != null || order['created_at'] != null) {
+            try {
+              final dt = DateTime.parse((order['createdAt'] ?? order['created_at']).toString());
+              final months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+              date = '${months[dt.month - 1]} ${dt.day}, ${dt.year}';
+            } catch (_) {}
+          }
+
+          final num totalNum = order['total_price'] as num? ?? 0;
+          final total = '\$${totalNum.toStringAsFixed(2)}';
+          final address = order['shipping_address']?.toString() ?? '';
+          
+          String name = '';
+          final user = order['user_id'];
+          if (user is Map) {
+            name = user['name']?.toString() ?? '';
+          }
 
           return Container(
             margin: const EdgeInsets.only(bottom: 12),
@@ -745,73 +771,86 @@ class _OrdersHistoryPageState extends State<_OrdersHistoryPage> {
               borderRadius: BorderRadius.circular(16),
               border: Border.all(color: const Color(0xFFEDE1CB)),
             ),
-            child: ListTile(
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              title: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    orderId,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15,
-                      color: Color(0xFF4F453A),
-                    ),
-                  ),
-                  Text(
-                    total,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w800,
-                      fontSize: 15,
-                      color: Color(0xFF8C6500),
-                    ),
-                  ),
-                ],
-              ),
-              subtitle: Padding(
-                padding: const EdgeInsets.only(top: 8.0),
-                child: Row(
+            child: Material(
+              color: Colors.transparent,
+              child: ListTile(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                title: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      date,
+                      orderId,
                       style: const TextStyle(
-                        fontSize: 13,
-                        color: Color(0xFF9E7E5A),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                        color: Color(0xFF4F453A),
                       ),
                     ),
-                    const Row(
-                      children: [
-                        Text(
-                          'View Details',
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: Color(0xFF8C6500),
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        SizedBox(width: 4),
-                        Icon(
-                          Icons.arrow_forward_ios_rounded,
-                          size: 12,
-                          color: Color(0xFF8C6500),
-                        ),
-                      ],
+                    Text(
+                      total,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w800,
+                        fontSize: 15,
+                        color: Color(0xFF8C6500),
+                      ),
                     ),
                   ],
                 ),
-              ),
-              onTap: () {
-                Navigator.of(context).pushNamed(
-                  AppRoutes.checkoutDetails,
-                  arguments: CheckoutDetailsArgs(
-                    orderId: orderId,
-                    customerName: name,
-                    deliveryAddress: address,
-                    totalPaid: total,
+                subtitle: Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        date,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: Color(0xFF9E7E5A),
+                        ),
+                      ),
+                      const Row(
+                        children: [
+                          Text(
+                            'View Details',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Color(0xFF8C6500),
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          SizedBox(width: 4),
+                          Icon(
+                            Icons.arrow_forward_ios_rounded,
+                            size: 12,
+                            color: Color(0xFF8C6500),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                );
-              },
+                ),
+                onTap: () {
+                  final itemsList = order['items'] as List<dynamic>? ?? [];
+                  final productsList = itemsList.map((item) {
+                    final qty = item['quantity'] ?? 1;
+                    final prod = item['product_id'];
+                    final prodName = prod is Map ? (prod['name'] ?? 'Gift') : 'Gift';
+                    return '$qty x $prodName';
+                  }).toList();
+
+                  Navigator.of(context).pushNamed(
+                    AppRoutes.checkoutDetails,
+                    arguments: CheckoutDetailsArgs(
+                      orderId: orderId,
+                      customerName: name,
+                      deliveryAddress: address,
+                      totalPaid: total,
+                      date: date,
+                      products: productsList,
+                    ),
+                  );
+                },
+              ),
             ),
           );
         },

@@ -62,6 +62,26 @@ class _GiftCardState extends State<GiftCard> {
                       ),
                     ),
                   ),
+                  if (widget.item.discount > 0)
+                    Positioned(
+                      top: 12,
+                      left: 12,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFC0392B),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          '${widget.item.discount}% OFF',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ),
+                    ),
                   Positioned(
                     top: 12,
                     right: 12,
@@ -109,8 +129,22 @@ class _GiftCardState extends State<GiftCard> {
                     const SizedBox(height: 10),
                     Row(
                       children: [
+                        if (widget.item.discount > 0)
+                          Padding(
+                            padding: const EdgeInsets.only(right: 6),
+                            child: Text(
+                              widget.item.price,
+                              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                decoration: TextDecoration.lineThrough,
+                                color: const Color(0xFF9E7E5A),
+                                fontSize: 13,
+                              ),
+                            ),
+                          ),
                         Text(
-                          widget.item.price,
+                          widget.item.discount > 0
+                              ? '\$${((double.tryParse(widget.item.price.replaceAll('\$', '')) ?? 0.0) * (1 - widget.item.discount / 100)).toStringAsFixed(2)}'
+                              : widget.item.price,
                           style: Theme.of(context).textTheme.bodyLarge
                               ?.copyWith(
                                 color: const Color(0xFF8C6500),
@@ -148,22 +182,54 @@ class _GiftCardState extends State<GiftCard> {
                       width: double.infinity,
                       child: FilledButton(
                         onPressed: () {
-                          context.read<CartService>().addItem(widget.item);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Added item to cart')),
-                          );
+                          if (widget.item.stock <= 0) {
+                            showDialog(
+                              context: context,
+                              builder: (ctx) => AlertDialog(
+                                title: const Text('Out of Stock'),
+                                content: const Text('This product is currently out of stock and cannot be added to the cart.'),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.of(ctx).pop(),
+                                    child: const Text('OK'),
+                                  ),
+                                ],
+                              ),
+                            );
+                            return;
+                          }
+                          final error = context.read<CartService>().addItem(widget.item);
+                          if (error != null) {
+                            showDialog(
+                              context: context,
+                              builder: (ctx) => AlertDialog(
+                                title: const Text('Stock Limit Reached'),
+                                content: Text(error),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.of(ctx).pop(),
+                                    child: const Text('OK'),
+                                  ),
+                                ],
+                              ),
+                            );
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Added item to cart')),
+                            );
+                          }
                         },
                         style: FilledButton.styleFrom(
-                          backgroundColor: const Color(0xFFD8AE73),
-                          foregroundColor: const Color(0xFF4A321B),
+                          backgroundColor: widget.item.stock <= 0 ? Colors.grey.shade400 : const Color(0xFFD8AE73),
+                          foregroundColor: widget.item.stock <= 0 ? Colors.white : const Color(0xFF4A321B),
                           padding: const EdgeInsets.symmetric(vertical: 13),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
-                        child: const Text(
-                          'Quick Add to Cart',
-                          style: TextStyle(fontWeight: FontWeight.w700),
+                        child: Text(
+                          widget.item.stock <= 0 ? 'Out of Stock' : 'Quick Add to Cart',
+                          style: const TextStyle(fontWeight: FontWeight.w700),
                         ),
                       ),
                     ),
