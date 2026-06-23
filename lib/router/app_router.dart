@@ -28,6 +28,7 @@ import '../features/pages/product_review_page.dart';
 import '../features/pages/booking_flow.dart';
 import '../features/pages/about_us.dart';
 import '../features/category/category_page.dart';
+import '../features/pages/continue_shopping.dart';
 
 class AppRoutes {
   static const root = '/';
@@ -58,6 +59,7 @@ class AppRoutes {
   static const aboutUs = '/about-us';
   static const checkoutDetails = '/checkout-details';
   static const category = '/category';
+  static const continueShopping = '/continue-shopping';
 
   static String? get collectionsPage => null;
 }
@@ -269,6 +271,16 @@ class AppRouter {
       case AppRoutes.aboutUs:
         return MaterialPageRoute(
           builder: (_) => const AboutUsPage(),
+          settings: settings,
+        );
+      case AppRoutes.continueShopping:
+        return MaterialPageRoute(
+          builder: (_) => const ContinueShoppingPage(),
+          settings: settings,
+        );
+      case '/':
+        return MaterialPageRoute(
+          builder: (_) => const GiftShopShell(),
           settings: settings,
         );
       default:

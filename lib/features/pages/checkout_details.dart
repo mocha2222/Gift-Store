@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gift_shop/router/app_router.dart';
 
 class CheckoutDetailsPage extends StatelessWidget {
   final String orderId;
@@ -210,8 +211,7 @@ class CheckoutDetailsPage extends StatelessWidget {
                 ),
               ),
               onPressed: () {
-                // Navigate back to the home screen or catalog
-                Navigator.of(context).popUntil((route) => route.isFirst);
+                Navigator.of(context).pushNamed(AppRoutes.continueShopping);
               },
               child: const Text(
                 'Continue Shopping',
