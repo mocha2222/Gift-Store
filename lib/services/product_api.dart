@@ -403,6 +403,32 @@ class ProductApi {
     return jsonDecode(res.body) as Map<String, dynamic>;
   }
 
+  /// Fetch the total review count across all products for an artisan.
+  static Future<int> getArtisanReviewCount(String artisanId) async {
+    try {
+      final products = await getArtisanProducts(artisanId);
+      int totalReviews = 0;
+      for (final product in products) {
+        try {
+          final uri = Uri.parse('$_base/reviews/product/${product.id}');
+          final res = await http.get(
+            uri,
+            headers: {'Content-Type': 'application/json'},
+          );
+          if (res.statusCode == 200) {
+            final List<dynamic> reviews = jsonDecode(res.body);
+            totalReviews += reviews.length;
+          }
+        } catch (_) {
+          // Skip products whose reviews fail to load
+        }
+      }
+      return totalReviews;
+    } catch (_) {
+      return 0;
+    }
+  }
+
   /// Fetch orders for a specific customer.
   static Future<List<Map<String, dynamic>>> getCustomerOrders(String userId) async {
     final prefs = await SharedPreferences.getInstance();

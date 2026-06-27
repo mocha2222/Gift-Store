@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../router/app_router.dart';
 import '../../services/auth_api.dart';
+import '../../services/cart_service.dart';
+import '../favorites/widgets/favorite_notifier.dart';
 import 'widgets/auth_text_field.dart';
 import 'widgets/auth_error_banner.dart';
 import 'widgets/auth_submit_button.dart';
@@ -28,6 +31,10 @@ class _LoginPageState extends State<LoginPage> {
       final resp = await AuthApi.login(_emailCtrl.text.trim().toLowerCase(), _passwordCtrl.text);
       final role = (resp['user']?['role'] ?? 'customer').toString().toLowerCase();
       if (!mounted) return;
+      if (role == 'customer') {
+        Provider.of<CartService>(context, listen: false).loadFromBackend();
+        Provider.of<FavoriteNotifier>(context, listen: false).loadFromBackend();
+      }
       if (role == 'admin') {
         Navigator.of(context).pushReplacementNamed(AppRoutes.admin);
         return;

@@ -5,6 +5,7 @@ import '../../data/home_mock_data.dart';
 import '../../widgets/app_drawer.dart';
 import '../../widgets/app_footer_nav.dart';
 import '../../widgets/app_header.dart';
+import '../../widgets/login_required_dialog.dart';
 import '../../services/product_api.dart';
 import '../../services/cart_service.dart';
 import '../favorites/widgets/favorite_notifier.dart';
@@ -87,7 +88,12 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                           color: const Color(0xFF231408),
                         ),
                         IconButton(
-                          onPressed: () => favorites.toggle(widget.item),
+                          onPressed: () {
+                            final result = favorites.toggle(widget.item);
+                            if (result == 'LOGIN_REQUIRED') {
+                              showLoginRequiredDialog(context, action: 'add to favorites');
+                            }
+                          },
                           icon: Icon(
                             isFavorite
                                 ? Icons.favorite_rounded
@@ -251,14 +257,23 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                               ? () => setState(() => _quantity--)
                               : () {},
                           onIncrement: () => setState(() => _quantity++),
-                          onToggleFavorite: () =>
-                              favorites.toggle(widget.item),
+                          onToggleFavorite: () {
+                            final result = favorites.toggle(widget.item);
+                            if (result == 'LOGIN_REQUIRED') {
+                              showLoginRequiredDialog(context, action: 'add to favorites');
+                            }
+                          },
                           onAddToFavorites: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Added to favorites'),
-                              ),
-                            );
+                            final result = favorites.toggle(widget.item);
+                            if (result == 'LOGIN_REQUIRED') {
+                              showLoginRequiredDialog(context, action: 'add to favorites');
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Added to favorites'),
+                                ),
+                              );
+                            }
                           },
                           onAddToCart: () {
                             if (widget.item.stock <= 0) {
@@ -281,7 +296,9 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                               widget.item,
                               _quantity,
                             );
-                            if (error != null) {
+                            if (error == 'LOGIN_REQUIRED') {
+                              showLoginRequiredDialog(context, action: 'add items to cart');
+                            } else if (error != null) {
                               showDialog(
                                 context: context,
                                 builder: (ctx) => AlertDialog(

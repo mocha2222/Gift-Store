@@ -116,4 +116,76 @@ class AdminApi {
       throw Exception('Failed to delete product: ${res.body}');
     }
   }
+
+  static Future<List<dynamic>> fetchCollections() async {
+    final headers = await _headers();
+    final res = await http.get(Uri.parse('$baseUrl/collections'), headers: headers);
+    if (res.statusCode == 200) {
+      return jsonDecode(res.body) as List<dynamic>;
+    }
+    throw Exception('Failed to load collections: ${res.body}');
+  }
+
+  static Future<Map<String, dynamic>> fetchCollectionDetails(String id) async {
+    final headers = await _headers();
+    final res = await http.get(Uri.parse('$baseUrl/collections/$id'), headers: headers);
+    if (res.statusCode == 200) {
+      return jsonDecode(res.body) as Map<String, dynamic>;
+    }
+    throw Exception('Failed to load collection details: ${res.body}');
+  }
+
+  static Future<Map<String, dynamic>> createCollection({
+    required String title,
+    String? description,
+    String? coverImage,
+  }) async {
+    final headers = await _headers();
+    final res = await http.post(
+      Uri.parse('$baseUrl/collections'),
+      headers: headers,
+      body: jsonEncode({
+        'title': title,
+        if (description != null) 'description': description,
+        if (coverImage != null) 'cover_image': coverImage,
+      }),
+    );
+    if (res.statusCode == 200 || res.statusCode == 201) {
+      return jsonDecode(res.body) as Map<String, dynamic>;
+    }
+    throw Exception('Failed to create collection: ${res.body}');
+  }
+
+  static Future<void> addProductToCollection(String collectionId, String productId) async {
+    final headers = await _headers();
+    final res = await http.post(
+      Uri.parse('$baseUrl/collections/$collectionId/products/$productId'),
+      headers: headers,
+    );
+    if (res.statusCode != 200 && res.statusCode != 201) {
+      throw Exception('Failed to add product to collection: ${res.body}');
+    }
+  }
+
+  static Future<void> removeProductFromCollection(String collectionId, String productId) async {
+    final headers = await _headers();
+    final res = await http.delete(
+      Uri.parse('$baseUrl/collections/$collectionId/products/$productId'),
+      headers: headers,
+    );
+    if (res.statusCode != 200 && res.statusCode != 204) {
+      throw Exception('Failed to remove product from collection: ${res.body}');
+    }
+  }
+
+  static Future<void> deleteCollection(String id) async {
+    final headers = await _headers();
+    final res = await http.delete(
+      Uri.parse('$baseUrl/collections/$id'),
+      headers: headers,
+    );
+    if (res.statusCode != 200 && res.statusCode != 204) {
+      throw Exception('Failed to delete collection: ${res.body}');
+    }
+  }
 }

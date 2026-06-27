@@ -8,9 +8,12 @@ import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:provider/provider.dart';
 import '../../router/app_router.dart';
 import '../../services/user_api.dart';
 import '../../services/product_api.dart';
+import '../../services/cart_service.dart';
+import '../favorites/widgets/favorite_notifier.dart';
 import '../auth/login_page.dart';
 import 'edit_profile_page.dart';
 import 'following_page.dart';
@@ -233,16 +236,7 @@ class _CustomerProfilePageState extends State<CustomerProfilePage> {
   }
 
   Future<void> _openFavoritesPage() async {
-    await Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => const _EmptyStatePage(
-          title: 'Favorites',
-          message:
-              'Saved items will appear here once the favorites flow is added.',
-          icon: Icons.favorite_border_rounded,
-        ),
-      ),
-    );
+    await Navigator.of(context).pushNamed(AppRoutes.favorites);
   }
 
   Future<void> _openMyAddressPage() async {
@@ -342,6 +336,8 @@ class _CustomerProfilePageState extends State<CustomerProfilePage> {
     await prefs.remove('cart_items');
 
     if (!mounted) return;
+    Provider.of<CartService>(context, listen: false).reset();
+    Provider.of<FavoriteNotifier>(context, listen: false).reset();
     Navigator.of(context).pushAndRemoveUntil(
       MaterialPageRoute(builder: (_) => const LoginPage()),
       (route) => false,
@@ -360,6 +356,8 @@ class _CustomerProfilePageState extends State<CustomerProfilePage> {
     await prefs.remove('followed_artisans');
 
     if (!mounted) return;
+    Provider.of<CartService>(context, listen: false).reset();
+    Provider.of<FavoriteNotifier>(context, listen: false).reset();
     Navigator.of(context).pushAndRemoveUntil(
       MaterialPageRoute(builder: (_) => const LoginPage()),
       (route) => false,
@@ -463,7 +461,7 @@ class _CustomerProfilePageState extends State<CustomerProfilePage> {
               child: ProfileStatsRow(
                 stats: [
                   (label: 'Orders', value: '$_orderCount'),
-                  (label: 'Favorite', value: '0'),
+                  (label: 'Favorite', value: Provider.of<FavoriteNotifier>(context).items.length.toString()),
                   (label: 'Following', value: '$_followingCount'),
                 ],
                 onStatTap: [

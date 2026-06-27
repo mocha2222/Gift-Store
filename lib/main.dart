@@ -22,11 +22,20 @@ void main() async {
     }
   }
 
+  final cartService = CartService();
+  final favoriteNotifier = FavoriteNotifier();
+
+  // If logged in, fetch cart and favorites from backend
+  if (isLoggedIn) {
+    cartService.loadFromBackend();
+    favoriteNotifier.loadFromBackend();
+  }
+
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => CartService()),
-        ChangeNotifierProvider(create: (_) => FavoriteNotifier()),
+        ChangeNotifierProvider.value(value: cartService),
+        ChangeNotifierProvider.value(value: favoriteNotifier),
       ],
       child: GiftShopApp(initialRoute: startRoute),
     ),

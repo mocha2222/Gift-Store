@@ -6,12 +6,16 @@ class ArtisanDashboardHeader extends StatelessWidget {
     required this.name,
     required this.craft,
     required this.productCount,
+    required this.orderCount,
+    required this.reviewCount,
     required this.onLogout,
   });
 
   final String name;
   final String craft;
   final int productCount;
+  final int orderCount;
+  final int reviewCount;
   final VoidCallback onLogout;
 
   @override
@@ -97,15 +101,15 @@ class ArtisanDashboardHeader extends StatelessWidget {
               icon: Icons.inventory_2_outlined,
             ),
             const SizedBox(width: 10),
-            const _StatChip(
+            _StatChip(
               label: 'Orders',
-              value: '—',
+              value: '$orderCount',
               icon: Icons.shopping_bag_outlined,
             ),
             const SizedBox(width: 10),
-            const _StatChip(
+            _StatChip(
               label: 'Reviews',
-              value: '—',
+              value: '$reviewCount',
               icon: Icons.star_outline_rounded,
             ),
           ]),

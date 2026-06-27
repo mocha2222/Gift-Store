@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../router/app_router.dart';
 import 'artisan_management_page.dart';
+import 'collection_management_page.dart';
 import 'dashboard_page.dart';
 import 'order_management_page.dart';
 import 'product_management_page.dart';
@@ -42,6 +43,7 @@ class _AdminShellPageState extends State<AdminShellPage> {
     'Artisan Management',
     'Product Management',
     'Order Management',
+    'Collection Management',
   ];
 
   final List<Widget> _pages = const [
@@ -49,6 +51,7 @@ class _AdminShellPageState extends State<AdminShellPage> {
     ArtisanManagementPage(),
     ProductManagementPage(),
     OrderManagementPage(),
+    CollectionManagementPage(),
   ];
 
   @override
@@ -87,6 +90,11 @@ class _AdminShellPageState extends State<AdminShellPage> {
                   icon: Icon(Icons.receipt_long_outlined),
                   selectedIcon: Icon(Icons.receipt_long_rounded),
                   label: 'Orders',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.folder_open_outlined),
+                  selectedIcon: Icon(Icons.folder_open_rounded),
+                  label: 'Collections',
                 ),
               ],
             ),
@@ -188,6 +196,12 @@ class _AdminRail extends StatelessWidget {
             label: 'Orders',
             selected: currentIndex == 3,
             onTap: () => onChanged(3),
+          ),
+          _RailButton(
+            icon: Icons.folder_open_outlined,
+            label: 'Collections',
+            selected: currentIndex == 4,
+            onTap: () => onChanged(4),
           ),
           const Spacer(),
           Padding(

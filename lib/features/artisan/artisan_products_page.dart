@@ -26,6 +26,8 @@ class _ArtisanProductsPageState extends State<ArtisanProductsPage> {
   List<ArtisanProductModel> _products = [];
   bool _isLoading = true;
   String? _artisanId;
+  int _orderCount = 0;
+  int _reviewCount = 0;
 
   @override
   void initState() {
@@ -100,6 +102,7 @@ class _ArtisanProductsPageState extends State<ArtisanProductsPage> {
     });
     if (artisanId != null && artisanId.isNotEmpty) {
       await _fetchProducts();
+      await _fetchOrderAndReviewCounts();
     } else {
       debugPrint('[ArtisanShellPage] No artisan_id found, showing empty state');
       setState(() => _isLoading = false);
@@ -121,6 +124,24 @@ class _ArtisanProductsPageState extends State<ArtisanProductsPage> {
         ).showSnackBar(SnackBar(content: Text('Error: $e')));
     } finally {
       if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _fetchOrderAndReviewCounts() async {
+    if (_artisanId == null) return;
+    try {
+      final results = await Future.wait([
+        ProductApi.getArtisanOrders(_artisanId!),
+        ProductApi.getArtisanReviewCount(_artisanId!),
+      ]);
+      if (mounted) {
+        setState(() {
+          _orderCount = (results[0] as List).length;
+          _reviewCount = results[1] as int;
+        });
+      }
+    } catch (e) {
+      debugPrint('[ArtisanProductsPage] Error fetching counts: $e');
     }
   }
 
@@ -186,6 +207,8 @@ class _ArtisanProductsPageState extends State<ArtisanProductsPage> {
             name: _artisanName,
             craft: _artisanCraft,
             productCount: _products.length,
+            orderCount: _orderCount,
+            reviewCount: _reviewCount,
             onLogout: _logout,
           ),
           const SizedBox(height: 16),

@@ -23,11 +23,8 @@ class CollectionCard extends StatelessWidget {
           child: Stack(
             fit: StackFit.expand,
             children: [
-              Image.network(
-                item.imageUrl,
+              item.buildImage(
                 fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) =>
-                    Container(color: const Color(0xFFF1E7D5)),
               ),
               Container(
                 decoration: const BoxDecoration(

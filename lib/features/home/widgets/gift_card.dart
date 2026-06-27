@@ -4,6 +4,7 @@ import '../../favorites/widgets/favorite_notifier.dart';
 import '../../../data/home_mock_data.dart';
 import '../../../router/app_router.dart';
 import '../../../services/cart_service.dart';
+import '../../../widgets/login_required_dialog.dart';
 
 class GiftCard extends StatefulWidget {
   const GiftCard({super.key, required this.item});
@@ -86,7 +87,12 @@ class _GiftCardState extends State<GiftCard> {
                     top: 12,
                     right: 12,
                     child: GestureDetector(
-                      onTap: () => favorites.toggle(widget.item),
+                      onTap: () {
+                        final result = favorites.toggle(widget.item);
+                        if (result == 'LOGIN_REQUIRED') {
+                          showLoginRequiredDialog(context, action: 'add to favorites');
+                        }
+                      },
                       child: Container(
                         width: 38,
                         height: 38,
@@ -199,7 +205,9 @@ class _GiftCardState extends State<GiftCard> {
                             return;
                           }
                           final error = context.read<CartService>().addItem(widget.item);
-                          if (error != null) {
+                          if (error == 'LOGIN_REQUIRED') {
+                            showLoginRequiredDialog(context, action: 'add items to cart');
+                          } else if (error != null) {
                             showDialog(
                               context: context,
                               builder: (ctx) => AlertDialog(

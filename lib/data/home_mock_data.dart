@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 
 class DisciplineItem {
@@ -170,6 +171,37 @@ class CollectionItem {
       itemCount: '',
       imageUrl: json['cover_image']?.toString() ?? '',
     );
+  }
+
+  Widget buildImage({BoxFit fit = BoxFit.cover, double? width, double? height}) {
+    if (imageUrl.isEmpty) {
+      return Container(color: const Color(0xFFF1E7D5), child: const Icon(Icons.image, color: Color(0xFF8C6500)));
+    }
+    if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+      return Image.network(
+        imageUrl,
+        fit: fit,
+        width: width,
+        height: height,
+        errorBuilder: (_, __, ___) => Container(color: const Color(0xFFF1E7D5), child: const Icon(Icons.image, color: Color(0xFF8C6500))),
+      );
+    }
+    try {
+      String cleanBase64 = imageUrl;
+      if (imageUrl.contains(',')) {
+        cleanBase64 = imageUrl.split(',')[1];
+      }
+      final bytes = base64Decode(cleanBase64);
+      return Image.memory(
+        bytes,
+        fit: fit,
+        width: width,
+        height: height,
+        errorBuilder: (_, __, ___) => Container(color: const Color(0xFFF1E7D5), child: const Icon(Icons.image, color: Color(0xFF8C6500))),
+      );
+    } catch (_) {
+      return Container(color: const Color(0xFFF1E7D5), child: const Icon(Icons.image, color: Color(0xFF8C6500)));
+    }
   }
 }
 
